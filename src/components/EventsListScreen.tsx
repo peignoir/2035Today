@@ -67,12 +67,9 @@ export function EventsListScreen() {
       presentations: [],
     };
     await saveEvent(slug, newEvent);
-    // Auto-generate logo in background
+    // Auto-generate logo in background (just upload file — auto-discover handles the rest)
     generateLogo(name.trim(), '').then(async (blob) => {
-      try {
-        const logoUrl = await uploadLogo(slug, blob, 'png');
-        await saveEvent(slug, { ...newEvent, logo: logoUrl });
-      } catch { /* ignore */ }
+      try { await uploadLogo(slug, blob, 'png'); } catch { /* ignore */ }
     });
     navigate(`/admin/events/${slug}`);
   }, [navigate]);

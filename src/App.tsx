@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AdminGuard } from './components/AdminGuard';
 import { EventsListScreen } from './components/EventsListScreen';
 import { EventSetupScreen } from './components/EventSetupScreen';
@@ -19,6 +19,14 @@ function NotFound() {
   );
 }
 
+/** Route dispatcher: React Router v6 only allows * at end of path,
+ *  so we use a single events/* route and check for /run suffix. */
+function EventRouter() {
+  const { '*': slugParam } = useParams();
+  if (slugParam?.endsWith('/run')) return <EventRunScreen />;
+  return <EventSetupScreen />;
+}
+
 function App() {
   return (
     <HashRouter>
@@ -29,8 +37,7 @@ function App() {
         {/* Admin routes (password-gated) */}
         <Route path="/admin" element={<AdminGuard />}>
           <Route index element={<EventsListScreen />} />
-          <Route path="events/*/run" element={<EventRunScreen />} />
-          <Route path="events/*" element={<EventSetupScreen />} />
+          <Route path="events/*" element={<EventRouter />} />
         </Route>
 
         {/* Default: redirect root to admin */}

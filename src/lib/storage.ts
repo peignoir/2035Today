@@ -48,6 +48,16 @@ export async function listEvents(): Promise<{ slug: string; event: ShareableEven
         if (dlErr || !blob) continue;
         const event = JSON.parse(await blob.text()) as ShareableEvent;
         const slug = path.replace(/\.json$/, '');
+        const date = file.name.replace(/\.json$/, '');
+
+        // Auto-discover logo from bucket (source of truth)
+        if (!event.logo) {
+          const logoFile = files.find((f) => f.name.match(new RegExp(`^${date}-logo\\.`)));
+          if (logoFile) {
+            event.logo = publicUrl(`${folder.name}/${logoFile.name}`);
+          }
+        }
+
         results.push({ slug, event });
       } catch { /* skip broken files */ }
     }

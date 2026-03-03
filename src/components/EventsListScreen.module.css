@@ -151,8 +151,7 @@
   padding: 8px 16px 14px;
 }
 
-.publicPageButton {
-  flex: 1;
+.copyLinkButton {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -169,10 +168,31 @@
   transition: all var(--transition-fast);
 }
 
-.publicPageButton:hover {
+.copyLinkButton:hover {
   color: var(--color-accent);
   border-color: var(--color-accent);
-  background: rgba(99, 102, 241, 0.08);
+}
+
+.publicPageButton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  background: var(--color-accent);
+  color: #fff;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.publicPageButton:hover {
+  opacity: 0.9;
 }
 
 .runCardButton {

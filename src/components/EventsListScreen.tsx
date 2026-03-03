@@ -65,10 +65,22 @@ export function EventsListScreen() {
     navigate(`/admin/events/${slug}`);
   }, [navigate]);
 
-  const handleOpenPublicPage = useCallback((e: React.MouseEvent, slug: string) => {
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+
+  const handlePublish = useCallback(async (e: React.MouseEvent, slug: string, event: ShareableEvent) => {
     e.stopPropagation();
-    navigate(`/${slug}`);
-  }, [navigate]);
+    await saveEvent(slug, event);
+    window.open(`${window.location.origin}${import.meta.env.BASE_URL}#/${slug}`, '_blank');
+  }, []);
+
+  const handleCopyLink = useCallback((e: React.MouseEvent, slug: string) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}${import.meta.env.BASE_URL}events/${slug}/`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      setCopiedSlug(slug);
+      setTimeout(() => setCopiedSlug(null), 2000);
+    });
+  }, []);
 
   function formatDate(dateStr: string): string {
     if (!dateStr) return '';
@@ -145,16 +157,32 @@ export function EventsListScreen() {
               </div>
               <div className={styles.cardActions}>
                 <button
+                  className={styles.copyLinkButton}
+                  onClick={(e) => handleCopyLink(e, slug)}
+                  title="Copy share link"
+                >
+                  {copiedSlug === slug ? (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  ) : (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                    </svg>
+                  )}
+                  {copiedSlug === slug ? 'Copied!' : 'Share'}
+                </button>
+                <button
                   className={styles.publicPageButton}
-                  onClick={(e) => handleOpenPublicPage(e, slug)}
-                  title="View public page"
+                  onClick={(e) => handlePublish(e, slug, event)}
+                  title="Publish and open"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="2" y1="12" x2="22" y2="12" />
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                    <polyline points="17 1 21 5 17 9" />
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14" />
                   </svg>
-                  View public page
+                  Publish
                 </button>
                 <button
                   className={styles.runCardButton}

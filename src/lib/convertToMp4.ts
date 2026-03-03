@@ -57,3 +57,32 @@ export async function convertWebmToMp4(
 
   return mp4Blob;
 }
+
+/**
+ * Re-mux a fragmented MP4 (from Safari MediaRecorder) into a standard
+ * progressive MP4 with moov at front. This fixes playback on Safari and
+ * many mobile browsers that choke on fMP4 served as progressive download.
+ * Uses stream copy (no re-encode) so it's fast.
+ */
+export async function remuxToProgressiveMp4(mp4Blob: Blob): Promise<Blob> {
+  const ff = await getFFmpeg();
+
+  const inputData = await fetchFile(mp4Blob);
+  await ff.writeFile('input.mp4', inputData);
+
+  await ff.exec([
+    '-i', 'input.mp4',
+    '-c', 'copy',
+    '-movflags', '+faststart',
+    'output.mp4',
+  ]);
+
+  const outputData = await ff.readFile('output.mp4');
+  const buffer = (outputData as Uint8Array).buffer as ArrayBuffer;
+  const result = new Blob([new Uint8Array(buffer)], { type: 'video/mp4' });
+
+  await ff.deleteFile('input.mp4');
+  await ff.deleteFile('output.mp4');
+
+  return result;
+}

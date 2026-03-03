@@ -1,5 +1,6 @@
 import type { ShareableEvent } from '../types';
 import { getRecordingBlob } from './db';
+import { remuxToProgressiveMp4, convertWebmToMp4 } from './convertToMp4';
 
 const TOKEN_KEY = 'github_token';
 
@@ -84,16 +85,25 @@ export async function publishEvent(
   // Publish recordings as separate files
   if (presentationIds) {
     for (let i = 0; i < presentationIds.length; i++) {
-      const blob = await getRecordingBlob(presentationIds[i]);
+      let blob = await getRecordingBlob(presentationIds[i]);
       if (!blob) continue;
-      const ext = blob.type.includes('mp4') ? 'mp4' : 'webm';
-      const recPath = `public/events/${slug}-${i}.${ext}`;
       try {
+        // Convert to standard progressive MP4 for maximum compatibility
+        // Safari's MediaRecorder produces fragmented MP4 (fMP4) which Safari
+        // itself can't play as a progressive download. WebM needs full transcode.
+        if (blob.type.includes('webm')) {
+          console.log(`[Publish] Converting WebM recording ${i} to MP4…`);
+          blob = await convertWebmToMp4(blob);
+        } else if (blob.type.includes('mp4')) {
+          console.log(`[Publish] Re-muxing fMP4 recording ${i} to progressive MP4…`);
+          blob = await remuxToProgressiveMp4(blob);
+        }
+        const recPath = `public/events/${slug}-${i}.mp4`;
         console.log(`[Publish] Uploading recording ${i} (${(blob.size / 1024 / 1024).toFixed(1)}MB ${blob.type})`);
         const recContent = await blobToBase64(blob);
         await pushFile(owner, repo, recPath, recContent, `Publish recording: ${slug} #${i}`, headers);
         // Only set URL after successful push
-        pub.presentations[i].recording = `${import.meta.env.BASE_URL}events/${slug}-${i}.${ext}`;
+        pub.presentations[i].recording = `${import.meta.env.BASE_URL}events/${slug}-${i}.mp4`;
         console.log(`[Publish] Recording ${i} uploaded successfully`);
       } catch (e) {
         console.error('[Publish] Failed to upload recording', i, e);

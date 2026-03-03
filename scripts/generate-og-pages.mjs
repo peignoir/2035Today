@@ -1,12 +1,12 @@
 /**
  * Post-build script: generates per-event HTML pages with OG meta tags.
  *
- * For each event JSON in dist/events/{city}/{date}.json, creates
- * dist/events/{city}/{date}/index.html with event-specific OG tags
- * and a redirect to the SPA hash URL.
+ * Reads event data from two sources:
+ * 1. Supabase Storage (if VITE_SUPABASE_URL is set) — fetches event list
+ * 2. Local dist/events/ directory (legacy fallback)
  *
- * This allows social media crawlers (which don't execute JS) to see
- * event-specific titles, descriptions, and video previews.
+ * For each event, creates dist/events/{city}/{date}/index.html with
+ * event-specific OG tags and a redirect to the SPA hash URL.
  */
 import { readdir, readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
@@ -16,14 +16,91 @@ const BASE_URL = '/2035VC/';
 const ORIGIN = 'https://peignoir.github.io';
 const SITE_URL = `${ORIGIN}${BASE_URL.replace(/\/$/, '')}`;
 
-async function findEventJsonFiles(dir) {
+// Read Supabase URL from .env file if present
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || await readEnvVar('VITE_SUPABASE_URL');
+const EVENTS_BUCKET = 'events';
+
+async function readEnvVar(key) {
+  try {
+    const envPath = join(dirname(new URL(import.meta.url).pathname), '..', '.env');
+    const content = await readFile(envPath, 'utf-8');
+    const match = content.match(new RegExp(`^${key}=(.+)$`, 'm'));
+    return match?.[1]?.trim() || null;
+  } catch { return null; }
+}
+
+/** Fetch event JSONs from Supabase Storage bucket listing */
+async function fetchSupabaseEvents() {
+  if (!SUPABASE_URL || SUPABASE_URL.includes('REPLACE_ME')) return [];
+
+  const events = [];
+  try {
+    // List all files in the bucket (Supabase storage REST API)
+    // We look for .json files
+    const listUrl = `${SUPABASE_URL}/storage/v1/object/list/${EVENTS_BUCKET}`;
+    const resp = await fetch(listUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prefix: '', limit: 1000 }),
+    });
+    if (!resp.ok) return [];
+
+    const files = await resp.json();
+    // Files can be in subfolders (e.g., tallinn/2026-02-27.json)
+    // or at root. We need to handle both via recursive listing.
+    const jsonFiles = await listJsonFiles(files, '');
+
+    for (const path of jsonFiles) {
+      try {
+        const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${EVENTS_BUCKET}/${path}`;
+        const jsonResp = await fetch(publicUrl);
+        if (jsonResp.ok) {
+          const event = await jsonResp.json();
+          const slug = path.replace(/\.json$/, '');
+          events.push({ slug, event });
+        }
+      } catch { /* skip broken files */ }
+    }
+  } catch (e) {
+    console.warn('[OG] Could not fetch from Supabase:', e.message);
+  }
+  return events;
+}
+
+async function listJsonFiles(entries, prefix) {
+  const results = [];
+  for (const entry of entries) {
+    const path = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.id === null && entry.name) {
+      // It's a folder — list its contents
+      try {
+        const listUrl = `${SUPABASE_URL}/storage/v1/object/list/${EVENTS_BUCKET}`;
+        const resp = await fetch(listUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prefix: path, limit: 1000 }),
+        });
+        if (resp.ok) {
+          const subEntries = await resp.json();
+          results.push(...await listJsonFiles(subEntries, path));
+        }
+      } catch { /* skip */ }
+    } else if (entry.name?.endsWith('.json')) {
+      results.push(path);
+    }
+  }
+  return results;
+}
+
+/** Scan local dist/events/ for JSON files (legacy fallback) */
+async function findLocalEventJsonFiles(dir) {
   const files = [];
   try {
     const entries = await readdir(dir, { withFileTypes: true });
     for (const entry of entries) {
       const fullPath = join(dir, entry.name);
       if (entry.isDirectory()) {
-        files.push(...await findEventJsonFiles(fullPath));
+        files.push(...await findLocalEventJsonFiles(fullPath));
       } else if (entry.name.endsWith('.json') && !entry.name.includes('-logo.')) {
         files.push(fullPath);
       }
@@ -53,59 +130,42 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-async function main() {
-  const eventsDir = join(DIST, 'events');
-  const jsonFiles = await findEventJsonFiles(eventsDir);
+function generateOgHtml(slug, event) {
+  const title = escapeHtml(event.name || `Cafe2035 ${event.city || ''}`);
+  const date = formatDate(event.date);
+  const city = event.city || '';
+  const description = escapeHtml(
+    `Stories from the future — ${date} in ${city}. ` +
+    `${event.presentations?.length || 0} speakers, 5 minutes each.`
+  );
 
-  if (jsonFiles.length === 0) {
-    console.log('[OG] No event JSON files found in dist/events/');
-    return;
+  // Recording/logo URLs may be absolute (Supabase) or relative (legacy)
+  const recording = event.presentations?.find(p => p.recording)?.recording;
+  let videoUrl = null;
+  if (recording) {
+    videoUrl = recording.startsWith('http') ? recording : `${ORIGIN}${recording.startsWith('/') ? '' : '/'}${recording}`;
   }
 
-  let generated = 0;
+  let logoUrl = null;
+  if (event.logo && !event.logo.startsWith('data:')) {
+    logoUrl = event.logo.startsWith('http') ? event.logo : `${ORIGIN}${event.logo.startsWith('/') ? '' : '/'}${event.logo}`;
+  }
 
-  for (const jsonPath of jsonFiles) {
-    try {
-      const raw = await readFile(jsonPath, 'utf-8');
-      const event = JSON.parse(raw);
+  const canonicalUrl = `${SITE_URL}/events/${slug}/`;
+  const hashUrl = `${SITE_URL}/#/${slug}`;
 
-      // Derive slug from file path: dist/events/tallinn/2026-02-27.json → tallinn/2026-02-27
-      const relative = jsonPath.slice(eventsDir.length + 1); // tallinn/2026-02-27.json
-      const slug = relative.replace(/\.json$/, '');
-
-      const title = escapeHtml(event.name || `Cafe2035 ${event.city || ''}`);
-      const date = formatDate(event.date);
-      const city = event.city || '';
-      const description = escapeHtml(
-        `Stories from the future — ${date} in ${city}. ` +
-        `${event.presentations?.length || 0} speakers, 5 minutes each.`
-      );
-
-      // Find recording for video card
-      // Recording URLs in JSON already include the base path (e.g. /2035VC/events/...)
-      const recording = event.presentations?.find(p => p.recording)?.recording;
-      const videoUrl = recording ? `${ORIGIN}${recording.startsWith('/') ? '' : '/'}${recording}` : null;
-
-      // Logo URL for og:image (also already includes base path)
-      const logoUrl = event.logo && !event.logo.startsWith('data:')
-        ? `${ORIGIN}${event.logo.startsWith('/') ? '' : '/'}${event.logo}`
-        : null;
-
-      const canonicalUrl = `${SITE_URL}/events/${slug}/`;
-      const hashUrl = `${SITE_URL}/#/${slug}`;
-
-      let videoTags = '';
-      if (videoUrl) {
-        videoTags = `
+  let videoTags = '';
+  if (videoUrl) {
+    videoTags = `
     <meta property="og:video" content="${escapeHtml(videoUrl)}" />
     <meta property="og:video:type" content="video/mp4" />
     <meta name="twitter:card" content="player" />
     <meta name="twitter:player" content="${escapeHtml(videoUrl)}" />
     <meta name="twitter:player:width" content="1280" />
     <meta name="twitter:player:height" content="720" />`;
-      }
+  }
 
-      const html = `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -125,12 +185,45 @@ async function main() {
 </body>
 </html>
 `;
+}
 
+async function main() {
+  const eventsDir = join(DIST, 'events');
+  let generated = 0;
+
+  // Source 1: Supabase Storage
+  const supabaseEvents = await fetchSupabaseEvents();
+  for (const { slug, event } of supabaseEvents) {
+    try {
+      const html = generateOgHtml(slug, event);
       const outDir = join(eventsDir, slug);
       await mkdir(outDir, { recursive: true });
       await writeFile(join(outDir, 'index.html'), html, 'utf-8');
       generated++;
-      console.log(`[OG] Generated ${slug}/index.html`);
+      console.log(`[OG] Generated ${slug}/index.html (from Supabase)`);
+    } catch (err) {
+      console.error(`[OG] Failed for ${slug}:`, err.message);
+    }
+  }
+
+  // Source 2: Local dist/events/ (legacy, for any JSON still in repo)
+  const localJsonFiles = await findLocalEventJsonFiles(eventsDir);
+  for (const jsonPath of localJsonFiles) {
+    try {
+      const raw = await readFile(jsonPath, 'utf-8');
+      const event = JSON.parse(raw);
+      const relative = jsonPath.slice(eventsDir.length + 1);
+      const slug = relative.replace(/\.json$/, '');
+
+      // Skip if already generated from Supabase
+      if (supabaseEvents.some(e => e.slug === slug)) continue;
+
+      const html = generateOgHtml(slug, event);
+      const outDir = join(eventsDir, slug);
+      await mkdir(outDir, { recursive: true });
+      await writeFile(join(outDir, 'index.html'), html, 'utf-8');
+      generated++;
+      console.log(`[OG] Generated ${slug}/index.html (from local)`);
     } catch (err) {
       console.error(`[OG] Failed to process ${jsonPath}:`, err.message);
     }

@@ -3,6 +3,7 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import type { ShareableEvent } from '../types';
 import { putSharedEvent, getSharedEvent } from '../lib/db';
 import { parseShareUrl } from '../lib/shareUrl';
+import { supabase, EVENTS_BUCKET } from '../lib/supabase';
 import { EventLandingScreen } from './EventLandingScreen';
 import styles from '../App.module.css';
 
@@ -72,9 +73,10 @@ export function EventLandingPage() {
     // Normal load: fetch static JSON first, fall back to IndexedDB cache
     let cancelled = false;
     (async () => {
-      // Try fetching published static JSON (canonical source of truth)
+      // Try fetching published JSON from Supabase Storage (canonical source)
       try {
-        const resp = await fetch(`${import.meta.env.BASE_URL}events/${slug}.json`);
+        const { data: { publicUrl } } = supabase.storage.from(EVENTS_BUCKET).getPublicUrl(`${slug}.json`);
+        const resp = await fetch(publicUrl);
         if (resp.ok && !cancelled) {
           const fetched = await resp.json() as ShareableEvent;
           putSharedEvent(slug, fetched).catch(() => {});

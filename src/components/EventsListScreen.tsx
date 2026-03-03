@@ -37,8 +37,12 @@ export function EventsListScreen() {
     if (!window.confirm(`Delete "${name || 'Untitled Gathering'}"? This will remove all talks and data.`)) {
       return;
     }
-    await deleteEvent(slug);
-    loadEvents();
+    try {
+      await deleteEvent(slug);
+      loadEvents();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Delete failed');
+    }
   }, [loadEvents]);
 
   const handleRun = useCallback((e: React.MouseEvent, slug: string) => {

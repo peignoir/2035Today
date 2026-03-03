@@ -111,7 +111,7 @@ export async function deleteEvent(slug: string): Promise<void> {
   const { data: files, error: listErr } = await supabase.storage
     .from(EVENTS_BUCKET)
     .list(city, { limit: 200 });
-  if (listErr) { console.error('[Storage] Delete list error:', listErr); return; }
+  if (listErr) { console.error('[Storage] Delete list error:', listErr); throw listErr; }
   if (!files) return;
 
   const toDelete = files
@@ -120,16 +120,13 @@ export async function deleteEvent(slug: string): Promise<void> {
 
   if (toDelete.length > 0) {
     console.log('[Storage] Deleting files:', toDelete);
-    const { error: rmErr } = await supabase.storage.from(EVENTS_BUCKET).remove(toDelete);
-    if (rmErr) console.error('[Storage] Delete error:', rmErr);
-  }
+    const { data: deleted, error: rmErr } = await supabase.storage.from(EVENTS_BUCKET).remove(toDelete);
+    if (rmErr) { console.error('[Storage] Delete error:', rmErr); throw rmErr; }
 
-  // Also try to remove the city folder if empty
-  const { data: remaining } = await supabase.storage
-    .from(EVENTS_BUCKET)
-    .list(city, { limit: 1 });
-  if (remaining && remaining.length === 0) {
-    await supabase.storage.from(EVENTS_BUCKET).remove([city]);
+    // Verify deletion actually worked (RLS may silently block it)
+    if (!deleted || deleted.length === 0) {
+      throw new Error('Delete blocked — add a DELETE policy to your Supabase Storage bucket (Storage → Policies → events → New Policy → DELETE).');
+    }
   }
 }
 

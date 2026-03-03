@@ -42,9 +42,11 @@ export async function listEvents(): Promise<{ slug: string; event: ShareableEven
       if (!file.name.endsWith('.json')) continue;
       const path = `${folder.name}/${file.name}`;
       try {
-        const resp = await fetch(publicUrl(path));
-        if (!resp.ok) continue;
-        const event = (await resp.json()) as ShareableEvent;
+        const { data: blob, error: dlErr } = await supabase.storage
+          .from(EVENTS_BUCKET)
+          .download(path);
+        if (dlErr || !blob) continue;
+        const event = JSON.parse(await blob.text()) as ShareableEvent;
         const slug = path.replace(/\.json$/, '');
         results.push({ slug, event });
       } catch { /* skip broken files */ }
@@ -106,9 +108,10 @@ export async function deleteEvent(slug: string): Promise<void> {
   if (!city || !date) return;
 
   // List all files in the city folder that start with the date
-  const { data: files } = await supabase.storage
+  const { data: files, error: listErr } = await supabase.storage
     .from(EVENTS_BUCKET)
     .list(city, { limit: 200 });
+  if (listErr) { console.error('[Storage] Delete list error:', listErr); return; }
   if (!files) return;
 
   const toDelete = files
@@ -116,7 +119,17 @@ export async function deleteEvent(slug: string): Promise<void> {
     .map((f) => `${city}/${f.name}`);
 
   if (toDelete.length > 0) {
-    await supabase.storage.from(EVENTS_BUCKET).remove(toDelete);
+    console.log('[Storage] Deleting files:', toDelete);
+    const { error: rmErr } = await supabase.storage.from(EVENTS_BUCKET).remove(toDelete);
+    if (rmErr) console.error('[Storage] Delete error:', rmErr);
+  }
+
+  // Also try to remove the city folder if empty
+  const { data: remaining } = await supabase.storage
+    .from(EVENTS_BUCKET)
+    .list(city, { limit: 1 });
+  if (remaining && remaining.length === 0) {
+    await supabase.storage.from(EVENTS_BUCKET).remove([city]);
   }
 }
 

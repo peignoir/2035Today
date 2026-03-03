@@ -1,5 +1,4 @@
 import { useRef, useState, useCallback } from 'react';
-import fixWebmDuration from 'fix-webm-duration';
 import type { SlideImage } from '../types';
 
 function pickMimeType(): string {
@@ -287,22 +286,9 @@ export function useMediaRecorder(): MediaRecorderHandle {
         return;
       }
 
-      recorder.onstop = async () => {
-        let blob = new Blob(chunksRef.current, { type: mimeRef.current });
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: mimeRef.current });
         chunksRef.current = [];
-
-        // Fix WebM duration metadata so video players show correct duration/seekbar
-        // (MP4 recordings from Safari don't need this)
-        const isWebm = mimeRef.current.startsWith('video/webm');
-        if (isWebm && blob.size > 0 && startTimeRef.current > 0) {
-          const duration = Date.now() - startTimeRef.current;
-          try {
-            blob = await fixWebmDuration(blob, duration, { logger: false });
-          } catch {
-            // Fall back to unfixed blob
-          }
-        }
-
         cleanup();
         resolve(blob.size > 0 ? blob : null);
       };

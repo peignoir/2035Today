@@ -1,31 +1,5 @@
-// Event data model (persisted in IndexedDB)
-export interface IgniteEvent {
-  id: string;
-  name: string;
-  city: string;
-  date: string;
-  link: string;
-  recordEnabled: boolean;
-  createdAt: number;
-}
-
 export type StoryTone = 'optimistic' | 'dystopian';
 
-export interface EventPresentation {
-  id: string;
-  eventId: string;
-  fileName: string;
-  speakerName: string;
-  storyName: string;
-  storyTone: StoryTone;
-  order: number;
-  speakerBio?: string;
-  socialX?: string;
-  socialInstagram?: string;
-  socialLinkedin?: string;
-}
-
-// Shareable event data (encoded in URL, no blobs)
 export interface ShareablePresentation {
   speakerName: string;
   storyName: string;
@@ -34,7 +8,8 @@ export interface ShareablePresentation {
   socialX?: string;
   socialInstagram?: string;
   socialLinkedin?: string;
-  recording?: string;
+  recording?: string;     // CDN URL
+  fileName?: string;      // PDF filename (admin display)
 }
 
 export interface ShareableEvent {
@@ -43,8 +18,8 @@ export interface ShareableEvent {
   date: string;
   link: string;
   presentations: ShareablePresentation[];
-  eventId?: string;
-  logo?: string;
+  logo?: string;              // CDN URL
+  recordEnabled?: boolean;    // admin-only flag
 }
 
 // Presentation runtime types (in-memory only)

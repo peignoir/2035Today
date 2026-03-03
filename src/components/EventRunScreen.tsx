@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import type { IgniteEvent, EventPresentation, LoadedDeck } from '../types';
-import { getEvent, getEventPresentations, getLogoBlob, getPdfBlob, putRecordingBlob, getRecordingBlob, deleteRecordingBlob } from '../lib/db';
+import type { ShareableEvent, LoadedDeck } from '../types';
+import { loadEvent, saveEvent, uploadRecording, deleteRecording } from '../lib/storage';
 import { renderPdfFromBlob } from '../lib/pdfRenderer';
-import { convertWebmToMp4 } from '../lib/convertToMp4';
 import { generateLogo } from '../lib/generateLogo';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { PresentationScreen } from './PresentationScreen';
@@ -12,138 +11,108 @@ import styles from './EventRunScreen.module.css';
 
 type RunState = 'loading' | 'logo-splash' | 'rendering' | 'presenting';
 
+interface UploadState {
+  presIndex: number;
+  blob: Blob;
+  status: 'confirm' | 'uploading' | 'done' | 'error';
+  progress: number;
+  error?: string;
+}
+
 export function EventRunScreen() {
-  const { eventId } = useParams<{ eventId: string }>();
+  const { '*': slugParam } = useParams();
+  const slug = slugParam?.replace(/\/run$/, '') || '';
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const { exitFullscreen } = useFullscreen();
 
   const [runState, setRunState] = useState<RunState>('loading');
-  const [event, setEvent] = useState<IgniteEvent | null>(null);
-  const [presentations, setPresentations] = useState<EventPresentation[]>([]);
-  const [playedIds, setPlayedIds] = useState<Set<string>>(new Set());
-  const [currentPresId, setCurrentPresId] = useState<string | null>(null);
+  const [event, setEvent] = useState<ShareableEvent | null>(null);
+  const [playedIds, setPlayedIds] = useState<Set<number>>(new Set());
+  const [currentPresIndex, setCurrentPresIndex] = useState<number | null>(null);
   const [currentDeck, setCurrentDeck] = useState<LoadedDeck | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [renderProgress, setRenderProgress] = useState(0);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
-  const [recordedIds, setRecordedIds] = useState<Set<string>>(new Set());
-  const [recordingUrls, setRecordingUrls] = useState<Map<string, string>>(new Map());
-  const [recordingTypes, setRecordingTypes] = useState<Map<string, string>>(new Map());
-  const [confirmPresId, setConfirmPresId] = useState<string | null>(null);
-  const [convertingMp4, setConvertingMp4] = useState<string | null>(null);
+  const [confirmPresIndex, setConfirmPresIndex] = useState<number | null>(null);
+  const [uploadState, setUploadState] = useState<UploadState | null>(null);
 
-  // Load event data on mount
+  const pdfFilesRef = useRef<Map<number, File>>(new Map());
+
+  // Load event from Supabase
   useEffect(() => {
-    if (!eventId) return;
+    if (!slug) return;
     let cancelled = false;
     (async () => {
-      const ev = await getEvent(eventId);
-      const pres = await getEventPresentations(eventId);
-      const logoBlob = await getLogoBlob(eventId);
-
+      const ev = await loadEvent(slug);
       if (cancelled) return;
-      setEvent(ev ?? null);
-      setPresentations(pres);
-      if (logoBlob) {
-        setLogoUrl(URL.createObjectURL(logoBlob));
-      } else if (ev) {
+      if (!ev) {
+        navigate(`/admin/events/${slug}`, { replace: true });
+        return;
+      }
+      setEvent(ev);
+
+      if (ev.logo) {
+        setLogoUrl(ev.logo);
+      } else {
         try {
           const generated = await generateLogo(ev.name, ev.city);
           if (!cancelled) setLogoUrl(URL.createObjectURL(generated));
-        } catch {
-          // Fall back to text-only display
-        }
-      }
-
-      // Check which presentations already have recordings + create URLs
-      if (ev?.recordEnabled) {
-        const recIds = new Set<string>();
-        const recUrls = new Map<string, string>();
-        const recTypes = new Map<string, string>();
-        for (const p of pres) {
-          const rec = await getRecordingBlob(p.id);
-          if (rec) {
-            recIds.add(p.id);
-            recUrls.set(p.id, URL.createObjectURL(rec));
-            recTypes.set(p.id, rec.type || 'video/webm');
-          }
-        }
-        if (!cancelled) {
-          setRecordedIds(recIds);
-          setRecordingUrls(recUrls);
-          setRecordingTypes(recTypes);
-        } else {
-          recUrls.forEach((url) => URL.revokeObjectURL(url));
-        }
+        } catch { /* text fallback */ }
       }
 
       setRunState('logo-splash');
     })();
     return () => { cancelled = true; };
-  }, [eventId]);
+  }, [slug, navigate]);
 
-  // No auto-fullscreen — user can toggle via button on bottom bar
-
-  // Cleanup
   useEffect(() => {
     return () => {
-      if (logoUrl) URL.revokeObjectURL(logoUrl);
+      if (logoUrl && logoUrl.startsWith('blob:')) URL.revokeObjectURL(logoUrl);
     };
   }, [logoUrl]);
 
-  // Cleanup recording URLs on unmount
-  useEffect(() => {
-    return () => {
-      recordingUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Actual play logic (called directly or after confirm)
-  const startPlay = useCallback(async (presId: string) => {
-    const pres = presentations.find((p) => p.id === presId);
+  const startPlay = useCallback(async (presIndex: number) => {
+    if (!event) return;
+    const pres = event.presentations[presIndex];
     if (!pres) return;
-    setCurrentPresId(presId);
-    setConfirmPresId(null);
+    setCurrentPresIndex(presIndex);
+    setConfirmPresIndex(null);
     setRunState('rendering');
     setRenderProgress(0);
 
     try {
-      // If recording is enabled, request mic permission NOW (before fullscreen/presenting)
       let micStream: MediaStream | null = null;
-      if (event?.recordEnabled) {
-        // Delete old recording first — new one will replace it
-        if (recordedIds.has(presId)) {
-          await deleteRecordingBlob(presId);
-          setRecordedIds((prev) => {
-            const next = new Set(prev);
-            next.delete(presId);
-            return next;
-          });
-          setRecordingUrls((prev) => {
-            const oldUrl = prev.get(presId);
-            if (oldUrl) URL.revokeObjectURL(oldUrl);
-            const next = new Map(prev);
-            next.delete(presId);
-            return next;
-          });
-          setRecordingTypes((prev) => {
-            const next = new Map(prev);
-            next.delete(presId);
-            return next;
-          });
-        }
+      if (event.recordEnabled) {
         try {
           micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        } catch {
-          // User denied mic — will record video-only
-        }
+        } catch { /* video-only */ }
         setAudioStream(micStream);
       }
 
-      const blob = await getPdfBlob(pres.id);
-      if (!blob) throw new Error('PDF not found');
-      const deck = await renderPdfFromBlob(blob, pres.fileName, (page) => {
+      // Get PDF from memory or ask user to re-upload
+      let pdfBlob: Blob | null = pdfFilesRef.current.get(presIndex) ?? null;
+      if (!pdfBlob) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.pdf';
+        pdfBlob = await new Promise<Blob | null>((resolve) => {
+          input.onchange = () => {
+            const file = input.files?.[0] ?? null;
+            if (file) pdfFilesRef.current.set(presIndex, file);
+            resolve(file);
+          };
+          input.oncancel = () => resolve(null);
+          input.click();
+        });
+      }
+
+      if (!pdfBlob) {
+        setRunState('logo-splash');
+        return;
+      }
+
+      const deck = await renderPdfFromBlob(pdfBlob, pres.fileName || 'slides.pdf', (page) => {
         setRenderProgress(page);
       });
       setCurrentDeck(deck);
@@ -151,131 +120,100 @@ export function EventRunScreen() {
     } catch {
       setRunState('logo-splash');
     }
-  }, [presentations, event?.recordEnabled, recordedIds]);
+  }, [event]);
 
-  // Entry point: check for existing recording before playing
-  const handlePlay = useCallback((presId: string) => {
-    if (event?.recordEnabled && recordedIds.has(presId)) {
-      // Show confirmation dialog
-      setConfirmPresId(presId);
+  const handlePlay = useCallback((presIndex: number) => {
+    if (event?.recordEnabled && event.presentations[presIndex]?.recording) {
+      setConfirmPresIndex(presIndex);
     } else {
-      startPlay(presId);
+      startPlay(presIndex);
     }
-  }, [event?.recordEnabled, recordedIds, startPlay]);
+  }, [event, startPlay]);
 
   const handleRecordingComplete = useCallback(async (blob: Blob) => {
-    if (currentPresId) {
-      await putRecordingBlob(currentPresId, blob);
-      setRecordedIds((prev) => new Set(prev).add(currentPresId));
-      const url = URL.createObjectURL(blob);
-      setRecordingUrls((prev) => {
-        const next = new Map(prev);
-        next.set(currentPresId, url);
-        return next;
-      });
-      setRecordingTypes((prev) => {
-        const next = new Map(prev);
-        next.set(currentPresId, blob.type || 'video/webm');
-        return next;
-      });
-    }
-  }, [currentPresId]);
+    if (currentPresIndex === null) return;
+    setUploadState({
+      presIndex: currentPresIndex,
+      blob,
+      status: 'confirm',
+      progress: 0,
+    });
+  }, [currentPresIndex]);
 
-  const handleDeleteRecording = useCallback(async (presId: string) => {
-    await deleteRecordingBlob(presId);
-    setRecordingUrls((prev) => {
-      const oldUrl = prev.get(presId);
-      if (oldUrl) URL.revokeObjectURL(oldUrl);
-      const next = new Map(prev);
-      next.delete(presId);
-      return next;
-    });
-    setRecordedIds((prev) => {
-      const next = new Set(prev);
-      next.delete(presId);
-      return next;
-    });
-    setRecordingTypes((prev) => {
-      const next = new Map(prev);
-      next.delete(presId);
-      return next;
-    });
+  const handleConfirmUpload = useCallback(async () => {
+    if (!uploadState || !event) return;
+    const { presIndex, blob } = uploadState;
+    setUploadState((prev) => prev ? { ...prev, status: 'uploading', progress: 10 } : null);
+
+    try {
+      const progressTimer = setInterval(() => {
+        setUploadState((prev) => {
+          if (!prev || prev.status !== 'uploading') return prev;
+          return { ...prev, progress: Math.min(prev.progress + 8, 90) };
+        });
+      }, 500);
+
+      const cdnUrl = await uploadRecording(slug, presIndex, blob);
+
+      clearInterval(progressTimer);
+      setUploadState((prev) => prev ? { ...prev, status: 'done', progress: 100 } : null);
+
+      setEvent((prev) => {
+        if (!prev) return prev;
+        const presentations = prev.presentations.map((p, i) =>
+          i === presIndex ? { ...p, recording: cdnUrl } : p,
+        );
+        const updated = { ...prev, presentations };
+        saveEvent(slug, updated).catch(console.error);
+        return updated;
+      });
+
+      setTimeout(() => setUploadState(null), 2000);
+    } catch (e) {
+      setUploadState((prev) => prev ? {
+        ...prev,
+        status: 'error',
+        error: e instanceof Error ? e.message : 'Upload failed',
+      } : null);
+    }
+  }, [uploadState, event, slug]);
+
+  const handleSkipUpload = useCallback(() => {
+    setUploadState(null);
   }, []);
 
-  const handleDownloadRecording = useCallback((presId: string, fileName: string) => {
-    const url = recordingUrls.get(presId);
-    if (!url) return;
-    const type = recordingTypes.get(presId) || 'video/webm';
-    const ext = type.startsWith('video/mp4') ? 'mp4' : 'webm';
-    const base = fileName.replace(/\.[^.]+$/, '');
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${base}-recording.${ext}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }, [recordingUrls, recordingTypes]);
-
-  const handleDownloadMp4 = useCallback(async (presId: string, fileName: string) => {
-    const url = recordingUrls.get(presId);
-    if (!url) return;
-    const type = recordingTypes.get(presId) || 'video/webm';
-    const base = fileName.replace(/\.[^.]+$/, '');
-
-    // Already MP4 — just download directly, no conversion needed
-    if (type.startsWith('video/mp4')) {
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${base}-recording.mp4`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      return;
-    }
-
-    // WebM → MP4 conversion via FFmpeg WASM
-    setConvertingMp4(presId);
-    try {
-      const response = await fetch(url);
-      const webmBlob = await response.blob();
-      const mp4Blob = await convertWebmToMp4(webmBlob);
-      const mp4Url = URL.createObjectURL(mp4Blob);
-      const a = document.createElement('a');
-      a.href = mp4Url;
-      a.download = `${base}-recording.mp4`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(mp4Url);
-    } catch (err) {
-      console.error('MP4 conversion failed:', err);
-    } finally {
-      setConvertingMp4(null);
-    }
-  }, [recordingUrls, recordingTypes]);
+  const handleDeleteRecording = useCallback(async (presIndex: number) => {
+    if (!event) return;
+    try { await deleteRecording(slug, presIndex); } catch { /* ignore */ }
+    setEvent((prev) => {
+      if (!prev) return prev;
+      const presentations = prev.presentations.map((p, i) =>
+        i === presIndex ? { ...p, recording: undefined } : p,
+      );
+      const updated = { ...prev, presentations };
+      saveEvent(slug, updated).catch(console.error);
+      return updated;
+    });
+  }, [event, slug]);
 
   const handlePresentationFinish = useCallback(() => {
-    // Revoke blob URLs from finished deck
     if (currentDeck) {
       currentDeck.slides.forEach((s) => URL.revokeObjectURL(s.objectUrl));
     }
     setCurrentDeck(null);
-
-    // Mark as played
-    if (currentPresId) {
-      setPlayedIds((prev) => new Set(prev).add(currentPresId));
+    if (currentPresIndex !== null) {
+      setPlayedIds((prev) => new Set(prev).add(currentPresIndex));
     }
-    setCurrentPresId(null);
+    setCurrentPresIndex(null);
     setRunState('logo-splash');
-  }, [currentDeck, currentPresId]);
+  }, [currentDeck, currentPresIndex]);
 
-  // Called when user hits Stop during a presentation — go back to picker
   const handleStop = useCallback(() => {
     if (currentDeck) {
       currentDeck.slides.forEach((s) => URL.revokeObjectURL(s.objectUrl));
     }
     setCurrentDeck(null);
-    setCurrentPresId(null);
+    setCurrentPresIndex(null);
     setRunState('logo-splash');
   }, [currentDeck]);
 
@@ -283,10 +221,11 @@ export function EventRunScreen() {
     if (currentDeck) {
       currentDeck.slides.forEach((s) => URL.revokeObjectURL(s.objectUrl));
     }
-    exitFullscreen().then(() => navigate(`/admin/events/${eventId}`));
-  }, [currentDeck, exitFullscreen, navigate, eventId]);
+    exitFullscreen().then(() => navigate(`/admin/events/${slug}`));
+  }, [currentDeck, exitFullscreen, navigate, slug]);
 
   const eventName = event?.name ?? '';
+  const presentations = event?.presentations ?? [];
 
   return (
     <div ref={containerRef} className={styles.container}>
@@ -311,32 +250,21 @@ export function EventRunScreen() {
             presentations={presentations}
             playedIds={playedIds}
             recordEnabled={event?.recordEnabled ?? false}
-            recordingUrls={recordingUrls}
-            recordingTypes={recordingTypes}
             onPlay={handlePlay}
-            convertingMp4={convertingMp4}
             onDeleteRecording={handleDeleteRecording}
-            onDownloadRecording={handleDownloadRecording}
-            onDownloadMp4={handleDownloadMp4}
             onExit={handleExit}
           />
-          {confirmPresId && (
+          {confirmPresIndex !== null && (
             <div className={styles.confirmOverlay}>
               <div className={styles.confirmDialog}>
                 <p className={styles.confirmText}>
                   This talk already has a recording. Starting a new one will <strong>delete the previous recording</strong>.
                 </p>
                 <div className={styles.confirmButtons}>
-                  <button
-                    className={styles.confirmCancel}
-                    onClick={() => setConfirmPresId(null)}
-                  >
+                  <button className={styles.confirmCancel} onClick={() => setConfirmPresIndex(null)}>
                     Cancel
                   </button>
-                  <button
-                    className={styles.confirmProceed}
-                    onClick={() => startPlay(confirmPresId)}
-                  >
+                  <button className={styles.confirmProceed} onClick={() => startPlay(confirmPresIndex)}>
                     Record again
                   </button>
                 </div>
@@ -347,7 +275,7 @@ export function EventRunScreen() {
       )}
 
       {runState === 'presenting' && currentDeck && (() => {
-        const currentPres = presentations.find((p) => p.id === currentPresId);
+        const currentPres = currentPresIndex !== null ? presentations[currentPresIndex] : null;
         return (
           <PresentationScreen
             deck={currentDeck}
@@ -363,6 +291,63 @@ export function EventRunScreen() {
           />
         );
       })()}
+
+      {/* Upload dialog with progress bar */}
+      {uploadState && (
+        <div className={styles.confirmOverlay}>
+          <div className={styles.confirmDialog}>
+            {uploadState.status === 'confirm' && (
+              <>
+                <p className={styles.confirmText}>
+                  Recording captured ({(uploadState.blob.size / 1024 / 1024).toFixed(1)} MB). Upload to cloud?
+                </p>
+                <div className={styles.confirmButtons}>
+                  <button className={styles.confirmCancel} onClick={handleSkipUpload}>
+                    Skip
+                  </button>
+                  <button className={styles.confirmProceed} onClick={handleConfirmUpload}>
+                    Upload now
+                  </button>
+                </div>
+              </>
+            )}
+            {uploadState.status === 'uploading' && (
+              <>
+                <p className={styles.confirmText}>Uploading recording...</p>
+                <div className={styles.renderBar} style={{ marginTop: '12px' }}>
+                  <div
+                    className={styles.renderFill}
+                    style={{ width: `${uploadState.progress}%`, transition: 'width 0.3s ease' }}
+                  />
+                </div>
+                <p style={{ color: '#999', fontSize: '13px', marginTop: '8px' }}>
+                  {uploadState.progress}%
+                </p>
+              </>
+            )}
+            {uploadState.status === 'done' && (
+              <p className={styles.confirmText} style={{ color: '#22c55e' }}>
+                Uploaded successfully!
+              </p>
+            )}
+            {uploadState.status === 'error' && (
+              <>
+                <p className={styles.confirmText} style={{ color: '#ef4444' }}>
+                  Upload failed: {uploadState.error}
+                </p>
+                <div className={styles.confirmButtons}>
+                  <button className={styles.confirmCancel} onClick={handleSkipUpload}>
+                    Dismiss
+                  </button>
+                  <button className={styles.confirmProceed} onClick={handleConfirmUpload}>
+                    Retry
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

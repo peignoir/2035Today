@@ -4,7 +4,6 @@ import { EventsListScreen } from './components/EventsListScreen';
 import { EventSetupScreen } from './components/EventSetupScreen';
 import { EventRunScreen } from './components/EventRunScreen';
 import { EventLandingPage } from './components/EventLandingPage';
-import { LegacyRedirect } from './components/LegacyRedirect';
 import styles from './App.module.css';
 
 function NotFound() {
@@ -27,15 +26,11 @@ function App() {
         {/* Public event landing page */}
         <Route path="/:city/:date" element={<EventLandingPage />} />
 
-        {/* Legacy URL formats — redirect to clean URLs */}
-        <Route path="/live/*" element={<LegacyRedirect />} />
-        <Route path="/event/*" element={<LegacyRedirect />} />
-
         {/* Admin routes (password-gated) */}
         <Route path="/admin" element={<AdminGuard />}>
           <Route index element={<EventsListScreen />} />
-          <Route path="events/:eventId" element={<EventSetupScreen />} />
-          <Route path="events/:eventId/run" element={<EventRunScreen />} />
+          <Route path="events/*/run" element={<EventRunScreen />} />
+          <Route path="events/*" element={<EventSetupScreen />} />
         </Route>
 
         {/* Default: redirect root to admin */}

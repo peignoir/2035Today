@@ -1,117 +1,73 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { IgniteEvent, ShareableEvent } from '../types';
-import { getAllEvents, deleteEvent, getLogoBlob, getEventPresentations, getRecordingBlob } from '../lib/db';
-import { generateLogo } from '../lib/generateLogo';
-import { buildSlug } from '../lib/shareUrl';
-import { publishEvent } from '../lib/publishEvent';
+import type { ShareableEvent } from '../types';
+import { listEvents, saveEvent, deleteEvent } from '../lib/storage';
 import styles from './EventsListScreen.module.css';
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    || 'event';
+}
 
 export function EventsListScreen() {
   const navigate = useNavigate();
-  const [events, setEvents] = useState<IgniteEvent[]>([]);
-  const [logoUrls, setLogoUrls] = useState<Map<string, string>>(new Map());
+  const [events, setEvents] = useState<{ slug: string; event: ShareableEvent }[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadEvents = useCallback(async () => {
     setLoading(true);
-    const allEvents = await getAllEvents();
-    setEvents(allEvents);
-
-    // Load logo thumbnails
-    const urls = new Map<string, string>();
-    for (const event of allEvents) {
-      const blob = await getLogoBlob(event.id);
-      if (blob) {
-        urls.set(event.id, URL.createObjectURL(blob));
-      } else {
-        try {
-          const generated = await generateLogo(event.name, event.city);
-          urls.set(event.id, URL.createObjectURL(generated));
-        } catch {
-          // Fall through to placeholder icon
-        }
-      }
-    }
-    // Revoke old URLs
-    logoUrls.forEach((url) => URL.revokeObjectURL(url));
-    setLogoUrls(urls);
+    const all = await listEvents();
+    all.sort((a, b) => b.event.date.localeCompare(a.event.date));
+    setEvents(all);
     setLoading(false);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     loadEvents();
-    return () => {
-      logoUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loadEvents]);
 
-  const handleDelete = useCallback(async (e: React.MouseEvent, eventId: string, eventName: string) => {
+  const handleDelete = useCallback(async (e: React.MouseEvent, slug: string, name: string) => {
     e.stopPropagation();
-    if (!window.confirm(`Delete "${eventName || 'Untitled Gathering'}"? This will remove all talks and data.`)) {
+    if (!window.confirm(`Delete "${name || 'Untitled Gathering'}"? This will remove all talks and data.`)) {
       return;
     }
-    await deleteEvent(eventId);
-    const url = logoUrls.get(eventId);
-    if (url) URL.revokeObjectURL(url);
+    await deleteEvent(slug);
     loadEvents();
-  }, [logoUrls, loadEvents]);
+  }, [loadEvents]);
 
-  const handleRun = useCallback((e: React.MouseEvent, eventId: string) => {
+  const handleRun = useCallback((e: React.MouseEvent, slug: string) => {
     e.stopPropagation();
-    navigate(`/admin/events/${eventId}/run`);
+    navigate(`/admin/events/${slug}/run`);
   }, [navigate]);
 
-  const handleSelectEvent = useCallback((eventId: string) => {
-    navigate(`/admin/events/${eventId}`);
+  const handleSelectEvent = useCallback((slug: string) => {
+    navigate(`/admin/events/${slug}`);
   }, [navigate]);
 
-  const handleCreateEvent = useCallback(() => {
-    const id = crypto.randomUUID();
-    navigate(`/admin/events/${id}`);
-  }, [navigate]);
-
-  const handleOpenPublicPage = useCallback(async (e: React.MouseEvent, ev: IgniteEvent) => {
-    e.stopPropagation();
-    const pres = await getEventPresentations(ev.id);
-    const shareable: ShareableEvent = {
-      name: ev.name,
-      city: ev.city,
-      date: ev.date,
-      link: ev.link,
-      eventId: ev.id,
-      presentations: pres.map((p) => ({
-        speakerName: p.speakerName,
-        storyName: p.storyName,
-        storyTone: p.storyTone,
-        speakerBio: p.speakerBio,
-        socialX: p.socialX,
-        socialInstagram: p.socialInstagram,
-        socialLinkedin: p.socialLinkedin,
-      })),
+  const handleCreateEvent = useCallback(async () => {
+    const city = prompt('City name (e.g. Tallinn):');
+    if (!city?.trim()) return;
+    const date = new Date().toISOString().split('T')[0];
+    const slug = `${slugify(city)}/${date}`;
+    const newEvent: ShareableEvent = {
+      name: '',
+      city: city.trim(),
+      date,
+      link: '',
+      presentations: [],
     };
-    // Get logo blob and convert to data URL for publishing
-    let logoBlob = await getLogoBlob(ev.id);
-    if (!logoBlob) {
-      try { logoBlob = await generateLogo(ev.name, ev.city); } catch { /* ignore */ }
-    }
-    if (logoBlob) {
-      shareable.logo = await blobToDataUrl(logoBlob);
-    }
-    const slug = buildSlug(shareable.city, shareable.date);
-    publishEvent(slug, shareable, pres.map((p) => p.id)).catch(() => {});
-    // Set local recording object URLs for immediate preview
-    for (let i = 0; i < pres.length; i++) {
-      const recBlob = await getRecordingBlob(pres[i].id);
-      if (recBlob) {
-        shareable.presentations[i].recording = URL.createObjectURL(recBlob);
-      }
-    }
-    const freshLogoUrl = logoBlob ? URL.createObjectURL(logoBlob) : undefined;
-    const citySlug = ev.city.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'event';
-    navigate(`/${citySlug}/${ev.date}`, {
-      state: { previewEvent: shareable, logoUrl: freshLogoUrl },
-    });
+    await saveEvent(slug, newEvent);
+    navigate(`/admin/events/${slug}`);
+  }, [navigate]);
+
+  const handleOpenPublicPage = useCallback((e: React.MouseEvent, slug: string) => {
+    e.stopPropagation();
+    navigate(`/${slug}`);
   }, [navigate]);
 
   function formatDate(dateStr: string): string {
@@ -160,15 +116,15 @@ export function EventsListScreen() {
         </div>
       ) : (
         <div className={styles.grid}>
-          {events.map((event) => (
+          {events.map(({ slug, event }) => (
             <div
-              key={event.id}
+              key={slug}
               className={styles.card}
-              onClick={() => handleSelectEvent(event.id)}
+              onClick={() => handleSelectEvent(slug)}
             >
               <div className={styles.cardLogo}>
-                {logoUrls.has(event.id) ? (
-                  <img src={logoUrls.get(event.id)} alt="" className={styles.logoImage} />
+                {event.logo ? (
+                  <img src={event.logo} alt="" className={styles.logoImage} />
                 ) : (
                   <div className={styles.logoPlaceholder}>
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -190,19 +146,19 @@ export function EventsListScreen() {
               <div className={styles.cardActions}>
                 <button
                   className={styles.publicPageButton}
-                  onClick={(e) => handleOpenPublicPage(e, event)}
-                  title="Publish and open"
+                  onClick={(e) => handleOpenPublicPage(e, slug)}
+                  title="View public page"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10" />
                     <line x1="2" y1="12" x2="22" y2="12" />
                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                   </svg>
-                  Publish and open
+                  View public page
                 </button>
                 <button
                   className={styles.runCardButton}
-                  onClick={(e) => handleRun(e, event.id)}
+                  onClick={(e) => handleRun(e, slug)}
                   title="Go Live"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -213,7 +169,7 @@ export function EventsListScreen() {
               </div>
               <button
                 className={styles.deleteButton}
-                onClick={(e) => handleDelete(e, event.id, event.name)}
+                onClick={(e) => handleDelete(e, slug, event.name)}
                 aria-label="Delete event"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -235,13 +191,4 @@ export function EventsListScreen() {
       )}
     </div>
   );
-}
-
-function blobToDataUrl(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(blob);
-  });
 }

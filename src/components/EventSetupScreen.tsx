@@ -1,133 +1,123 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
-import type { IgniteEvent, EventPresentation, StoryTone, ShareableEvent } from '../types';
-import {
-  getEvent, putEvent,
-  getEventPresentations, putPresentation, deletePresentation, reorderPresentations,
-  getLogoBlob, putLogoBlob, deleteLogoBlob,
-  putPdfBlob,
-  getRecordingBlob, deleteRecordingBlob,
-} from '../lib/db';
+import type { ShareableEvent, ShareablePresentation, StoryTone } from '../types';
+import { loadEvent, saveEvent, uploadLogo, deleteRecording } from '../lib/storage';
 import { loadAndRenderPdf, PdfValidationError } from '../lib/pdfRenderer';
-import { convertWebmToMp4 } from '../lib/convertToMp4';
 import { generateLogo } from '../lib/generateLogo';
-import { buildSlug } from '../lib/shareUrl';
-import { publishEvent } from '../lib/publishEvent';
 import styles from './EventSetupScreen.module.css';
 
 export function EventSetupScreen() {
-  const { eventId } = useParams<{ eventId: string }>();
+  const { '*': slugParam } = useParams();
+  const slug = slugParam || '';
   const navigate = useNavigate();
 
-  const [event, setEvent] = useState<IgniteEvent | null>(null);
-  const [presentations, setPresentations] = useState<EventPresentation[]>([]);
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [event, setEvent] = useState<ShareableEvent | null>(null);
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfProgress, setPdfProgress] = useState(0);
-  const [recordingUrls, setRecordingUrls] = useState<Map<string, string>>(new Map());
-  const [convertingMp4, setConvertingMp4] = useState<string | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // Load event data
+  // Load event data from Supabase
   useEffect(() => {
-    if (!eventId) return;
+    if (!slug) return;
     let cancelled = false;
     (async () => {
-      let ev = await getEvent(eventId);
+      const ev = await loadEvent(slug);
+      if (cancelled) return;
       if (!ev) {
-        ev = {
-          id: eventId,
+        const [city, date] = slug.split('/');
+        const newEvent: ShareableEvent = {
           name: '',
-          city: '',
-          date: new Date().toISOString().split('T')[0],
+          city: city || '',
+          date: date || new Date().toISOString().split('T')[0],
           link: '',
-          recordEnabled: false,
-          createdAt: Date.now(),
+          presentations: [],
         };
-        await putEvent(ev);
+        await saveEvent(slug, newEvent);
+        setEvent(newEvent);
+      } else {
+        setEvent(ev);
       }
-      if (!cancelled) setEvent(ev);
-
-      const pres = await getEventPresentations(eventId);
-      if (!cancelled) setPresentations(pres);
-
-      const logoBlob = await getLogoBlob(eventId);
-      if (!cancelled && logoBlob) {
-        setLogoUrl(URL.createObjectURL(logoBlob));
-      }
-
-      // Load recording blob URLs
-      const recUrls = new Map<string, string>();
-      for (const p of pres) {
-        const recBlob = await getRecordingBlob(p.id);
-        if (cancelled) return;
-        if (recBlob) {
-          recUrls.set(p.id, URL.createObjectURL(recBlob));
-        }
-      }
-      if (!cancelled) setRecordingUrls(recUrls);
     })();
-    return () => {
-      cancelled = true;
-    };
-  }, [eventId]);
+    return () => { cancelled = true; };
+  }, [slug]);
 
-  // Cleanup logo blob URL
-  useEffect(() => {
-    return () => {
-      if (logoUrl) URL.revokeObjectURL(logoUrl);
-    };
-  }, [logoUrl]);
-
-  // Cleanup recording blob URLs
-  useEffect(() => {
-    return () => {
-      recordingUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Auto-save event fields
-  const saveEvent = useCallback((updated: IgniteEvent) => {
+  // Debounced save to Supabase
+  const save = useCallback((updated: ShareableEvent) => {
     clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => putEvent(updated), 500);
-  }, []);
+    saveTimerRef.current = setTimeout(() => {
+      saveEvent(slug, updated).catch(console.error);
+    }, 800);
+  }, [slug]);
+
+  const updateField = useCallback((field: keyof ShareableEvent, value: string | boolean) => {
+    setEvent((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, [field]: value };
+      save(updated);
+      return updated;
+    });
+  }, [save]);
 
   const toggleRecording = useCallback(() => {
     setEvent((prev) => {
       if (!prev) return prev;
       const updated = { ...prev, recordEnabled: !prev.recordEnabled };
-      putEvent(updated);
+      save(updated);
       return updated;
     });
-  }, []);
+  }, [save]);
 
-  const updateField = useCallback((field: keyof IgniteEvent, value: string) => {
+  // Logo upload — immediately to Supabase
+  const onLogoDrop = useCallback(async (files: File[]) => {
+    if (files.length === 0 || !slug || !event) return;
+    const file = files[0];
+    setUploadingLogo(true);
+    try {
+      const ext = file.name.split('.').pop() || 'png';
+      const cdnUrl = await uploadLogo(slug, file, ext);
+      setEvent((prev) => {
+        if (!prev) return prev;
+        const updated = { ...prev, logo: cdnUrl };
+        save(updated);
+        return updated;
+      });
+    } catch (e) {
+      console.error('Logo upload failed:', e);
+    } finally {
+      setUploadingLogo(false);
+    }
+  }, [slug, event, save]);
+
+  const handleRemoveLogo = useCallback(() => {
     setEvent((prev) => {
       if (!prev) return prev;
-      const updated = { ...prev, [field]: value };
-      saveEvent(updated);
+      const updated = { ...prev, logo: undefined };
+      save(updated);
       return updated;
     });
-  }, [saveEvent]);
+  }, [save]);
 
-  // Logo upload
-  const onLogoDrop = useCallback(async (files: File[]) => {
-    if (files.length === 0 || !eventId) return;
-    const file = files[0];
-    await putLogoBlob(eventId, file);
-    if (logoUrl) URL.revokeObjectURL(logoUrl);
-    setLogoUrl(URL.createObjectURL(file));
-  }, [eventId, logoUrl]);
-
-  const handleRemoveLogo = useCallback(async () => {
-    if (!eventId) return;
-    await deleteLogoBlob(eventId);
-    if (logoUrl) URL.revokeObjectURL(logoUrl);
-    setLogoUrl(null);
-  }, [eventId, logoUrl]);
+  const handleGenerateLogo = useCallback(async () => {
+    if (!event || !slug) return;
+    setUploadingLogo(true);
+    try {
+      const blob = await generateLogo(event.name, event.city);
+      const cdnUrl = await uploadLogo(slug, blob, 'png');
+      setEvent((prev) => {
+        if (!prev) return prev;
+        const updated = { ...prev, logo: cdnUrl };
+        save(updated);
+        return updated;
+      });
+    } catch (e) {
+      console.error('Logo generation failed:', e);
+    } finally {
+      setUploadingLogo(false);
+    }
+  }, [event, slug, save]);
 
   const logoDropzone = useDropzone({
     onDrop: onLogoDrop,
@@ -135,33 +125,31 @@ export function EventSetupScreen() {
     multiple: false,
   });
 
-  // PDF upload
+  // PDF upload — validate, add presentation to event
   const onPdfDrop = useCallback(async (files: File[]) => {
-    if (files.length === 0 || !eventId) return;
+    if (files.length === 0 || !event) return;
     const file = files[0];
     setPdfError(null);
     setPdfLoading(true);
     setPdfProgress(0);
 
     try {
-      // Validate by rendering (checks 20 pages)
       const deck = await loadAndRenderPdf(file, (page) => setPdfProgress(page));
-      // Revoke rendered blob URLs — we only needed validation
       deck.slides.forEach((s) => URL.revokeObjectURL(s.objectUrl));
 
-      const presId = crypto.randomUUID();
-      const newPres: EventPresentation = {
-        id: presId,
-        eventId,
+      const newPres: ShareablePresentation = {
         fileName: file.name,
         speakerName: '',
         storyName: '',
         storyTone: 'optimistic',
-        order: presentations.length,
       };
-      await putPresentation(newPres);
-      await putPdfBlob(presId, file);
-      setPresentations((prev) => [...prev, newPres]);
+
+      setEvent((prev) => {
+        if (!prev) return prev;
+        const updated = { ...prev, presentations: [...prev.presentations, newPres] };
+        save(updated);
+        return updated;
+      });
     } catch (err) {
       if (err instanceof PdfValidationError) {
         setPdfError(err.message);
@@ -171,7 +159,7 @@ export function EventSetupScreen() {
     } finally {
       setPdfLoading(false);
     }
-  }, [eventId, presentations.length]);
+  }, [event, save]);
 
   const pdfDropzone = useDropzone({
     onDrop: onPdfDrop,
@@ -181,151 +169,79 @@ export function EventSetupScreen() {
     disabled: pdfLoading,
   });
 
-  // Update presentation fields
-  const updatePresField = useCallback((presId: string, field: 'speakerName' | 'storyName' | 'storyTone' | 'speakerBio' | 'socialX' | 'socialInstagram' | 'socialLinkedin', value: string) => {
-    setPresentations((prev) => {
-      const updated = prev.map((p) =>
-        p.id === presId ? { ...p, [field]: value } : p,
+  const updatePresField = useCallback((index: number, field: keyof ShareablePresentation, value: string) => {
+    setEvent((prev) => {
+      if (!prev) return prev;
+      const presentations = prev.presentations.map((p, i) =>
+        i === index ? { ...p, [field]: value } : p,
       );
-      const pres = updated.find((p) => p.id === presId);
-      if (pres) {
-        clearTimeout(saveTimerRef.current);
-        saveTimerRef.current = setTimeout(() => putPresentation(pres), 500);
-      }
+      const updated = { ...prev, presentations };
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(() => {
+        saveEvent(slug, updated).catch(console.error);
+      }, 800);
       return updated;
     });
-  }, []);
+  }, [slug]);
 
-  // Download recording
-  const handleDownloadRecording = useCallback((presId: string, fileName: string) => {
-    const url = recordingUrls.get(presId);
-    if (!url) return;
-    const a = document.createElement('a');
-    a.href = url;
-    const baseName = fileName.replace(/\.pdf$/i, '');
-    a.download = `${baseName}-recording.webm`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }, [recordingUrls]);
+  const handleDeleteRecording = useCallback(async (index: number) => {
+    if (!event) return;
+    try { await deleteRecording(slug, index); } catch { /* ignore */ }
+    setEvent((prev) => {
+      if (!prev) return prev;
+      const presentations = prev.presentations.map((p, i) =>
+        i === index ? { ...p, recording: undefined } : p,
+      );
+      const updated = { ...prev, presentations };
+      save(updated);
+      return updated;
+    });
+  }, [event, slug, save]);
 
-  // Download recording as MP4
-  const handleDownloadMp4 = useCallback(async (presId: string, fileName: string) => {
-    const url = recordingUrls.get(presId);
-    if (!url) return;
-    setConvertingMp4(presId);
-    try {
-      const response = await fetch(url);
-      const webmBlob = await response.blob();
-      const mp4Blob = await convertWebmToMp4(webmBlob);
-      const baseName = fileName.replace(/\.pdf$/i, '');
-      const mp4Url = URL.createObjectURL(mp4Blob);
-      const a = document.createElement('a');
-      a.href = mp4Url;
-      a.download = `${baseName}-recording.mp4`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(mp4Url);
-    } catch (err) {
-      console.error('MP4 conversion failed:', err);
-      alert('MP4 conversion failed. Try downloading WebM instead.');
-    } finally {
-      setConvertingMp4(null);
-    }
-  }, [recordingUrls]);
-
-  // Fullscreen playback
-  const handleFullscreenPlay = useCallback((presId: string) => {
-    const video = document.querySelector(`[data-rec-id="${presId}"]`) as HTMLVideoElement | null;
+  const handleFullscreenPlay = useCallback((index: number) => {
+    const video = document.querySelector(`[data-rec-idx="${index}"]`) as HTMLVideoElement | null;
     if (video) {
       video.requestFullscreen?.();
       video.play();
     }
   }, []);
 
-  // Delete recording
-  const handleDeleteRecording = useCallback(async (presId: string) => {
-    await deleteRecordingBlob(presId);
-    setRecordingUrls((prev) => {
-      const oldUrl = prev.get(presId);
-      if (oldUrl) URL.revokeObjectURL(oldUrl);
-      const next = new Map(prev);
-      next.delete(presId);
-      return next;
+  const handleDeletePres = useCallback(async (index: number) => {
+    if (!event) return;
+    if (event.presentations[index]?.recording) {
+      try { await deleteRecording(slug, index); } catch { /* ignore */ }
+    }
+    setEvent((prev) => {
+      if (!prev) return prev;
+      const presentations = prev.presentations.filter((_, i) => i !== index);
+      const updated = { ...prev, presentations };
+      save(updated);
+      return updated;
     });
-  }, []);
+  }, [event, slug, save]);
 
-  // Delete presentation
-  const handleDeletePres = useCallback(async (presId: string) => {
-    const recUrl = recordingUrls.get(presId);
-    if (recUrl) URL.revokeObjectURL(recUrl);
-    setRecordingUrls((prev) => {
-      const next = new Map(prev);
-      next.delete(presId);
-      return next;
-    });
-    await deletePresentation(presId);
-    setPresentations((prev) => prev.filter((p) => p.id !== presId));
-  }, [recordingUrls]);
-
-  // Reorder
-  const handleMove = useCallback(async (index: number, direction: -1 | 1) => {
-    if (!eventId) return;
+  const handleMove = useCallback((index: number, direction: -1 | 1) => {
     const newIndex = index + direction;
-    if (newIndex < 0 || newIndex >= presentations.length) return;
-    const newList = [...presentations];
-    [newList[index], newList[newIndex]] = [newList[newIndex], newList[index]];
-    const orderedIds = newList.map((p) => p.id);
-    setPresentations(newList);
-    await reorderPresentations(eventId, orderedIds);
-  }, [presentations, eventId]);
-
-  const handleOpenPublicPage = useCallback(async () => {
-    if (!event || !eventId) return;
-    const shareable: ShareableEvent = {
-      name: event.name,
-      city: event.city,
-      date: event.date,
-      link: event.link,
-      eventId: event.id,
-      presentations: presentations.map((p) => ({
-        speakerName: p.speakerName,
-        storyName: p.storyName,
-        storyTone: p.storyTone,
-        speakerBio: p.speakerBio,
-        socialX: p.socialX,
-        socialInstagram: p.socialInstagram,
-        socialLinkedin: p.socialLinkedin,
-      })),
-    };
-    // Get logo blob and convert to data URL for publishing
-    let logoBlob = await getLogoBlob(eventId);
-    if (!logoBlob && event) {
-      try { logoBlob = await generateLogo(event.name, event.city); } catch { /* ignore */ }
-    }
-    if (logoBlob) {
-      shareable.logo = await blobToDataUrl(logoBlob);
-    }
-    const slug = buildSlug(shareable.city, shareable.date);
-    publishEvent(slug, shareable, presentations.map((p) => p.id)).catch(() => {});
-    // Set local recording object URLs for immediate preview
-    for (let i = 0; i < presentations.length; i++) {
-      const recBlob = await getRecordingBlob(presentations[i].id);
-      if (recBlob) {
-        shareable.presentations[i].recording = URL.createObjectURL(recBlob);
-      }
-    }
-    const freshLogoUrl = logoBlob ? URL.createObjectURL(logoBlob) : undefined;
-    // Navigate to the public landing page with preview data in state
-    navigate(`/${shareable.city.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'event'}/${shareable.date}`, {
-      state: { previewEvent: shareable, logoUrl: freshLogoUrl },
+    setEvent((prev) => {
+      if (!prev) return prev;
+      if (newIndex < 0 || newIndex >= prev.presentations.length) return prev;
+      const presentations = [...prev.presentations];
+      [presentations[index], presentations[newIndex]] = [presentations[newIndex], presentations[index]];
+      const updated = { ...prev, presentations };
+      save(updated);
+      return updated;
     });
-  }, [event, presentations, eventId, navigate]);
+  }, [save]);
+
+  const handleOpenPublicPage = useCallback(() => {
+    navigate(`/${slug}`);
+  }, [navigate, slug]);
 
   const handleBack = useCallback(() => {
+    clearTimeout(saveTimerRef.current);
+    if (event) saveEvent(slug, event).catch(console.error);
     navigate('/admin');
-  }, [navigate]);
+  }, [navigate, slug, event]);
 
   if (!event) {
     return <div className={styles.container}><div className={styles.loading}>Loading...</div></div>;
@@ -346,7 +262,7 @@ export function EventSetupScreen() {
             <line x1="2" y1="12" x2="22" y2="12" />
             <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
           </svg>
-          Publish and open
+          View public page
         </button>
       </header>
 
@@ -402,7 +318,7 @@ export function EventSetupScreen() {
               className={`${styles.toggle} ${event.recordEnabled ? styles.toggleOn : ''}`}
               onClick={toggleRecording}
               type="button"
-              aria-pressed={event.recordEnabled}
+              aria-pressed={event.recordEnabled ?? false}
             >
               <span className={styles.toggleThumb} />
             </button>
@@ -415,20 +331,33 @@ export function EventSetupScreen() {
         {/* Logo */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Event Logo</h2>
-          {logoUrl ? (
+          {uploadingLogo ? (
             <div className={styles.logoPreview}>
-              <img src={logoUrl} alt="Event logo" className={styles.logoImage} />
+              <p style={{ color: '#999' }}>Uploading...</p>
+            </div>
+          ) : event.logo ? (
+            <div className={styles.logoPreview}>
+              <img src={event.logo} alt="Event logo" className={styles.logoImage} />
               <button className={styles.removeLogo} onClick={handleRemoveLogo}>Remove</button>
             </div>
           ) : (
-            <div {...logoDropzone.getRootProps()} className={`${styles.dropzone} ${styles.dropzoneSmall}`}>
-              <input {...logoDropzone.getInputProps()} />
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
-              <span>Drop your event logo, or click to browse</span>
+            <div>
+              <div {...logoDropzone.getRootProps()} className={`${styles.dropzone} ${styles.dropzoneSmall}`}>
+                <input {...logoDropzone.getInputProps()} />
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+                <span>Drop your event logo, or click to browse</span>
+              </div>
+              <button
+                className={styles.removeLogo}
+                onClick={handleGenerateLogo}
+                style={{ marginTop: '8px' }}
+              >
+                Auto-generate logo
+              </button>
             </div>
           )}
         </section>
@@ -437,15 +366,15 @@ export function EventSetupScreen() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>
             Stories
-            {presentations.length > 0 && (
-              <span className={styles.badge}>{presentations.length}</span>
+            {event.presentations.length > 0 && (
+              <span className={styles.badge}>{event.presentations.length}</span>
             )}
           </h2>
 
-          {presentations.length > 0 && (
+          {event.presentations.length > 0 && (
             <div className={styles.presList}>
-              {presentations.map((pres, index) => (
-                <div key={pres.id} className={styles.presItem}>
+              {event.presentations.map((pres, index) => (
+                <div key={index} className={styles.presItem}>
                   <div className={styles.presOrder}>
                     <button
                       className={styles.arrowButton}
@@ -459,7 +388,7 @@ export function EventSetupScreen() {
                     <button
                       className={styles.arrowButton}
                       onClick={() => handleMove(index, 1)}
-                      disabled={index === presentations.length - 1}
+                      disabled={index === event.presentations.length - 1}
                       aria-label="Move down"
                     >
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
@@ -471,7 +400,7 @@ export function EventSetupScreen() {
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                         <polyline points="14 2 14 8 20 8" />
                       </svg>
-                      <span className={styles.presFileName}>{pres.fileName}</span>
+                      <span className={styles.presFileName}>{pres.fileName || 'Story'}</span>
                       <span className={styles.presSlides}>20 slides</span>
                     </div>
                     <div className={styles.presFields}>
@@ -479,14 +408,14 @@ export function EventSetupScreen() {
                         className={`${styles.presInput} ${!pres.speakerName?.trim() ? styles.presInputRequired : ''}`}
                         type="text"
                         value={pres.speakerName ?? ''}
-                        onChange={(e) => updatePresField(pres.id, 'speakerName', e.target.value)}
+                        onChange={(e) => updatePresField(index, 'speakerName', e.target.value)}
                         placeholder="Speaker name *"
                       />
                       <input
                         className={`${styles.presInput} ${!pres.storyName?.trim() ? styles.presInputRequired : ''}`}
                         type="text"
                         value={pres.storyName ?? ''}
-                        onChange={(e) => updatePresField(pres.id, 'storyName', e.target.value)}
+                        onChange={(e) => updatePresField(index, 'storyName', e.target.value)}
                         placeholder="Story name *"
                       />
                     </div>
@@ -499,7 +428,7 @@ export function EventSetupScreen() {
                         <button
                           key={tone}
                           className={`${styles.toneButton} ${((pres.storyTone as string) === 'dystopian' || (pres.storyTone as string) === 'black' ? 'dystopian' : 'optimistic') === tone ? styles.toneActive : ''}`}
-                          onClick={() => updatePresField(pres.id, 'storyTone', tone)}
+                          onClick={() => updatePresField(index, 'storyTone', tone)}
                           title={label}
                           type="button"
                         >
@@ -511,7 +440,7 @@ export function EventSetupScreen() {
                     <textarea
                       className={styles.presTextarea}
                       value={pres.speakerBio ?? ''}
-                      onChange={(e) => updatePresField(pres.id, 'speakerBio', e.target.value)}
+                      onChange={(e) => updatePresField(index, 'speakerBio', e.target.value)}
                       placeholder="Short speaker bio (optional)"
                       rows={2}
                     />
@@ -522,7 +451,7 @@ export function EventSetupScreen() {
                           className={styles.presInput}
                           type="text"
                           value={pres.socialX ?? ''}
-                          onChange={(e) => updatePresField(pres.id, 'socialX', e.target.value)}
+                          onChange={(e) => updatePresField(index, 'socialX', e.target.value)}
                           placeholder="@handle"
                         />
                       </div>
@@ -532,7 +461,7 @@ export function EventSetupScreen() {
                           className={styles.presInput}
                           type="text"
                           value={pres.socialInstagram ?? ''}
-                          onChange={(e) => updatePresField(pres.id, 'socialInstagram', e.target.value)}
+                          onChange={(e) => updatePresField(index, 'socialInstagram', e.target.value)}
                           placeholder="@handle"
                         />
                       </div>
@@ -542,24 +471,24 @@ export function EventSetupScreen() {
                           className={styles.presInput}
                           type="text"
                           value={pres.socialLinkedin ?? ''}
-                          onChange={(e) => updatePresField(pres.id, 'socialLinkedin', e.target.value)}
+                          onChange={(e) => updatePresField(index, 'socialLinkedin', e.target.value)}
                           placeholder="LinkedIn URL"
                         />
                       </div>
                     </div>
-                    {recordingUrls.has(pres.id) && (
+                    {pres.recording && (
                       <div className={styles.recordingPreview}>
                         <video
                           className={styles.recordingVideo}
-                          data-rec-id={pres.id}
-                          src={recordingUrls.get(pres.id)}
+                          data-rec-idx={index}
+                          src={pres.recording}
                           controls
                           preload="metadata"
                         />
                         <div className={styles.recordingActions}>
                           <button
                             className={styles.recordingAction}
-                            onClick={() => handleFullscreenPlay(pres.id)}
+                            onClick={() => handleFullscreenPlay(index)}
                             title="Play fullscreen"
                           >
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -570,34 +499,23 @@ export function EventSetupScreen() {
                             </svg>
                             Fullscreen
                           </button>
-                          <button
+                          <a
                             className={styles.recordingAction}
-                            onClick={() => handleDownloadRecording(pres.id, pres.speakerName || pres.fileName)}
-                            title="Download WebM"
+                            href={pres.recording}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Download"
                           >
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                               <polyline points="7 10 12 15 17 10" />
                               <line x1="12" y1="15" x2="12" y2="3" />
                             </svg>
-                            WebM
-                          </button>
-                          <button
-                            className={styles.recordingAction}
-                            onClick={() => handleDownloadMp4(pres.id, pres.speakerName || pres.fileName)}
-                            disabled={convertingMp4 === pres.id}
-                            title="Download MP4 (converts via FFmpeg)"
-                          >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                              <polyline points="7 10 12 15 17 10" />
-                              <line x1="12" y1="15" x2="12" y2="3" />
-                            </svg>
-                            {convertingMp4 === pres.id ? 'Converting...' : 'MP4'}
-                          </button>
+                            Download
+                          </a>
                           <button
                             className={`${styles.recordingAction} ${styles.recordingActionDanger}`}
-                            onClick={() => handleDeleteRecording(pres.id)}
+                            onClick={() => handleDeleteRecording(index)}
                             title="Delete recording"
                           >
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -614,7 +532,7 @@ export function EventSetupScreen() {
                   </div>
                   <button
                     className={styles.presDelete}
-                    onClick={() => handleDeletePres(pres.id)}
+                    onClick={() => handleDeletePres(index)}
                     aria-label="Delete presentation"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -664,13 +582,4 @@ export function EventSetupScreen() {
       </div>
     </div>
   );
-}
-
-function blobToDataUrl(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(blob);
-  });
 }

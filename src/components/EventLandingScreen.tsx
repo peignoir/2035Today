@@ -1,39 +1,31 @@
 import { useCallback, useState, useEffect } from 'react';
 import type { ShareableEvent } from '../types';
-import { getLogoBlob } from '../lib/db';
 import { generateLogo } from '../lib/generateLogo';
 import styles from './EventLandingScreen.module.css';
 
 interface EventLandingScreenProps {
   event: ShareableEvent;
-  logoUrl?: string | null;
 }
 
-export function EventLandingScreen({ event, logoUrl: externalLogoUrl }: EventLandingScreenProps) {
+export function EventLandingScreen({ event }: EventLandingScreenProps) {
   const shortDate = formatShortDate(event.date);
-  const [resolvedLogoUrl, setResolvedLogoUrl] = useState<string | null>(null);
+  const [generatedLogoUrl, setGeneratedLogoUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (externalLogoUrl || event.logo) return;
+    if (event.logo) return;
     let revoke = '';
     (async () => {
       try {
-        let blob: Blob | null | undefined = null;
-        if (event.eventId) {
-          blob = await getLogoBlob(event.eventId);
-        }
-        if (!blob) {
-          blob = await generateLogo(event.name, event.city);
-        }
+        const blob = await generateLogo(event.name, event.city);
         const url = URL.createObjectURL(blob);
         revoke = url;
-        setResolvedLogoUrl(url);
-      } catch { /* fall through to text fallback */ }
+        setGeneratedLogoUrl(url);
+      } catch { /* text fallback */ }
     })();
     return () => { if (revoke) URL.revokeObjectURL(revoke); };
-  }, [externalLogoUrl, event.logo, event.eventId, event.name, event.city]);
+  }, [event.logo, event.name, event.city]);
 
-  const logoUrl = externalLogoUrl || event.logo || resolvedLogoUrl;
+  const logoUrl = event.logo || generatedLogoUrl;
 
   const scrollToReserve = useCallback(() => {
     if (event.link) {

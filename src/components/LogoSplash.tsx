@@ -1,20 +1,15 @@
 import { useEffect, useCallback } from 'react';
-import type { EventPresentation } from '../types';
+import type { ShareablePresentation } from '../types';
 import styles from './LogoSplash.module.css';
 
 interface LogoSplashProps {
   logoUrl: string | null;
   eventName: string;
-  presentations: EventPresentation[];
-  playedIds: Set<string>;
+  presentations: ShareablePresentation[];
+  playedIds: Set<number>;
   recordEnabled?: boolean;
-  recordingUrls?: Map<string, string>;
-  recordingTypes?: Map<string, string>;
-  convertingMp4?: string | null;
-  onPlay: (presId: string) => void;
-  onDeleteRecording?: (presId: string) => void;
-  onDownloadRecording?: (presId: string, fileName: string) => void;
-  onDownloadMp4?: (presId: string, fileName: string) => void;
+  onPlay: (presIndex: number) => void;
+  onDeleteRecording?: (presIndex: number) => void;
   onExit: () => void;
 }
 
@@ -24,18 +19,12 @@ export function LogoSplash({
   presentations,
   playedIds,
   recordEnabled = false,
-  recordingUrls,
-  recordingTypes,
-  convertingMp4,
   onPlay,
   onDeleteRecording,
-  onDownloadRecording,
-  onDownloadMp4,
   onExit,
 }: LogoSplashProps) {
-  const allPlayed = presentations.length > 0 && presentations.every((p) => playedIds.has(p.id));
+  const allPlayed = presentations.length > 0 && presentations.every((_, i) => playedIds.has(i));
 
-  // Keyboard: Escape = Exit
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.code === 'Escape') {
@@ -47,8 +36,8 @@ export function LogoSplash({
     return () => document.removeEventListener('keydown', handler);
   }, [onExit]);
 
-  const handleFullscreen = useCallback((presId: string) => {
-    const video = document.querySelector(`video[data-rec-id="${presId}"]`) as HTMLVideoElement | null;
+  const handleFullscreen = useCallback((index: number) => {
+    const video = document.querySelector(`video[data-rec-idx="${index}"]`) as HTMLVideoElement | null;
     if (video) {
       video.requestFullscreen();
       video.play();
@@ -70,22 +59,19 @@ export function LogoSplash({
           )}
 
           <div className={styles.presList}>
-            {presentations.map((pres) => {
-              const played = playedIds.has(pres.id);
-              const name = pres.storyName || pres.speakerName || pres.fileName;
+            {presentations.map((pres, index) => {
+              const played = playedIds.has(index);
+              const name = pres.storyName || pres.speakerName || pres.fileName || 'Story';
               const speaker = pres.storyName && pres.speakerName ? pres.speakerName : null;
               const tone = pres.storyTone as string;
-              const toneEmoji = (tone === 'dystopian' || tone === 'black') ? '🌑' : '☀️';
-              const hasRecording = recordingUrls?.has(pres.id) ?? false;
-              const recUrl = recordingUrls?.get(pres.id);
-              const recType = recordingTypes?.get(pres.id) || 'video/webm';
-              const isNativeMp4 = recType.startsWith('video/mp4');
+              const toneEmoji = (tone === 'dystopian' || tone === 'black') ? '\uD83C\uDF11' : '\u2600\uFE0F';
+              const hasRecording = !!pres.recording;
 
               return (
-                <div key={pres.id} className={styles.presWrapper}>
+                <div key={index} className={styles.presWrapper}>
                   <button
                     className={`${styles.presButton} ${played ? styles.presPlayed : ''}`}
-                    onClick={() => onPlay(pres.id)}
+                    onClick={() => onPlay(index)}
                   >
                     <span className={styles.toneEmoji}>{toneEmoji}</span>
                     <span className={`${styles.presIcon} ${hasRecording ? styles.presIconRestart : ''}`}>
@@ -121,12 +107,12 @@ export function LogoSplash({
                     )}
                   </button>
 
-                  {hasRecording && recUrl && (
+                  {hasRecording && pres.recording && (
                     <div className={styles.recStrip}>
                       <video
                         className={styles.recVideo}
-                        src={recUrl}
-                        data-rec-id={pres.id}
+                        src={pres.recording}
+                        data-rec-idx={index}
                         preload="auto"
                         controls
                         playsInline
@@ -134,7 +120,7 @@ export function LogoSplash({
                       <div className={styles.recActions}>
                         <button
                           className={styles.recAction}
-                          onClick={() => handleFullscreen(pres.id)}
+                          onClick={() => handleFullscreen(index)}
                           title="Fullscreen"
                         >
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -145,13 +131,12 @@ export function LogoSplash({
                           </svg>
                           <span>Fullscreen</span>
                         </button>
-                        <button
+                        <a
                           className={styles.recAction}
-                          onClick={() => isNativeMp4
-                            ? onDownloadMp4?.(pres.id, pres.fileName)
-                            : onDownloadRecording?.(pres.id, pres.fileName)
-                          }
-                          title={`Download ${isNativeMp4 ? 'MP4' : 'WebM'}`}
+                          href={pres.recording}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Download"
                         >
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -159,25 +144,10 @@ export function LogoSplash({
                             <line x1="12" y1="15" x2="12" y2="3" />
                           </svg>
                           <span>Download</span>
-                        </button>
-                        {!isNativeMp4 && (
-                          <button
-                            className={styles.recAction}
-                            onClick={() => onDownloadMp4?.(pres.id, pres.fileName)}
-                            title="Convert to MP4"
-                            disabled={convertingMp4 === pres.id}
-                          >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                              <polyline points="7 10 12 15 17 10" />
-                              <line x1="12" y1="15" x2="12" y2="3" />
-                            </svg>
-                            <span>{convertingMp4 === pres.id ? 'Converting...' : 'MP4'}</span>
-                          </button>
-                        )}
+                        </a>
                         <button
                           className={`${styles.recAction} ${styles.recActionDanger}`}
-                          onClick={() => onDeleteRecording?.(pres.id)}
+                          onClick={() => onDeleteRecording?.(index)}
                           title="Delete recording"
                         >
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

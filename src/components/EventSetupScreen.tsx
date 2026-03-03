@@ -251,6 +251,8 @@ export function EventSetupScreen() {
           setUploadRecProgress(pct);
         }, abort.signal);
 
+        setUploadRecProgress(100); // Server confirmed — now show "Done!"
+
         setEvent((prev) => {
           if (!prev) return prev;
           const presentations = prev.presentations.map((p, i) =>
@@ -648,7 +650,7 @@ export function EventSetupScreen() {
                           <div className={styles.uploadRecRow}>
                             <div className={styles.uploadRecBar}>
                               <div className={styles.uploadRecFill} style={{ width: `${uploadRecProgress}%` }} />
-                              <span>{uploadRecProgress < 100 ? `Uploading… ${uploadRecProgress}%` : 'Done!'}</span>
+                              <span>{uploadRecProgress >= 100 ? 'Done!' : uploadRecProgress >= 99 ? 'Finalizing…' : `Uploading… ${uploadRecProgress}%`}</span>
                             </div>
                             {uploadRecProgress < 100 && (
                               <button className={styles.uploadRecCancel} onClick={handleCancelUpload} title="Cancel upload">

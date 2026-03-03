@@ -129,7 +129,8 @@ export async function uploadRecording(
 
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && onProgress) {
-        onProgress(Math.round((e.loaded / e.total) * 100));
+        // Cap at 99% — 100% only after server confirms
+        onProgress(Math.min(99, Math.round((e.loaded / e.total) * 100)));
       }
     };
     xhr.onload = () => {

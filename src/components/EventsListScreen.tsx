@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ShareableEvent } from '../types';
-import { listEvents, deleteEvent, saveEvent } from '../lib/storage';
+import { listEvents, deleteEvent, saveEvent, uploadLogo } from '../lib/storage';
+import { generateLogo } from '../lib/generateLogo';
 import styles from './EventsListScreen.module.css';
 
 function slugify(text: string): string {
@@ -50,18 +51,25 @@ export function EventsListScreen() {
   }, [navigate]);
 
   const handleCreateEvent = useCallback(async () => {
-    const city = prompt('City name (e.g. Tallinn):');
-    if (!city?.trim()) return;
+    const name = prompt('Event name (e.g. Cafe2035 SF):');
+    if (!name?.trim()) return;
     const date = new Date().toISOString().split('T')[0];
-    const slug = `${slugify(city)}/${date}`;
+    const slug = `${slugify(name)}/${date}`;
     const newEvent: ShareableEvent = {
-      name: '',
-      city: city.trim(),
+      name: name.trim(),
+      city: '',
       date,
       link: '',
       presentations: [],
     };
     await saveEvent(slug, newEvent);
+    // Auto-generate logo in background
+    generateLogo(name.trim(), '').then(async (blob) => {
+      try {
+        const logoUrl = await uploadLogo(slug, blob, 'png');
+        await saveEvent(slug, { ...newEvent, logo: logoUrl });
+      } catch { /* ignore */ }
+    });
     navigate(`/admin/events/${slug}`);
   }, [navigate]);
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import type { ShareableEvent, ShareablePresentation, StoryTone } from '../types';
-import { loadEvent, saveEvent, uploadLogo, deleteRecording } from '../lib/storage';
+import { loadEvent, saveEvent, uploadLogo, uploadRecording, deleteRecording } from '../lib/storage';
 import { loadAndRenderPdf, PdfValidationError } from '../lib/pdfRenderer';
 import { generateLogo } from '../lib/generateLogo';
 import styles from './EventSetupScreen.module.css';
@@ -17,6 +17,9 @@ export function EventSetupScreen() {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfProgress, setPdfProgress] = useState(0);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingRecIdx, setUploadingRecIdx] = useState<number | null>(null);
+  const [uploadRecProgress, setUploadRecProgress] = useState(0);
+  const [uploadRecError, setUploadRecError] = useState<string | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Load event data from Supabase
@@ -197,6 +200,71 @@ export function EventSetupScreen() {
       return updated;
     });
   }, [event, slug, save]);
+
+  const handleUploadRecording = useCallback(async (index: number) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'video/mp4,.mp4';
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      // Validate duration (~5 min)
+      const duration = await new Promise<number>((resolve, reject) => {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.onloadedmetadata = () => {
+          URL.revokeObjectURL(video.src);
+          resolve(video.duration);
+        };
+        video.onerror = () => {
+          URL.revokeObjectURL(video.src);
+          reject(new Error('Cannot read video'));
+        };
+        video.src = URL.createObjectURL(file);
+      });
+
+      if (duration < 60 || duration > 420) {
+        setUploadRecError(`Video is ${Math.round(duration)}s — expected ~5 min (1–7 min accepted).`);
+        setTimeout(() => setUploadRecError(null), 5000);
+        return;
+      }
+
+      setUploadingRecIdx(index);
+      setUploadRecProgress(10);
+      setUploadRecError(null);
+
+      try {
+        const timer = setInterval(() => {
+          setUploadRecProgress((p) => Math.min(p + 6, 90));
+        }, 500);
+
+        const cdnUrl = await uploadRecording(slug, index, file);
+        clearInterval(timer);
+        setUploadRecProgress(100);
+
+        setEvent((prev) => {
+          if (!prev) return prev;
+          const presentations = prev.presentations.map((p, i) =>
+            i === index ? { ...p, recording: cdnUrl } : p,
+          );
+          const updated = { ...prev, presentations };
+          save(updated);
+          return updated;
+        });
+
+        setTimeout(() => {
+          setUploadingRecIdx(null);
+          setUploadRecProgress(0);
+        }, 1000);
+      } catch (e) {
+        setUploadRecError(e instanceof Error ? e.message : 'Upload failed');
+        setUploadingRecIdx(null);
+        setUploadRecProgress(0);
+      }
+    };
+    input.click();
+  }, [slug, save]);
 
   const handleFullscreenPlay = useCallback((index: number) => {
     const video = document.querySelector(`[data-rec-idx="${index}"]`) as HTMLVideoElement | null;
@@ -504,7 +572,7 @@ export function EventSetupScreen() {
                         />
                       </div>
                     </div>
-                    {pres.recording && (
+                    {pres.recording ? (
                       <div className={styles.recordingPreview}>
                         <video
                           className={styles.recordingVideo}
@@ -555,6 +623,30 @@ export function EventSetupScreen() {
                             Delete
                           </button>
                         </div>
+                      </div>
+                    ) : (
+                      <div className={styles.uploadRecording}>
+                        {uploadingRecIdx === index ? (
+                          <div className={styles.uploadRecBar}>
+                            <div className={styles.uploadRecFill} style={{ width: `${uploadRecProgress}%` }} />
+                            <span>{uploadRecProgress < 100 ? 'Uploading...' : 'Done!'}</span>
+                          </div>
+                        ) : (
+                          <button
+                            className={styles.uploadRecButton}
+                            onClick={() => handleUploadRecording(index)}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                              <polyline points="17 8 12 3 7 8" />
+                              <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                            Upload recording (MP4, ~5 min)
+                          </button>
+                        )}
+                        {uploadRecError && (
+                          <p className={styles.uploadRecError}>{uploadRecError}</p>
+                        )}
                       </div>
                     )}
                   </div>

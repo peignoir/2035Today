@@ -510,6 +510,64 @@
   background: rgba(239, 68, 68, 0.1);
 }
 
+/* Upload recording */
+.uploadRecording {
+  margin-top: 6px;
+}
+
+.uploadRecButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: inherit;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.uploadRecButton:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.uploadRecBar {
+  position: relative;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.uploadRecBar span {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #fff;
+  z-index: 1;
+}
+
+.uploadRecFill {
+  height: 100%;
+  background: var(--color-accent);
+  transition: width 0.3s ease;
+  border-radius: var(--radius-sm);
+}
+
+.uploadRecError {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--color-error);
+}
+
 /* Speaker bio textarea */
 .presTextarea {
   background: transparent;

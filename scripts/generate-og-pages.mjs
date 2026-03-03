@@ -14,23 +14,34 @@ const ORIGIN = 'https://peignoir.github.io';
 const SITE_URL = `${ORIGIN}${BASE_URL.replace(/\/$/, '')}`;
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY;
 const EVENTS_BUCKET = 'events';
 
 async function fetchSupabaseEvents() {
   if (!SUPABASE_URL || SUPABASE_URL.includes('REPLACE_ME')) return [];
+  if (!SUPABASE_ANON_KEY) {
+    console.warn('[OG] VITE_SUPABASE_ANON_KEY not set, skipping OG generation');
+    return [];
+  }
+
+  const authHeaders = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+    'apikey': SUPABASE_ANON_KEY,
+  };
 
   const events = [];
   try {
     const listUrl = `${SUPABASE_URL}/storage/v1/object/list/${EVENTS_BUCKET}`;
     const resp = await fetch(listUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders,
       body: JSON.stringify({ prefix: '', limit: 1000 }),
     });
     if (!resp.ok) return [];
 
     const files = await resp.json();
-    const jsonFiles = await listJsonFiles(files, '');
+    const jsonFiles = await listJsonFiles(files, '', authHeaders);
 
     for (const path of jsonFiles) {
       try {
@@ -49,7 +60,7 @@ async function fetchSupabaseEvents() {
   return events;
 }
 
-async function listJsonFiles(entries, prefix) {
+async function listJsonFiles(entries, prefix, authHeaders) {
   const results = [];
   for (const entry of entries) {
     const path = prefix ? `${prefix}/${entry.name}` : entry.name;
@@ -58,12 +69,12 @@ async function listJsonFiles(entries, prefix) {
         const listUrl = `${SUPABASE_URL}/storage/v1/object/list/${EVENTS_BUCKET}`;
         const resp = await fetch(listUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders,
           body: JSON.stringify({ prefix: path, limit: 1000 }),
         });
         if (resp.ok) {
           const subEntries = await resp.json();
-          results.push(...await listJsonFiles(subEntries, path));
+          results.push(...await listJsonFiles(subEntries, path, authHeaders));
         }
       } catch { /* skip */ }
     } else if (entry.name?.endsWith('.json')) {

@@ -231,17 +231,13 @@ export function EventSetupScreen() {
       }
 
       setUploadingRecIdx(index);
-      setUploadRecProgress(10);
+      setUploadRecProgress(0);
       setUploadRecError(null);
 
       try {
-        const timer = setInterval(() => {
-          setUploadRecProgress((p) => Math.min(p + 6, 90));
-        }, 500);
-
-        const cdnUrl = await uploadRecording(slug, index, file);
-        clearInterval(timer);
-        setUploadRecProgress(100);
+        const cdnUrl = await uploadRecording(slug, index, file, (pct) => {
+          setUploadRecProgress(pct);
+        });
 
         setEvent((prev) => {
           if (!prev) return prev;
@@ -629,7 +625,7 @@ export function EventSetupScreen() {
                         {uploadingRecIdx === index ? (
                           <div className={styles.uploadRecBar}>
                             <div className={styles.uploadRecFill} style={{ width: `${uploadRecProgress}%` }} />
-                            <span>{uploadRecProgress < 100 ? 'Uploading...' : 'Done!'}</span>
+                            <span>{uploadRecProgress < 100 ? `Uploading… ${uploadRecProgress}%` : 'Done!'}</span>
                           </div>
                         ) : (
                           <button

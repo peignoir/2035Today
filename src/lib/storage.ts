@@ -92,11 +92,51 @@ export async function deleteEvent(slug: string): Promise<void> {
   }
 }
 
-/** Upload a recording blob. Returns the CDN URL. */
-export async function uploadRecording(slug: string, index: number, blob: Blob): Promise<string> {
+/** Upload a recording with real progress tracking via XHR. Returns the CDN URL. */
+export async function uploadRecording(
+  slug: string,
+  index: number,
+  blob: Blob,
+  onProgress?: (pct: number) => void,
+): Promise<string> {
   const path = `${slug}-${index}.mp4`;
-  console.log(`[Storage] Uploading recording ${index} (${(blob.size / 1024 / 1024).toFixed(1)}MB)`);
-  await upload(path, blob, 'video/mp4');
+  const sizeMB = (blob.size / 1024 / 1024).toFixed(1);
+  console.log(`[Storage] Uploading recording ${index} (${sizeMB}MB)`);
+
+  // Delete existing file first to avoid upsert issues with large files
+  await supabase.storage.from(EVENTS_BUCKET).remove([path]);
+
+  // Upload via XHR for real progress tracking
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+  const url = `${supabaseUrl}/storage/v1/object/${EVENTS_BUCKET}/${path}`;
+
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    xhr.setRequestHeader('Authorization', `Bearer ${supabaseKey}`);
+    xhr.setRequestHeader('apikey', supabaseKey);
+    xhr.setRequestHeader('Content-Type', 'video/mp4');
+    xhr.setRequestHeader('x-upsert', 'true');
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) {
+        onProgress(Math.round((e.loaded / e.total) * 100));
+      }
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve();
+      } else {
+        reject(new Error(`Upload failed (${xhr.status}): ${xhr.responseText}`));
+      }
+    };
+    xhr.onerror = () => reject(new Error('Network error during upload'));
+    xhr.ontimeout = () => reject(new Error('Upload timed out'));
+    xhr.timeout = 600_000; // 10 min for large files
+    xhr.send(blob);
+  });
+
   console.log(`[Storage] Recording ${index} uploaded`);
   return publicUrl(path);
 }

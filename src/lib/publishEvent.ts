@@ -61,7 +61,8 @@ async function pushFile(
   }
 }
 
-/** Publish event JSON, recordings, and logo to the repo. */
+/** Publish event JSON, recordings, and logo to the repo.
+ *  Works on a deep copy to avoid races with callers mutating the original. */
 export async function publishEvent(
   slug: string,
   event: ShareableEvent,
@@ -69,6 +70,9 @@ export async function publishEvent(
 ): Promise<void> {
   const token = getToken();
   if (!token) return;
+
+  // Deep-clone so callers can freely mutate the original (e.g. set blob URLs)
+  const pub: ShareableEvent = JSON.parse(JSON.stringify(event));
 
   const { owner, repo } = getRepoInfo();
   const headers: Record<string, string> = {
@@ -89,7 +93,7 @@ export async function publishEvent(
         const recContent = await blobToBase64(blob);
         await pushFile(owner, repo, recPath, recContent, `Publish recording: ${slug} #${i}`, headers);
         // Only set URL after successful push
-        event.presentations[i].recording = `${import.meta.env.BASE_URL}events/${slug}-${i}.${ext}`;
+        pub.presentations[i].recording = `${import.meta.env.BASE_URL}events/${slug}-${i}.${ext}`;
         console.log(`[Publish] Recording ${i} uploaded successfully`);
       } catch (e) {
         console.error('[Publish] Failed to upload recording', i, e);
@@ -97,11 +101,18 @@ export async function publishEvent(
     }
   }
 
+  // Strip any leftover blob: URLs — they won't work outside this browser session
+  for (const p of pub.presentations) {
+    if (p.recording?.startsWith('blob:')) {
+      delete p.recording;
+    }
+  }
+
   // Upload logo as separate file (instead of embedding as data URL)
-  if (event.logo && event.logo.startsWith('data:')) {
+  if (pub.logo && pub.logo.startsWith('data:')) {
     try {
       // Extract mime type and base64 from data URL
-      const match = event.logo.match(/^data:image\/([\w+]+);base64,(.+)$/);
+      const match = pub.logo.match(/^data:image\/([\w+]+);base64,(.+)$/);
       if (match) {
         const ext = match[1] === 'svg+xml' ? 'svg' : match[1];
         const logoContent = match[2];
@@ -109,7 +120,7 @@ export async function publishEvent(
         console.log(`[Publish] Uploading logo as ${logoPath}`);
         await pushFile(owner, repo, logoPath, logoContent, `Publish logo: ${slug}`, headers);
         // Replace data URL with path reference
-        event.logo = `${import.meta.env.BASE_URL}events/${slug}-logo.${ext}`;
+        pub.logo = `${import.meta.env.BASE_URL}events/${slug}-logo.${ext}`;
         console.log(`[Publish] Logo uploaded successfully`);
       }
     } catch (e) {
@@ -119,6 +130,6 @@ export async function publishEvent(
   }
 
   // Publish event JSON (after recording/logo URLs are set)
-  const jsonContent = btoa(unescape(encodeURIComponent(JSON.stringify(event, null, 2))));
+  const jsonContent = btoa(unescape(encodeURIComponent(JSON.stringify(pub, null, 2))));
   await pushFile(owner, repo, `public/events/${slug}.json`, jsonContent, `Publish event: ${slug}`, headers);
 }

@@ -21,6 +21,9 @@ export function EventSetupScreen() {
   const [uploadRecProgress, setUploadRecProgress] = useState(0);
   const [uploadRecError, setUploadRecError] = useState<string | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const uploadAbortRef = useRef<AbortController | null>(null);
+
+  const isUploading = uploadingRecIdx !== null;
 
   // Load event data from Supabase
   useEffect(() => {
@@ -240,11 +243,13 @@ export function EventSetupScreen() {
       setUploadingRecIdx(index);
       setUploadRecProgress(0);
       setUploadRecError(null);
+      const abort = new AbortController();
+      uploadAbortRef.current = abort;
 
       try {
         const cdnUrl = await uploadRecording(slug, index, file, (pct) => {
           setUploadRecProgress(pct);
-        });
+        }, abort.signal);
 
         setEvent((prev) => {
           if (!prev) return prev;
@@ -256,18 +261,28 @@ export function EventSetupScreen() {
           return updated;
         });
 
+        uploadAbortRef.current = null;
         setTimeout(() => {
           setUploadingRecIdx(null);
           setUploadRecProgress(0);
         }, 1000);
       } catch (e) {
-        setUploadRecError(e instanceof Error ? e.message : 'Upload failed');
+        uploadAbortRef.current = null;
+        const msg = e instanceof Error ? e.message : 'Upload failed';
+        if (msg !== 'Upload cancelled') setUploadRecError(msg);
         setUploadingRecIdx(null);
         setUploadRecProgress(0);
       }
     };
     input.click();
   }, [slug, save]);
+
+  const handleCancelUpload = useCallback(() => {
+    uploadAbortRef.current?.abort();
+    uploadAbortRef.current = null;
+    setUploadingRecIdx(null);
+    setUploadRecProgress(0);
+  }, []);
 
   const handleFullscreenPlay = useCallback((index: number) => {
     const video = document.querySelector(`[data-rec-idx="${index}"]`) as HTMLVideoElement | null;
@@ -355,7 +370,7 @@ export function EventSetupScreen() {
             )}
             {copied ? 'Copied!' : 'Share'}
           </button>
-          <button className={styles.shareButton} onClick={handlePublish}>
+          <button className={styles.shareButton} onClick={handlePublish} disabled={isUploading}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="17 1 21 5 17 9" />
               <path d="M3 11V9a4 4 0 0 1 4-4h14" />
@@ -630,9 +645,16 @@ export function EventSetupScreen() {
                     ) : (
                       <div className={styles.uploadRecording}>
                         {uploadingRecIdx === index ? (
-                          <div className={styles.uploadRecBar}>
-                            <div className={styles.uploadRecFill} style={{ width: `${uploadRecProgress}%` }} />
-                            <span>{uploadRecProgress < 100 ? `Uploading… ${uploadRecProgress}%` : 'Done!'}</span>
+                          <div className={styles.uploadRecRow}>
+                            <div className={styles.uploadRecBar}>
+                              <div className={styles.uploadRecFill} style={{ width: `${uploadRecProgress}%` }} />
+                              <span>{uploadRecProgress < 100 ? `Uploading… ${uploadRecProgress}%` : 'Done!'}</span>
+                            </div>
+                            {uploadRecProgress < 100 && (
+                              <button className={styles.uploadRecCancel} onClick={handleCancelUpload} title="Cancel upload">
+                                ✕
+                              </button>
+                            )}
                           </div>
                         ) : (
                           <button
@@ -699,7 +721,7 @@ export function EventSetupScreen() {
       </div>
 
       <div className={styles.bottomActions}>
-        <button className={styles.saveButton} onClick={handleBack}>
+        <button className={styles.saveButton} onClick={handleBack} disabled={isUploading}>
           Save
         </button>
       </div>

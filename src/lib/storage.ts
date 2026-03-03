@@ -98,6 +98,7 @@ export async function uploadRecording(
   index: number,
   blob: Blob,
   onProgress?: (pct: number) => void,
+  signal?: AbortSignal,
 ): Promise<string> {
   const path = `${slug}-${index}.mp4`;
   const sizeMB = (blob.size / 1024 / 1024).toFixed(1);
@@ -118,6 +119,13 @@ export async function uploadRecording(
     xhr.setRequestHeader('apikey', supabaseKey);
     xhr.setRequestHeader('Content-Type', 'video/mp4');
     xhr.setRequestHeader('x-upsert', 'true');
+
+    if (signal) {
+      signal.addEventListener('abort', () => {
+        xhr.abort();
+        reject(new Error('Upload cancelled'));
+      });
+    }
 
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && onProgress) {

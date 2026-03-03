@@ -67,6 +67,13 @@
   background: var(--color-accent-hover);
 }
 
+.saveButton:disabled,
+.shareButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Form */
 .form {
   display: flex;
@@ -536,12 +543,40 @@
   border-color: var(--color-accent);
 }
 
+.uploadRecRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .uploadRecBar {
+  flex: 1;
   position: relative;
   height: 28px;
   background: rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-sm);
   overflow: hidden;
+}
+
+.uploadRecCancel {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.uploadRecCancel:hover {
+  color: var(--color-error);
+  border-color: var(--color-error);
 }
 
 .uploadRecBar span {

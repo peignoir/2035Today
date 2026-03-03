@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ShareableEvent } from '../types';
-import { listEvents, deleteEvent } from '../lib/storage';
+import { listEvents, deleteEvent, saveEvent } from '../lib/storage';
 import styles from './EventsListScreen.module.css';
 
 function slugify(text: string): string {
@@ -167,7 +167,7 @@ export function EventsListScreen() {
                   )}
                   {copiedSlug === slug ? 'Copied!' : 'Share'}
                 </button>
-<button
+                <button
                   className={styles.runCardButton}
                   onClick={(e) => handleRun(e, slug)}
                   title="Go Live"

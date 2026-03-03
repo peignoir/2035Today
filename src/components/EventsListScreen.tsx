@@ -34,9 +34,9 @@ export function EventsListScreen() {
 
   const handleDelete = useCallback(async (e: React.MouseEvent, slug: string, name: string) => {
     e.stopPropagation();
-    if (!window.confirm(`Delete "${name || 'Untitled Gathering'}"? This will remove all talks and data.`)) {
-      return;
-    }
+    const pw = prompt(`Type admin password to delete "${name || 'Untitled Gathering'}":`);
+    if (!pw) return;
+    if (pw !== 'pofpof') { alert('Wrong password'); return; }
     try {
       await deleteEvent(slug);
       loadEvents();

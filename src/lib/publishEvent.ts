@@ -43,8 +43,10 @@ export async function publishEvent(
     for (let i = 0; i < presentationIds.length; i++) {
       let blob = await getRecordingBlob(presentationIds[i]);
       if (!blob) continue;
+
+      // Try to remux/convert for maximum compatibility, but upload raw if FFmpeg fails
+      // (FFmpeg WASM needs SharedArrayBuffer which requires COOP/COEP headers)
       try {
-        // Convert to standard progressive MP4 for maximum compatibility
         if (blob.type.includes('webm')) {
           console.log(`[Publish] Converting WebM recording ${i} to MP4…`);
           blob = await convertWebmToMp4(blob);
@@ -52,6 +54,11 @@ export async function publishEvent(
           console.log(`[Publish] Re-muxing fMP4 recording ${i} to progressive MP4…`);
           blob = await remuxToProgressiveMp4(blob);
         }
+      } catch (e) {
+        console.warn(`[Publish] FFmpeg unavailable, uploading raw recording ${i}:`, e);
+      }
+
+      try {
         const recPath = `${slug}-${i}.mp4`;
         console.log(`[Publish] Uploading recording ${i} (${(blob.size / 1024 / 1024).toFixed(1)}MB)`);
         await uploadFile(recPath, blob, 'video/mp4');

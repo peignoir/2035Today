@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ShareableEvent } from '../types';
-import { listEvents, saveEvent, deleteEvent } from '../lib/storage';
+import { listEvents, deleteEvent } from '../lib/storage';
 import styles from './EventsListScreen.module.css';
 
 function slugify(text: string): string {
@@ -66,12 +66,6 @@ export function EventsListScreen() {
   }, [navigate]);
 
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
-
-  const handlePublish = useCallback(async (e: React.MouseEvent, slug: string, event: ShareableEvent) => {
-    e.stopPropagation();
-    await saveEvent(slug, event);
-    window.open(`${window.location.origin}${import.meta.env.BASE_URL}#/${slug}`, '_blank');
-  }, []);
 
   const handleCopyLink = useCallback((e: React.MouseEvent, slug: string) => {
     e.stopPropagation();
@@ -173,18 +167,7 @@ export function EventsListScreen() {
                   )}
                   {copiedSlug === slug ? 'Copied!' : 'Share'}
                 </button>
-                <button
-                  className={styles.publicPageButton}
-                  onClick={(e) => handlePublish(e, slug, event)}
-                  title="Publish and open"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="17 1 21 5 17 9" />
-                    <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-                  </svg>
-                  Publish
-                </button>
-                <button
+<button
                   className={styles.runCardButton}
                   onClick={(e) => handleRun(e, slug)}
                   title="Go Live"

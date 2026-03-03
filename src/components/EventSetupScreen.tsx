@@ -259,7 +259,9 @@ export function EventSetupScreen() {
             i === index ? { ...p, recording: cdnUrl } : p,
           );
           const updated = { ...prev, presentations };
-          save(updated);
+          // Flush immediately — don't debounce after recording upload
+          clearTimeout(saveTimerRef.current);
+          saveEvent(slug, updated).catch(console.error);
           return updated;
         });
 

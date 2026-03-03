@@ -54,12 +54,40 @@ export async function listEvents(): Promise<{ slug: string; event: ShareableEven
   return results;
 }
 
-/** Load a single event by slug (e.g. "tallinn/2026-02-27"). */
+/** Load a single event by slug (e.g. "tallinn/2026-02-27").
+ *  Auto-discovers recordings + logo from storage so the bucket is the source of truth. */
 export async function loadEvent(slug: string): Promise<ShareableEvent | null> {
   try {
     const resp = await fetch(publicUrl(`${slug}.json`));
     if (!resp.ok) return null;
-    return (await resp.json()) as ShareableEvent;
+    const event = (await resp.json()) as ShareableEvent;
+
+    // Discover recordings & logo from the actual bucket files
+    const [city, date] = slug.split('/');
+    if (city && date) {
+      const { data: files } = await supabase.storage
+        .from(EVENTS_BUCKET)
+        .list(city, { limit: 200 });
+      if (files) {
+        for (const file of files) {
+          // Match recordings: {date}-{index}.mp4
+          const recMatch = file.name.match(new RegExp(`^${date}-(\\d+)\\.mp4$`));
+          if (recMatch) {
+            const idx = parseInt(recMatch[1], 10);
+            if (idx < event.presentations.length) {
+              event.presentations[idx].recording = publicUrl(`${city}/${file.name}`);
+            }
+          }
+          // Match logo: {date}-logo.{ext}
+          const logoMatch = file.name.match(new RegExp(`^${date}-logo\\.`));
+          if (logoMatch) {
+            event.logo = publicUrl(`${city}/${file.name}`);
+          }
+        }
+      }
+    }
+
+    return event;
   } catch {
     return null;
   }

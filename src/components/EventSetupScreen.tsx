@@ -230,6 +230,13 @@ export function EventSetupScreen() {
         return;
       }
 
+      const sizeMB = file.size / (1024 * 1024);
+      if (sizeMB > 200) {
+        setUploadRecError(`File is ${sizeMB.toFixed(0)}MB — max 200MB. Compress the video first.`);
+        setTimeout(() => setUploadRecError(null), 5000);
+        return;
+      }
+
       setUploadingRecIdx(index);
       setUploadRecProgress(0);
       setUploadRecError(null);

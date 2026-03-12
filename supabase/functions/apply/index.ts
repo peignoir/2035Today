@@ -128,7 +128,7 @@ async function searchExa(
 }
 
 /* ------------------------------------------------------------------ */
-/*  Claude bio generation                                              */
+/*  OpenAI bio generation                                              */
 /* ------------------------------------------------------------------ */
 
 async function generateBio(context: {
@@ -141,7 +141,7 @@ async function generateBio(context: {
   topRepos: GitHubRepo[];
   exaResults: ExaResult[];
 }): Promise<string> {
-  const key = Deno.env.get("ANTHROPIC_API_KEY");
+  const key = Deno.env.get("OPENAI_API_KEY");
   if (!key) return fallbackBio(context.name, context.city);
 
   const sections: string[] = [];
@@ -179,30 +179,33 @@ async function generateBio(context: {
 
   const userMessage = sections.join("\n\n");
 
+  const systemPrompt =
+    "You are a writer for Cafe2035, a global community where founders, artists, scientists, and builders gather to share 5-minute stories about what the world looks like in 2035. " +
+    "Write a compelling 2-3 sentence bio (under 80 words) explaining why this person would make an excellent Cafe2035 organizer in their city. " +
+    "Be warm, specific, and reference their actual background, projects, or interests when available. " +
+    "If limited info is available, be gracious and focus on their stated motivation. " +
+    "Do NOT use clichés like 'passionate about' or 'dedicated to'. Write with energy and specificity.";
+
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": key,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
+        "Authorization": `Bearer ${key}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "gpt-5.4",
         max_tokens: 300,
-        system:
-          "You are a writer for Cafe2035, a global community where founders, artists, scientists, and builders gather to share 5-minute stories about what the world looks like in 2035. " +
-          "Write a compelling 2-3 sentence bio (under 80 words) explaining why this person would make an excellent Cafe2035 organizer in their city. " +
-          "Be warm, specific, and reference their actual background, projects, or interests when available. " +
-          "If limited info is available, be gracious and focus on their stated motivation. " +
-          "Do NOT use clichés like 'passionate about' or 'dedicated to'. Write with energy and specificity.",
-        messages: [{ role: "user", content: userMessage }],
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userMessage },
+        ],
       }),
     });
 
     if (!res.ok) return fallbackBio(context.name, context.city);
     const data = await res.json();
-    return data.content?.[0]?.text ?? fallbackBio(context.name, context.city);
+    return data.choices?.[0]?.message?.content ?? fallbackBio(context.name, context.city);
   } catch {
     return fallbackBio(context.name, context.city);
   }

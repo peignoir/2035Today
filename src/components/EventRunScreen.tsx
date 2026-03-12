@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { ShareableEvent, LoadedDeck } from '../types';
-import { loadEvent, saveEvent, uploadRecording, deleteRecording } from '../lib/storage';
+import { loadEvent, saveEvent, uploadRecording, deleteRecording, downloadPdf } from '../lib/storage';
 import { renderPdfFromBlob } from '../lib/pdfRenderer';
 import { generateLogo } from '../lib/generateLogo';
 import { useFullscreen } from '../hooks/useFullscreen';
@@ -36,8 +36,9 @@ export function EventRunScreen() {
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   const [confirmPresIndex, setConfirmPresIndex] = useState<number | null>(null);
   const [uploadState, setUploadState] = useState<UploadState | null>(null);
+  const [runError, setRunError] = useState<string | null>(null);
 
-  const pdfFilesRef = useRef<Map<number, File>>(new Map());
+  const pdfCacheRef = useRef<Map<number, Blob>>(new Map());
 
   // Load event from Supabase
   useEffect(() => {
@@ -73,11 +74,35 @@ export function EventRunScreen() {
   }, [logoUrl]);
 
   const startPlay = useCallback(async (presIndex: number) => {
-    if (!event) return;
+    if (!event || !slug) return;
     const pres = event.presentations[presIndex];
     if (!pres) return;
-    setCurrentPresIndex(presIndex);
     setConfirmPresIndex(null);
+    setRunError(null);
+
+    // ── Step 1: Obtain PDF blob (stays on logo-splash while doing this) ──
+
+    if (!pres.pdfUrl) {
+      setRunError('No PDF uploaded for this presentation. Go back to setup and upload it.');
+      return;
+    }
+
+    let pdfBlob: Blob | null = pdfCacheRef.current.get(presIndex) ?? null;
+
+    if (!pdfBlob) {
+      try {
+        pdfBlob = await downloadPdf(slug, presIndex);
+        pdfCacheRef.current.set(presIndex, pdfBlob);
+      } catch (e) {
+        console.error('[GoLive] PDF download failed:', e);
+        setRunError(`Failed to download PDF: ${e instanceof Error ? e.message : 'unknown error'}`);
+        return;
+      }
+    }
+
+    // ── Step 2: We have a PDF — now show rendering UI ──
+
+    setCurrentPresIndex(presIndex);
     setRunState('rendering');
     setRenderProgress(0);
 
@@ -90,37 +115,17 @@ export function EventRunScreen() {
         setAudioStream(micStream);
       }
 
-      // Get PDF from memory or ask user to re-upload
-      let pdfBlob: Blob | null = pdfFilesRef.current.get(presIndex) ?? null;
-      if (!pdfBlob) {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.pdf';
-        pdfBlob = await new Promise<Blob | null>((resolve) => {
-          input.onchange = () => {
-            const file = input.files?.[0] ?? null;
-            if (file) pdfFilesRef.current.set(presIndex, file);
-            resolve(file);
-          };
-          input.oncancel = () => resolve(null);
-          input.click();
-        });
-      }
-
-      if (!pdfBlob) {
-        setRunState('logo-splash');
-        return;
-      }
-
       const deck = await renderPdfFromBlob(pdfBlob, pres.fileName || 'slides.pdf', (page) => {
         setRenderProgress(page);
       });
       setCurrentDeck(deck);
       setRunState('presenting');
-    } catch {
+    } catch (e) {
+      console.error('[GoLive] PDF render failed:', e);
+      setRunError(`Failed to render slides: ${e instanceof Error ? e.message : 'unknown error'}`);
       setRunState('logo-splash');
     }
-  }, [event]);
+  }, [event, slug]);
 
   const handlePlay = useCallback((presIndex: number) => {
     if (event?.recordEnabled && event.presentations[presIndex]?.recording) {
@@ -254,6 +259,20 @@ export function EventRunScreen() {
             onDeleteRecording={handleDeleteRecording}
             onExit={handleExit}
           />
+          {runError && (
+            <div className={styles.confirmOverlay}>
+              <div className={styles.confirmDialog}>
+                <p className={styles.confirmText} style={{ color: '#ef4444' }}>
+                  {runError}
+                </p>
+                <div className={styles.confirmButtons}>
+                  <button className={styles.confirmProceed} onClick={() => setRunError(null)}>
+                    OK
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           {confirmPresIndex !== null && (
             <div className={styles.confirmOverlay}>
               <div className={styles.confirmDialog}>

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import type { ShareableEvent, ShareablePresentation, StoryTone } from '../types';
-import { loadEvent, saveEvent, uploadLogo, uploadRecording, deleteRecording } from '../lib/storage';
+import { loadEvent, saveEvent, uploadLogo, uploadRecording, deleteRecording, uploadPdf, deletePdf } from '../lib/storage';
 import { loadAndRenderPdf, PdfValidationError } from '../lib/pdfRenderer';
 import { generateLogo } from '../lib/generateLogo';
 import styles from './EventSetupScreen.module.css';
@@ -131,9 +131,9 @@ export function EventSetupScreen() {
     multiple: false,
   });
 
-  // PDF upload — validate, add presentation to event
+  // PDF upload — validate, upload to Supabase, add presentation to event
   const onPdfDrop = useCallback(async (files: File[]) => {
-    if (files.length === 0 || !event) return;
+    if (files.length === 0 || !event || !slug) return;
     const file = files[0];
     setPdfError(null);
     setPdfLoading(true);
@@ -143,29 +143,34 @@ export function EventSetupScreen() {
       const deck = await loadAndRenderPdf(file, (page) => setPdfProgress(page));
       deck.slides.forEach((s) => URL.revokeObjectURL(s.objectUrl));
 
+      // Upload PDF to Supabase storage
+      const newIndex = event.presentations.length;
+      const pdfUrl = await uploadPdf(slug, newIndex, file);
+
       const newPres: ShareablePresentation = {
         fileName: file.name,
         speakerName: '',
         storyName: '',
         storyTone: 'optimistic',
+        pdfUrl,
       };
 
-      setEvent((prev) => {
-        if (!prev) return prev;
-        const updated = { ...prev, presentations: [...prev.presentations, newPres] };
-        save(updated);
-        return updated;
-      });
+      const updated = { ...event, presentations: [...event.presentations, newPres] };
+      clearTimeout(saveTimerRef.current);
+      await saveEvent(slug, updated);
+      console.log('[Storage] JSON saved with new presentation');
+      setEvent(updated);
     } catch (err) {
       if (err instanceof PdfValidationError) {
         setPdfError(err.message);
       } else {
+        console.error('PDF drop failed:', err);
         setPdfError('Failed to load PDF. The file may be corrupted.');
       }
     } finally {
       setPdfLoading(false);
     }
-  }, [event, save]);
+  }, [event, slug]);
 
   const pdfDropzone = useDropzone({
     onDrop: onPdfDrop,
@@ -296,10 +301,48 @@ export function EventSetupScreen() {
     }
   }, []);
 
+  // Re-upload PDF for a presentation that's missing its pdfUrl (legacy migration)
+  const [reuploadingIdx, setReuploadingIdx] = useState<number | null>(null);
+  const handleReuploadPdf = useCallback(async (index: number) => {
+    if (!event || !slug) return;
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/pdf,.pdf';
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      setReuploadingIdx(index);
+      try {
+        // Skip full PDF validation — just upload the binary to Supabase.
+        const pdfUrl = await uploadPdf(slug, index, file);
+        // Build the updated event and await the save (don't fire-and-forget)
+        const updated = {
+          ...event,
+          presentations: event.presentations.map((p, i) =>
+            i === index ? { ...p, pdfUrl, fileName: file.name } : p,
+          ),
+        };
+        clearTimeout(saveTimerRef.current);
+        await saveEvent(slug, updated);
+        console.log(`[Storage] JSON saved with pdfUrl for presentation ${index}`);
+        setEvent(updated);
+      } catch (e) {
+        console.error('PDF re-upload failed:', e);
+        alert(`PDF upload failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
+      } finally {
+        setReuploadingIdx(null);
+      }
+    };
+    input.click();
+  }, [event, slug]);
+
   const handleDeletePres = useCallback(async (index: number) => {
     if (!event) return;
     if (event.presentations[index]?.recording) {
       try { await deleteRecording(slug, index); } catch { /* ignore */ }
+    }
+    if (event.presentations[index]?.pdfUrl) {
+      try { await deletePdf(slug, index); } catch { /* ignore */ }
     }
     setEvent((prev) => {
       if (!prev) return prev;
@@ -520,6 +563,21 @@ export function EventSetupScreen() {
                       </svg>
                       <span className={styles.presFileName}>{pres.fileName || 'Story'}</span>
                       <span className={styles.presSlides}>20 slides</span>
+                      {pres.pdfUrl ? (
+                        <span className={styles.pdfOk} title="PDF stored in cloud">☁️</span>
+                      ) : (
+                        reuploadingIdx === index ? (
+                          <span className={styles.pdfMissing}>Uploading…</span>
+                        ) : (
+                          <button
+                            className={styles.pdfMissingBtn}
+                            onClick={() => handleReuploadPdf(index)}
+                            title="PDF not in cloud — click to upload"
+                          >
+                            ⚠️ Upload PDF
+                          </button>
+                        )
+                      )}
                     </div>
                     <div className={styles.presFields}>
                       <input

@@ -66,16 +66,20 @@ export function LogoSplash({
               const tone = pres.storyTone as string;
               const toneEmoji = (tone === 'dystopian' || tone === 'black') ? '\uD83C\uDF11' : '\u2600\uFE0F';
               const hasRecording = !!pres.recording;
+              const hasPdf = !!pres.pdfUrl;
 
               return (
                 <div key={index} className={styles.presWrapper}>
                   <button
-                    className={`${styles.presButton} ${played ? styles.presPlayed : ''}`}
-                    onClick={() => onPlay(index)}
+                    className={`${styles.presButton} ${played ? styles.presPlayed : ''} ${!hasPdf ? styles.presDisabled : ''}`}
+                    onClick={() => hasPdf && onPlay(index)}
+                    disabled={!hasPdf}
                   >
                     <span className={styles.toneEmoji}>{toneEmoji}</span>
                     <span className={`${styles.presIcon} ${hasRecording ? styles.presIconRestart : ''}`}>
-                      {hasRecording ? (
+                      {!hasPdf ? (
+                        <span className={styles.presActionLabel} style={{ color: '#f59e0b' }}>No PDF</span>
+                      ) : hasRecording ? (
                         <span className={styles.presActionLabel}>Start Over</span>
                       ) : played ? (
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

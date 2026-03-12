@@ -8,7 +8,7 @@
 
 .header {
   text-align: center;
-  margin-bottom: 36px;
+  margin-bottom: 48px;
 }
 
 .title {
@@ -38,6 +38,12 @@
   text-align: center;
   color: var(--color-text-secondary);
   padding: 80px 0;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
 /* Empty state */
@@ -76,6 +82,25 @@
   background: var(--color-accent-hover);
 }
 
+.applicationsLink {
+  margin-top: 16px;
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.applicationsLink:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
 /* Grid */
 .grid {
   display: grid;
@@ -90,12 +115,13 @@
   border-radius: var(--radius-md);
   overflow: hidden;
   cursor: pointer;
-  transition: border-color var(--transition-fast), transform var(--transition-fast);
+  transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .card:hover {
   border-color: var(--color-text-secondary);
   transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .cardLogo {
@@ -267,4 +293,5 @@
 .newCard:hover {
   border-color: var(--color-accent);
   color: var(--color-text-primary);
+  background: rgba(99, 102, 241, 0.04);
 }

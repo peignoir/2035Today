@@ -67,14 +67,18 @@ export async function listEvents(): Promise<{ slug: string; event: ShareableEven
 }
 
 /** Load a single event by slug (e.g. "tallinn/2026-02-27").
- *  Auto-discovers recordings + logo from storage so the bucket is the source of truth. */
+ *  Uses Supabase API (not CDN) to avoid stale cache issues.
+ *  Auto-discovers recordings, PDFs & logo from storage so the bucket is the source of truth. */
 export async function loadEvent(slug: string): Promise<ShareableEvent | null> {
   try {
-    const resp = await fetch(publicUrl(`${slug}.json`));
-    if (!resp.ok) return null;
-    const event = (await resp.json()) as ShareableEvent;
+    // Use supabase.storage.download() to bypass CDN cache (publicUrl has max-age=3600)
+    const { data: blob, error } = await supabase.storage
+      .from(EVENTS_BUCKET)
+      .download(`${slug}.json`);
+    if (error || !blob) return null;
+    const event = JSON.parse(await blob.text()) as ShareableEvent;
 
-    // Discover recordings & logo from the actual bucket files
+    // Discover recordings, PDFs & logo from the actual bucket files
     const [city, date] = slug.split('/');
     if (city && date) {
       const { data: files } = await supabase.storage
@@ -88,6 +92,14 @@ export async function loadEvent(slug: string): Promise<ShareableEvent | null> {
             const idx = parseInt(recMatch[1], 10);
             if (idx < event.presentations.length) {
               event.presentations[idx].recording = publicUrl(`${city}/${file.name}`);
+            }
+          }
+          // Match PDFs: {date}-{index}.pdf
+          const pdfMatch = file.name.match(new RegExp(`^${date}-(\\d+)\\.pdf$`));
+          if (pdfMatch) {
+            const idx = parseInt(pdfMatch[1], 10);
+            if (idx < event.presentations.length && !event.presentations[idx].pdfUrl) {
+              event.presentations[idx].pdfUrl = publicUrl(`${city}/${file.name}`);
             }
           }
           // Match logo: {date}-logo.{ext}
@@ -202,6 +214,33 @@ export async function uploadRecording(
 export async function deleteRecording(slug: string, index: number): Promise<void> {
   const path = `${slug}-${index}.mp4`;
   await supabase.storage.from(EVENTS_BUCKET).remove([path]);
+}
+
+/** Upload a PDF to storage. Returns the CDN URL. */
+export async function uploadPdf(slug: string, index: number, blob: Blob): Promise<string> {
+  const path = `${slug}-${index}.pdf`;
+  console.log(`[Storage] Uploading PDF ${index}`);
+  await upload(path, blob, 'application/pdf');
+  console.log(`[Storage] PDF ${index} uploaded`);
+  return publicUrl(path);
+}
+
+/** Delete a PDF from storage. */
+export async function deletePdf(slug: string, index: number): Promise<void> {
+  const path = `${slug}-${index}.pdf`;
+  await supabase.storage.from(EVENTS_BUCKET).remove([path]);
+}
+
+/** Download a PDF blob, bypassing CDN cache. */
+export async function downloadPdf(slug: string, index: number): Promise<Blob> {
+  const path = `${slug}-${index}.pdf`;
+  console.log(`[Storage] Downloading PDF ${path}`);
+  const { data, error } = await supabase.storage
+    .from(EVENTS_BUCKET)
+    .download(path);
+  if (error || !data) throw new Error(`Failed to download PDF: ${error?.message ?? 'no data'}`);
+  console.log(`[Storage] PDF downloaded (${(data.size / 1024).toFixed(0)} KB)`);
+  return data;
 }
 
 /** Upload a logo blob. Returns the CDN URL. */

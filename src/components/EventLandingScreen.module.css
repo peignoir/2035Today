@@ -474,6 +474,18 @@
   font-style: italic;
 }
 
+.footerOrganize {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footerOrganize:hover {
+  color: var(--color-accent-hover);
+}
+
 /* ── Mobile sticky CTA ── */
 .mobileStickyBar {
   display: none;

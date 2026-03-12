@@ -112,6 +112,9 @@ export function EventsListScreen() {
         <h1 className={styles.title}>Cafe 2035</h1>
         <p className={styles.subtitle}>A worldwide movement of builders, dreamers, and storytellers</p>
         <p className={styles.quote}>"How many things have been denied one day, only to become realities the next!" — Jules Verne</p>
+        <button className={styles.applicationsLink} onClick={() => navigate('/admin/applications')}>
+          &#x1F4EC; Applications
+        </button>
       </header>
 
       {events.length === 0 ? (

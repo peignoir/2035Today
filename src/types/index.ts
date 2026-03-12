@@ -9,6 +9,7 @@ export interface ShareablePresentation {
   socialInstagram?: string;
   socialLinkedin?: string;
   recording?: string;     // CDN URL
+  pdfUrl?: string;        // CDN URL to stored PDF
   fileName?: string;      // PDF filename (admin display)
 }
 
@@ -20,6 +21,23 @@ export interface ShareableEvent {
   presentations: ShareablePresentation[];
   logo?: string;              // CDN URL
   recordEnabled?: boolean;    // admin-only flag
+}
+
+// Organizer application
+export interface Application {
+  id: string;
+  created_at: string;
+  name: string;
+  email: string;
+  city: string;
+  company?: string;
+  github_url?: string;
+  linkedin_url?: string;
+  comment?: string;
+  search_data?: Record<string, unknown>;
+  generated_bio?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  reviewed_at?: string;
 }
 
 // Presentation runtime types (in-memory only)

@@ -224,6 +224,7 @@ export function EventLandingScreen({ event }: EventLandingScreenProps) {
       <footer className={styles.footer}>
         <span className={styles.footerBrand}>Cafe2035</span>
         <span className={styles.footerTagline}>See the future. Sleep better.</span>
+        <a href="#/apply" className={styles.footerOrganize}>Organize in your city &rarr;</a>
       </footer>
 
       {/* Mobile sticky CTA */}

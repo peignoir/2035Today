@@ -97,6 +97,15 @@
   opacity: 0.7;
 }
 
+.presDisabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.presDisabled:hover {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
 .presIcon {
   display: flex;
   align-items: center;

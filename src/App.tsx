@@ -4,6 +4,8 @@ import { EventsListScreen } from './components/EventsListScreen';
 import { EventSetupScreen } from './components/EventSetupScreen';
 import { EventRunScreen } from './components/EventRunScreen';
 import { EventLandingPage } from './components/EventLandingPage';
+import { ApplyScreen } from './components/ApplyScreen';
+import { ApplicationsScreen } from './components/ApplicationsScreen';
 import styles from './App.module.css';
 
 function NotFound() {
@@ -31,6 +33,9 @@ function App() {
   return (
     <HashRouter>
       <Routes>
+        {/* Public: organizer application */}
+        <Route path="/apply" element={<ApplyScreen />} />
+
         {/* Public event landing page */}
         <Route path="/:city/:date" element={<EventLandingPage />} />
 
@@ -38,6 +43,7 @@ function App() {
         <Route path="/admin" element={<AdminGuard />}>
           <Route index element={<EventsListScreen />} />
           <Route path="events/*" element={<EventRouter />} />
+          <Route path="applications" element={<ApplicationsScreen />} />
         </Route>
 
         {/* Default: redirect root to admin */}

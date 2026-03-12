@@ -195,7 +195,7 @@ async function generateBio(context: {
       },
       body: JSON.stringify({
         model: "gpt-5.4",
-        max_tokens: 300,
+        max_completion_tokens: 300,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userMessage },

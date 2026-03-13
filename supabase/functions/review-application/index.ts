@@ -23,9 +23,43 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { applicationId, action, adminPassword } = body;
+    const { applicationId, action, adminPassword, bio } = body;
 
-    // Verify admin
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
+    // ── Public action: applicant updates their own bio ──
+    if (action === "update-bio") {
+      if (!applicationId || !bio) {
+        return new Response(
+          JSON.stringify({ error: "applicationId and bio are required" }),
+          { status: 400, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
+        );
+      }
+
+      const { error } = await supabase
+        .from("applications")
+        .update({ generated_bio: bio })
+        .eq("id", applicationId)
+        .eq("status", "pending"); // only allow edits on pending apps
+
+      if (error) {
+        console.error("Bio update error:", error);
+        return new Response(
+          JSON.stringify({ error: "Failed to update bio" }),
+          { status: 500, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ success: true }),
+        { status: 200, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
+      );
+    }
+
+    // ── Admin actions: approve / reject ──
     if (adminPassword !== ADMIN_PASSWORD) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -44,11 +78,6 @@ Deno.serve(async (req) => {
         },
       );
     }
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
 
     const { error } = await supabase
       .from("applications")

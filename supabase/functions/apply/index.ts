@@ -90,38 +90,74 @@ async function searchExa(
   name: string,
   company: string | undefined,
   city: string,
+  linkedinUrl: string | undefined,
 ): Promise<ExaResult[]> {
   const key = Deno.env.get("EXA_API_KEY");
   if (!key) return [];
 
+  // Build a rich query — name + company + "founder OR CEO OR CTO" to find professional context
   const query = [
     `"${name}"`,
-    company,
-    city,
+    company ? `"${company}"` : undefined,
+    "founder OR CEO OR CTO OR builder OR creator",
   ].filter(Boolean).join(" ");
 
   try {
-    const res = await fetch("https://api.exa.ai/search", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${key}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query,
-        numResults: 5,
-        type: "auto",
-        contents: { text: { maxCharacters: 500 } },
-      }),
-    });
+    // Run main search + optional LinkedIn content fetch in parallel
+    const searches: Promise<ExaResult[]>[] = [];
 
-    if (!res.ok) return [];
-    const data = await res.json();
-    return (data.results ?? []).map((r: any) => ({
-      title: r.title ?? "",
-      url: r.url ?? "",
-      text: r.text ?? "",
-    }));
+    // Deep search for the person
+    searches.push(
+      fetch("https://api.exa.ai/search", {
+        method: "POST",
+        headers: {
+          "x-api-key": key,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query,
+          numResults: 10,
+          type: "deep",
+          contents: { text: { maxCharacters: 2000 } },
+        }),
+      }).then(async (res) => {
+        if (!res.ok) return [];
+        const data = await res.json();
+        return (data.results ?? []).map((r: any) => ({
+          title: r.title ?? "",
+          url: r.url ?? "",
+          text: r.text ?? "",
+        }));
+      }).catch(() => [] as ExaResult[])
+    );
+
+    // If LinkedIn URL provided, fetch that page's content directly
+    if (linkedinUrl) {
+      searches.push(
+        fetch("https://api.exa.ai/contents", {
+          method: "POST",
+          headers: {
+            "x-api-key": key,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            urls: [linkedinUrl],
+            text: { maxCharacters: 3000 },
+          }),
+        }).then(async (res) => {
+          if (!res.ok) return [];
+          const data = await res.json();
+          return (data.results ?? []).map((r: any) => ({
+            title: r.title ?? "LinkedIn profile",
+            url: r.url ?? linkedinUrl,
+            text: r.text ?? "",
+          }));
+        }).catch(() => [] as ExaResult[])
+      );
+    }
+
+    const allResults = await Promise.all(searches);
+    return allResults.flat();
   } catch {
     return [];
   }
@@ -253,7 +289,7 @@ Deno.serve(async (req) => {
       github_url
         ? fetchGitHub(github_url)
         : Promise.resolve({ profile: null, topRepos: [] as GitHubRepo[] }),
-      searchExa(name, company, city),
+      searchExa(name, company, city, linkedin_url),
     ]);
 
     // 2. Generate bio with Claude

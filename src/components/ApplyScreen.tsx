@@ -5,7 +5,7 @@ import styles from './ApplyScreen.module.css';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-type Phase = 'form' | 'loading' | 'success' | 'error';
+type Phase = 'form' | 'loading' | 'review' | 'saving' | 'success' | 'error';
 
 interface FormData {
   name: string;
@@ -31,6 +31,8 @@ export function ApplyScreen() {
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [phase, setPhase] = useState<Phase>('form');
   const [bio, setBio] = useState('');
+  const [editedBio, setEditedBio] = useState('');
+  const [applicationId, setApplicationId] = useState('');
   const [error, setError] = useState('');
 
   const update = useCallback((field: keyof FormData, value: string) => {
@@ -70,13 +72,43 @@ export function ApplyScreen() {
         throw new Error(data.error || 'Something went wrong');
       }
 
-      setBio(data.bio || '');
-      setPhase('success');
+      const generatedBio = data.bio || '';
+      setBio(generatedBio);
+      setEditedBio(generatedBio);
+      setApplicationId(data.applicationId || '');
+      setPhase('review');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit application');
       setPhase('error');
     }
   }, [form, canSubmit]);
+
+  const handleConfirmBio = useCallback(async () => {
+    // If bio was edited, update it in the DB
+    if (editedBio.trim() !== bio && applicationId) {
+      setPhase('saving');
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/review-application`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            applicationId,
+            action: 'update-bio',
+            bio: editedBio.trim(),
+          }),
+        });
+        // Don't block on failure — bio update is best-effort
+        if (!res.ok) console.warn('Bio update failed, continuing anyway');
+      } catch {
+        console.warn('Bio update failed, continuing anyway');
+      }
+    }
+    setBio(editedBio.trim());
+    setPhase('success');
+  }, [editedBio, bio, applicationId]);
 
   return (
     <div className={styles.page}>
@@ -211,14 +243,49 @@ export function ApplyScreen() {
             We're checking your GitHub, searching the web, and crafting your story. This takes 10-20 seconds.
           </p>
         </section>
+      ) : phase === 'review' || phase === 'saving' ? (
+        <section className={styles.reviewSection}>
+          <div className={styles.successEmoji}>&#x1F4DD;</div>
+          <h2 className={styles.successTitle}>Here's what we found.</h2>
+          <p className={styles.reviewSubtext}>
+            Edit your bio if you'd like — this is what we'll use to introduce you.
+          </p>
+
+          <div className={styles.bioCard}>
+            <p className={styles.bioLabel}>Your bio</p>
+            <textarea
+              className={styles.bioTextarea}
+              value={editedBio}
+              onChange={(e) => setEditedBio(e.target.value)}
+              disabled={phase === 'saving'}
+            />
+          </div>
+
+          <div className={styles.reviewActions}>
+            <button
+              className={styles.submitButton}
+              onClick={handleConfirmBio}
+              disabled={phase === 'saving' || !editedBio.trim()}
+            >
+              {phase === 'saving' ? 'Saving...' : 'Looks good — submit!'}
+            </button>
+            <button
+              className={styles.secondaryButton}
+              onClick={() => { setPhase('form'); }}
+              disabled={phase === 'saving'}
+            >
+              Start over
+            </button>
+          </div>
+        </section>
       ) : phase === 'success' ? (
         <section className={styles.successSection}>
           <div className={styles.successEmoji}>&#x1F680;</div>
-          <h2 className={styles.successTitle}>You look great.</h2>
+          <h2 className={styles.successTitle}>You're in the queue.</h2>
 
           {bio && (
             <div className={styles.bioCard}>
-              <p className={styles.bioLabel}>Your AI-generated bio</p>
+              <p className={styles.bioLabel}>Your bio</p>
               <p className={styles.bioText}>{bio}</p>
             </div>
           )}

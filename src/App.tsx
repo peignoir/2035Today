@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { HashRouter, Routes, Route, useParams } from 'react-router-dom';
 import { AdminGuard } from './components/AdminGuard';
 import { EventsListScreen } from './components/EventsListScreen';
 import { EventSetupScreen } from './components/EventSetupScreen';

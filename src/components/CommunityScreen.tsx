@@ -219,16 +219,19 @@ function RollingRoles() {
   );
 }
 
-/* ── Rolling vibe word for motto ── */
-function RollingVibe() {
-  const doubled = [...VIBE_WORDS, ...VIBE_WORDS];
+/* ── Fade-cycle word for motto (one word at a time, fade+slide) ── */
+function FadeCycleWord({ suffix = '' }: { suffix?: string }) {
   return (
-    <span className={styles.vibeWrap}>
-      <span className={styles.vibeTrack}>
-        {doubled.map((word, i) => (
-          <span key={i} className={styles.vibeItem}>{word}</span>
-        ))}
-      </span>
+    <span className={styles.fadeCycleWrap}>
+      {VIBE_WORDS.map((word, i) => (
+        <span
+          key={word}
+          className={styles.fadeCycleItem}
+          style={{ animationDelay: `${i * 2}s` }}
+        >
+          {word}{suffix}
+        </span>
+      ))}
     </span>
   );
 }
@@ -300,9 +303,6 @@ export function CommunityScreen() {
             <span className={styles.pill}>Build</span>
             <span className={styles.pillDot}>·</span>
             <span className={styles.pill}>Connect</span>
-          </p>
-          <p className={styles.motto}>
-            Stock Cans or Vibe <RollingVibe />. We Vibe <RollingVibe />.
           </p>
           <div className={styles.ctaRow}>
             <button onClick={() => scrollTo('the2hours')} className={styles.ctaPrimary}>
@@ -407,6 +407,16 @@ export function CommunityScreen() {
             <span>2 hours. That's it. Then go survive the future.</span>
           </div>
         </div>
+      </section>
+
+      {/* ── Motto Banner ── */}
+      <section className={styles.mottoBanner}>
+        <p className={styles.mottoText}>
+          Stock Cans or Vibe <FadeCycleWord suffix="." />
+        </p>
+        <p className={styles.mottoTextSecond}>
+          We Vibe <FadeCycleWord suffix="." />
+        </p>
       </section>
 
       {/* ── AI makes everyone expert ── */}
@@ -516,7 +526,7 @@ export function CommunityScreen() {
       {/* ── Footer ── */}
       <footer className={styles.footer}>
         <span className={styles.footerBrand}>☕ 2035Cafe</span>
-        <span className={styles.footerMotto}>Stock Cans or Vibe Code. We Vibe Code.</span>
+        <span className={styles.footerMotto}>Stock Cans or Vibe Code.</span>
         <span className={styles.footerTagline}>Grassroots rebuild. Compress or die.</span>
       </footer>
     </div>

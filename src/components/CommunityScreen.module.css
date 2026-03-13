@@ -584,40 +584,90 @@
   border-top: 1px solid var(--w-border);
 }
 
+.citiesHeadline {
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  text-align: center;
+  margin-bottom: 8px;
+  color: var(--w-text);
+}
+
+.citiesSub {
+  font-size: 1.05rem;
+  color: var(--w-text-dim);
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.citiesGroup {
+  margin-bottom: 32px;
+}
+
+.citiesGroupLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--w-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.citiesLive {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--w-green);
+  box-shadow: 0 0 6px var(--w-green);
+  animation: livePulse 2s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
 .citiesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
   max-width: 900px;
-  margin: 0 auto;
 }
 
 .cityCard {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 20px;
+  gap: 14px;
+  padding: 16px 20px;
   background: var(--w-surface);
   border: 1px solid var(--w-border);
-  border-radius: 14px;
+  border-radius: 12px;
   text-decoration: none;
   color: var(--w-text);
-  transition: border-color 200ms ease, transform 200ms ease;
+  transition: border-color 200ms ease, transform 200ms ease, background 200ms ease;
 }
 
 .cityCard:hover {
   border-color: var(--w-rust);
-  transform: translateY(-2px);
+  background: var(--w-surface-hover);
+  transform: translateX(4px);
   color: var(--w-text);
 }
 
 .cityCardPast {
-  opacity: 0.8;
+  opacity: 0.7;
+}
+
+.cityCardPast:hover {
+  opacity: 1;
 }
 
 .cityLogo {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
   object-fit: cover;
   flex-shrink: 0;
@@ -629,31 +679,22 @@
 }
 
 .cityName {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 800;
   margin-bottom: 2px;
   letter-spacing: -0.02em;
 }
 
 .cityDate {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--w-text-dim);
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.cityPastBadge {
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 1px 8px;
-  background: var(--w-border);
-  border-radius: 10px;
-  color: var(--w-text-dim);
-}
-
 .cityUpcomingBadge {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   padding: 1px 8px;
   background: var(--w-rust);
@@ -662,19 +703,46 @@
 }
 
 .cityEventName {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--w-text-dim);
-  margin-top: 4px;
+  margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .cityMeta {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--w-text-dim);
-  opacity: 0.7;
+  opacity: 0.6;
   margin-top: 2px;
+}
+
+.cityArrow {
+  font-size: 1.2rem;
+  color: var(--w-text-dim);
+  opacity: 0;
+  transition: opacity 200ms ease, transform 200ms ease;
+  flex-shrink: 0;
+}
+
+.cityCard:hover .cityArrow {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+.citiesEmpty {
+  text-align: center;
+  color: var(--w-text-dim);
+  font-size: 1rem;
+  padding: 40px 0;
+  font-style: italic;
+  opacity: 0.6;
+}
+
+.citiesCta {
+  text-align: center;
+  margin-top: 24px;
 }
 
 /* ── Collider Section ── */
@@ -1003,6 +1071,18 @@
 
   .section {
     padding: 60px 16px;
+  }
+
+  .citiesSection {
+    padding: 60px 16px;
+  }
+
+  .citiesHeadline {
+    font-size: 1.8rem;
+  }
+
+  .citiesGrid {
+    grid-template-columns: 1fr;
   }
 
   .sectionTitle {

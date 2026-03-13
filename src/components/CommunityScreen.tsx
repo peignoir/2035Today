@@ -302,6 +302,7 @@ export function CommunityScreen() {
       <nav className={styles.topNav}>
         <Link to="/" className={styles.navBrand}>☕ 2035Cafe</Link>
         <div className={styles.navRight}>
+          <button onClick={() => scrollTo('cities')} className={styles.navLink}>Cities</button>
           <button onClick={() => scrollTo('the2hours')} className={styles.navLink}>The 2 Hours</button>
           <button onClick={() => scrollTo('after')} className={styles.navLink}>What's Next</button>
           <Link to="/apply" className={styles.navCta}>Organize one</Link>
@@ -339,6 +340,100 @@ export function CommunityScreen() {
             </button>
             <Link to="/apply" className={styles.ctaSecondary}>
               Run one in your city
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Cities ── */}
+      <section id="cities" className={styles.citiesSection}>
+        <div className={styles.sectionInner}>
+          <h2 className={styles.citiesHeadline}>Find Your City</h2>
+          <p className={styles.citiesSub}>
+            Upcoming events, past stories, or start one where you are.
+          </p>
+
+          {(() => {
+            const upcoming = publicEvents.filter((e) => !isPastEvent(e.event.date));
+            const past = publicEvents.filter((e) => isPastEvent(e.event.date));
+            return (
+              <>
+                {upcoming.length > 0 && (
+                  <div className={styles.citiesGroup}>
+                    <h3 className={styles.citiesGroupLabel}>
+                      <span className={styles.citiesLive} />
+                      Upcoming
+                    </h3>
+                    <div className={styles.citiesGrid}>
+                      {upcoming.map(({ slug, event: ev }) => {
+                        const storyCount = ev.presentations.length;
+                        return (
+                          <Link key={slug} to={`/${slug}`} className={styles.cityCard}>
+                            {ev.logo && (
+                              <img src={ev.logo} alt={ev.name} className={styles.cityLogo} />
+                            )}
+                            <div className={styles.cityInfo}>
+                              <h4 className={styles.cityName}>{ev.city}</h4>
+                              <p className={styles.cityDate}>
+                                {formatEventDate(ev.date)}
+                                <span className={styles.cityUpcomingBadge}>Upcoming</span>
+                              </p>
+                              {ev.name && <p className={styles.cityEventName}>{ev.name}</p>}
+                              <p className={styles.cityMeta}>
+                                {storyCount} {storyCount === 1 ? 'story' : 'stories'}
+                              </p>
+                            </div>
+                            <span className={styles.cityArrow}>&rarr;</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {past.length > 0 && (
+                  <div className={styles.citiesGroup}>
+                    <h3 className={styles.citiesGroupLabel}>Past Events</h3>
+                    <div className={styles.citiesGrid}>
+                      {past.map(({ slug, event: ev }) => {
+                        const storyCount = ev.presentations.length;
+                        const recordingCount = ev.presentations.filter((p) => p.recording).length;
+                        return (
+                          <Link key={slug} to={`/${slug}`} className={`${styles.cityCard} ${styles.cityCardPast}`}>
+                            {ev.logo && (
+                              <img src={ev.logo} alt={ev.name} className={styles.cityLogo} />
+                            )}
+                            <div className={styles.cityInfo}>
+                              <h4 className={styles.cityName}>{ev.city}</h4>
+                              <p className={styles.cityDate}>
+                                {formatEventDate(ev.date)}
+                              </p>
+                              {ev.name && <p className={styles.cityEventName}>{ev.name}</p>}
+                              <p className={styles.cityMeta}>
+                                {storyCount} {storyCount === 1 ? 'story' : 'stories'}
+                                {recordingCount > 0 && ` \u00b7 ${recordingCount} recorded`}
+                              </p>
+                            </div>
+                            <span className={styles.cityArrow}>&rarr;</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {publicEvents.length === 0 && (
+                  <p className={styles.citiesEmpty}>
+                    No public events yet — be the first!
+                  </p>
+                )}
+              </>
+            );
+          })()}
+
+          <div className={styles.citiesCta}>
+            <Link to="/apply" className={styles.ctaSecondary}>
+              Don't see your city? Start one &rarr;
             </Link>
           </div>
         </div>
@@ -469,49 +564,6 @@ export function CommunityScreen() {
           </p>
         </div>
       </section>
-
-      {/* ── Cities / Past Events ── */}
-      {publicEvents.length > 0 && (
-        <section className={styles.citiesSection}>
-          <div className={styles.sectionInner}>
-            <h2 className={styles.sectionTitle}>Where It's Happening</h2>
-            <p className={styles.sectionSubtitle}>
-              Cities that have already joined the movement. Yours next?
-            </p>
-            <div className={styles.citiesGrid}>
-              {publicEvents.map(({ slug, event: ev }) => {
-                const past = isPastEvent(ev.date);
-                const storyCount = ev.presentations.length;
-                const recordingCount = ev.presentations.filter((p) => p.recording).length;
-                return (
-                  <Link
-                    key={slug}
-                    to={`/${slug}`}
-                    className={`${styles.cityCard} ${past ? styles.cityCardPast : ''}`}
-                  >
-                    {ev.logo && (
-                      <img src={ev.logo} alt={ev.name} className={styles.cityLogo} />
-                    )}
-                    <div className={styles.cityInfo}>
-                      <h3 className={styles.cityName}>{ev.city}</h3>
-                      <p className={styles.cityDate}>
-                        {formatEventDate(ev.date)}
-                        {past && <span className={styles.cityPastBadge}>Past</span>}
-                        {!past && <span className={styles.cityUpcomingBadge}>Upcoming</span>}
-                      </p>
-                      {ev.name && <p className={styles.cityEventName}>{ev.name}</p>}
-                      <p className={styles.cityMeta}>
-                        {storyCount} {storyCount === 1 ? 'story' : 'stories'}
-                        {recordingCount > 0 && ` · ${recordingCount} recorded`}
-                      </p>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ── The Collider ── */}
       <section id="after" className={styles.colliderSection}>

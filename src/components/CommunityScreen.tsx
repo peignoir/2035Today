@@ -220,13 +220,17 @@ function RollingRoles() {
 }
 
 /* ── Fade-cycle word for motto (one word at a time, fade+slide) ── */
-function FadeCycleWord({ suffix = '' }: { suffix?: string }) {
+function FadeCycleWord({ suffix = '', terminal = false }: { suffix?: string; terminal?: boolean }) {
+  const cls = terminal ? styles.terminalCycleItem : styles.fadeCycleItem;
+  const wrapCls = terminal
+    ? `${styles.fadeCycleWrap} ${styles.terminalWrap}`
+    : styles.fadeCycleWrap;
   return (
-    <span className={styles.fadeCycleWrap}>
+    <span className={wrapCls}>
       {VIBE_WORDS.map((word, i) => (
         <span
           key={word}
-          className={styles.fadeCycleItem}
+          className={cls}
           style={{ animationDelay: `${i * 2}s` }}
         >
           {word}{suffix}
@@ -412,10 +416,10 @@ export function CommunityScreen() {
       {/* ── Motto Banner ── */}
       <section className={styles.mottoBanner}>
         <p className={styles.mottoText}>
-          Stock Cans or Vibe <FadeCycleWord suffix="." />
+          Stock Cans or Vibe <FadeCycleWord suffix="?" />
         </p>
         <p className={styles.mottoTextSecond}>
-          We Vibe <FadeCycleWord suffix="." />
+          We Vibe <FadeCycleWord suffix="." terminal />
         </p>
       </section>
 
@@ -442,6 +446,7 @@ export function CommunityScreen() {
       <section id="after" className={styles.colliderSection}>
         <div className={styles.sectionInner}>
           <RocketIcon />
+          <p className={styles.ventureTag}>Powered by <strong>2035.vc</strong> — our venture arm</p>
           <h2 className={styles.sectionTitle}>The 1-Week Collider</h2>
           <p className={styles.sectionSubtitle}>
             Friday to Friday. The most intense week of your founder life.
@@ -450,7 +455,7 @@ export function CommunityScreen() {
           {/* The insight */}
           <div className={styles.colliderInsight}>
             <p className={styles.colliderLead}>
-              AI created a new species: the <strong>solo founder</strong>.
+              AI created a new species: the <strong>10x solo founder</strong>.
             </p>
             <p className={styles.colliderBody}>
               One person, one laptop, shipping what used to take a team of ten.
@@ -463,21 +468,28 @@ export function CommunityScreen() {
             </p>
           </div>
 
-          {/* The deal */}
+          {/* How to get in */}
           <div className={styles.colliderDeal}>
-            <h3 className={styles.colliderDealTitle}>The Deal</h3>
+            <h3 className={styles.colliderDealTitle}>How to Get In</h3>
             <div className={styles.colliderSteps}>
               <div className={styles.colliderStep}>
                 <span className={styles.colliderStepNum}>1</span>
-                <p>Show up. Be the best. One week, all in.</p>
+                <p>Do a <strong>Startup Microdosing</strong> session — at a Cafe near you or online.
+                  That's your entry ticket. No shortcut, no exceptions.</p>
               </div>
               <div className={styles.colliderStep}>
                 <span className={styles.colliderStepNum}>2</span>
-                <p>We invest <strong className={styles.investAmount}>$25K</strong> in the top founders.
-                  {' '}<span className={styles.jokeInline}>(don't spend it all on Mac minis!)</span></p>
+                <p>Applications open <strong>every month</strong>. Fresh cohort, fresh energy.
+                  Once you're accepted, pick the next Collider and show up.</p>
               </div>
               <div className={styles.colliderStep}>
                 <span className={styles.colliderStepNum}>3</span>
+                <p>One week, all in. The best founders get <strong className={styles.investAmount}>$25K</strong> from
+                  2035.vc to keep moving.
+                  {' '}<span className={styles.jokeInline}>(don't spend it all on Mac minis!)</span></p>
+              </div>
+              <div className={styles.colliderStep}>
+                <span className={styles.colliderStepNum}>4</span>
                 <p>Share your data. Plug into the <strong>Data Stream</strong>.</p>
               </div>
             </div>
@@ -500,8 +512,6 @@ export function CommunityScreen() {
               Skynet for fundraising. But, like, the good version. 🤖
             </p>
           </div>
-
-          <p className={styles.endorsedBy}>Endorsed by <strong>2035.vc</strong></p>
         </div>
       </section>
 

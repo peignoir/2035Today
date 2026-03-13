@@ -53,6 +53,11 @@
   color: var(--w-text-dim);
   text-decoration: none;
   transition: color 150ms ease;
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
 }
 
 .navLink:hover {

@@ -2,6 +2,11 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './CommunityScreen.module.css';
 
+/** HashRouter swallows #anchors — scroll manually instead */
+function scrollTo(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
+
 /* ── Random joke pools ── */
 
 const HERO_JOKES = [
@@ -281,8 +286,8 @@ export function CommunityScreen() {
       <nav className={styles.topNav}>
         <Link to="/" className={styles.navBrand}>☕ 2035Cafe</Link>
         <div className={styles.navRight}>
-          <a href="#the2hours" className={styles.navLink}>The 2 Hours</a>
-          <a href="#after" className={styles.navLink}>What's Next</a>
+          <button onClick={() => scrollTo('the2hours')} className={styles.navLink}>The 2 Hours</button>
+          <button onClick={() => scrollTo('after')} className={styles.navLink}>What's Next</button>
           <Link to="/apply" className={styles.navCta}>Organize one</Link>
         </div>
       </nav>
@@ -315,9 +320,9 @@ export function CommunityScreen() {
             Stock Cans or Vibe <RollingVibe />. We Vibe <RollingVibe />.
           </p>
           <div className={styles.ctaRow}>
-            <a href="#the2hours" className={styles.ctaPrimary}>
+            <button onClick={() => scrollTo('the2hours')} className={styles.ctaPrimary}>
               How it works ↓
-            </a>
+            </button>
             <Link to="/apply" className={styles.ctaSecondary}>
               Run one in your city
             </Link>
@@ -329,11 +334,11 @@ export function CommunityScreen() {
       <section id="the2hours" className={styles.section}>
         <div className={styles.sectionInner}>
           <p className={styles.sectionEyebrow}>Morning coffee or evening beers — or water, we don't judge</p>
-          <h2 className={styles.sectionTitle}>The 2-Hour Collider</h2>
+          <h2 className={styles.sectionTitle}>The Most Life-Changing 2h of Your Life</h2>
           <p className={styles.sectionSubtitle}>
-            Compress 3 months into 2 hours. Leave qualified.
+            That's the goal. No fluff, no panels, no networking bingo.
             <br />
-            <span className={styles.strikeJoke}>Startup Weekend?</span> That's the legacy sprint. This is hyper-speed.
+            <span className={styles.strikeJoke}>Startup Weekend?</span> That was a whole weekend. This is 2 hours. You're welcome.
           </p>
 
           <div className={styles.timeline}>

@@ -349,7 +349,9 @@ export function CommunityScreen() {
                   <p className={styles.stepTag}>Sci-fi stories of 2035</p>
                   <p className={styles.stepDesc}>
                     Like Black Mirror, but things go <em>right</em>.
-                    20 slides × 15 sec — founders, chefs, scientists paint vivid futures.
+                    Pick your weapon: 20 slides auto-advancing every 15 sec — raw, visual, no hiding —
+                    or let AI generate your entire 5-min film. Either way, you're painting a vivid future
+                    that makes the audience feel something.
                     {' '}<span className={styles.jokeInline}>{timelineJokes[0]}</span>
                   </p>
                 </div>

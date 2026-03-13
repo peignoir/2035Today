@@ -191,21 +191,6 @@ function RocketIcon() {
   );
 }
 
-function CommunityIcon() {
-  return (
-    <svg viewBox="0 0 80 80" className={styles.afterIcon} aria-hidden="true">
-      <circle cx="25" cy="26" r="7" fill="none" stroke="#d4603a" strokeWidth="1.5" />
-      <path d="M12 48 C12 38, 38 38, 38 48" fill="none" stroke="#d4603a" strokeWidth="1.5" />
-      <circle cx="55" cy="26" r="7" fill="none" stroke="#d4603a" strokeWidth="1.5" />
-      <path d="M42 48 C42 38, 68 38, 68 48" fill="none" stroke="#d4603a" strokeWidth="1.5" />
-      <circle cx="40" cy="44" r="7" fill="none" stroke="#5a8a3c" strokeWidth="1.5" />
-      <path d="M27 66 C27 56, 53 56, 53 66" fill="none" stroke="#5a8a3c" strokeWidth="1.5" />
-      <circle cx="40" cy="20" r="2" fill="#d4603a" opacity="0.4">
-        <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite" />
-      </circle>
-    </svg>
-  );
-}
 
 /* ── Rolling text component ── */
 const ROLES = [
@@ -443,43 +428,70 @@ export function CommunityScreen() {
         </div>
       </section>
 
-      {/* ── The After ── */}
-      <section id="after" className={styles.section}>
+      {/* ── The Collider ── */}
+      <section id="after" className={styles.colliderSection}>
         <div className={styles.sectionInner}>
-          <h2 className={styles.sectionTitle}>The After</h2>
+          <RocketIcon />
+          <h2 className={styles.sectionTitle}>The 1-Week Collider</h2>
           <p className={styles.sectionSubtitle}>
-            The 2 hours are the door. Here's what's behind it.
+            Friday to Friday. The most intense week of your founder life.
           </p>
 
-          <div className={styles.afterGrid}>
-            <div className={styles.afterCard}>
-              <CommunityIcon />
-              <h3 className={styles.afterName}>Community</h3>
-              <p className={styles.afterDesc}>
-                Keep meeting. Keep building. Keep learning.
-                Your prepper circle stays with you — a community force multiplier.
-                10x fast, together.
-              </p>
-              <p className={styles.afterCost}>Free, forever.</p>
-            </div>
+          {/* The insight */}
+          <div className={styles.colliderInsight}>
+            <p className={styles.colliderLead}>
+              AI created a new species: the <strong>solo founder</strong>.
+            </p>
+            <p className={styles.colliderBody}>
+              One person, one laptop, shipping what used to take a team of ten.
+              They move faster than anyone. They start before they have a pitch deck.
+              VCs haven't caught up — they still want co-founders, traction decks, and 6-month timelines.
+            </p>
+            <p className={styles.colliderBody}>
+              We call this stage <strong className={styles.inceptionBadge}>Inception</strong> — it's
+              better than pre-pre-seed, and it deserves its own playbook.
+            </p>
+          </div>
 
-            <div className={styles.afterDivider}>
-              <span className={styles.afterOr}>AND / OR</span>
-            </div>
-
-            <div className={`${styles.afterCard} ${styles.afterCardHighlight}`}>
-              <RocketIcon />
-              <h3 className={styles.afterName}>1-Week Collider</h3>
-              <p className={styles.afterDesc}>
-                For venture-backable founders who don't want to wait 3-6 months.
-                Friday to Friday. Intense. The best ones walk out with
-                <strong className={styles.investAmount}> $25K invested</strong> to move fast.
-              </p>
-              <p className={styles.afterJoke}>
-                (don't spend it all on Mac minis!)
-              </p>
+          {/* The deal */}
+          <div className={styles.colliderDeal}>
+            <h3 className={styles.colliderDealTitle}>The Deal</h3>
+            <div className={styles.colliderSteps}>
+              <div className={styles.colliderStep}>
+                <span className={styles.colliderStepNum}>1</span>
+                <p>Show up. Be the best. One week, all in.</p>
+              </div>
+              <div className={styles.colliderStep}>
+                <span className={styles.colliderStepNum}>2</span>
+                <p>We invest <strong className={styles.investAmount}>$25K</strong> in the top founders.
+                  {' '}<span className={styles.jokeInline}>(don't spend it all on Mac minis!)</span></p>
+              </div>
+              <div className={styles.colliderStep}>
+                <span className={styles.colliderStepNum}>3</span>
+                <p>Share your data. Plug into the <strong>Data Stream</strong>.</p>
+              </div>
             </div>
           </div>
+
+          {/* The vision */}
+          <div className={styles.colliderVision}>
+            <h3 className={styles.colliderVisionTitle}>The Vision</h3>
+            <p className={styles.colliderBody}>
+              A world where AI replaces all VCs. No pitch meetings. No warm intros.
+              No "let me get back to you." Just your Data Stream — the real-time pulse
+              of your company — doing the talking for you.
+            </p>
+            <p className={styles.colliderBody}>
+              Series A? Public offering? Strategic partner?
+              Plug in your stream. The data does the fundraising.
+              We're building toward that future. The Collider is step one.
+            </p>
+            <p className={styles.colliderPunchline}>
+              Skynet for fundraising. But, like, the good version. 🤖
+            </p>
+          </div>
+
+          <p className={styles.endorsedBy}>Endorsed by <strong>2035.vc</strong></p>
         </div>
       </section>
 
@@ -499,7 +511,6 @@ export function CommunityScreen() {
             Apply to organize
           </Link>
         </div>
-        <p className={styles.endorsedBy}>Endorsed by <strong>2035.vc</strong></p>
       </section>
 
       {/* ── Footer ── */}

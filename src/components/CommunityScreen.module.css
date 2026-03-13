@@ -525,82 +525,98 @@
   font-size: 1.4rem;
 }
 
-/* ── The After ── */
-.afterGrid {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.afterCard {
-  flex: 1;
-  padding: 36px;
-  background: var(--w-surface);
-  border: 1px solid var(--w-border);
-  border-radius: 16px;
+/* ── Collider Section ── */
+.colliderSection {
+  padding: 100px 32px;
+  border-top: 1px solid var(--w-border);
   text-align: center;
-  transition: border-color 300ms ease, transform 300ms ease;
-}
-
-.afterCard:hover {
-  transform: translateY(-3px);
-}
-
-.afterCardHighlight {
-  border-color: rgba(232, 155, 45, 0.3);
-  background: linear-gradient(180deg, var(--w-surface) 0%, rgba(232, 155, 45, 0.04) 100%);
-}
-
-.afterCardHighlight:hover {
-  border-color: rgba(232, 155, 45, 0.5);
 }
 
 .afterIcon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 16px;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 20px;
   display: block;
 }
 
-.afterName {
+.colliderInsight {
+  max-width: 640px;
+  margin: 0 auto 48px;
+  text-align: left;
+}
+
+.colliderLead {
   font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--w-text);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.colliderBody {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--w-text-dim);
+  margin-bottom: 14px;
+}
+
+.inceptionBadge {
+  display: inline-block;
+  color: var(--w-amber);
+  font-weight: 800;
+  font-size: 1.05em;
+  letter-spacing: 0.02em;
+  border-bottom: 2px solid var(--w-amber);
+}
+
+/* ── The Deal steps ── */
+.colliderDeal {
+  max-width: 640px;
+  margin: 0 auto 48px;
+  padding: 32px;
+  background: var(--w-surface);
+  border: 1px solid var(--w-border);
+  border-radius: 16px;
+  text-align: left;
+}
+
+.colliderDealTitle {
+  font-size: 1.2rem;
   font-weight: 800;
   color: var(--w-text);
-  margin-bottom: 12px;
+  margin-bottom: 20px;
+  text-align: center;
   letter-spacing: -0.02em;
 }
 
-.afterDesc {
-  font-size: 0.92rem;
-  line-height: 1.65;
+.colliderSteps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.colliderStep {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  font-size: 0.95rem;
+  line-height: 1.6;
   color: var(--w-text-dim);
-  margin-bottom: 16px;
 }
 
-.afterCost {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--w-green);
-  font-family: var(--font-mono);
-}
-
-.afterDivider {
+.colliderStepNum {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
-  padding: 0 20px;
-  flex-shrink: 0;
-}
-
-.afterOr {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--w-text-dim);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  writing-mode: vertical-lr;
-  text-orientation: mixed;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--w-rust);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 800;
+  margin-top: 2px;
 }
 
 .investAmount {
@@ -608,11 +624,33 @@
   font-weight: 700;
 }
 
-.afterJoke {
-  font-size: 0.82rem;
+/* ── The Vision ── */
+.colliderVision {
+  max-width: 640px;
+  margin: 0 auto 40px;
+  padding: 32px;
+  border: 1px dashed var(--w-border);
+  border-radius: 16px;
+  text-align: left;
+}
+
+.colliderVisionTitle {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--w-text);
+  margin-bottom: 16px;
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+
+.colliderPunchline {
+  font-size: 0.9rem;
   font-style: italic;
   color: var(--w-text-dim);
   opacity: 0.65;
+  text-align: center;
+  margin-top: 8px;
+  margin-bottom: 0;
 }
 
 /* ── CTA Section ── */
@@ -829,18 +867,13 @@
     height: 60px;
   }
 
-  .afterGrid {
-    flex-direction: column;
-    gap: 16px;
+  .colliderSection {
+    padding: 60px 16px;
   }
 
-  .afterDivider {
-    padding: 8px 0;
-    justify-content: center;
-  }
-
-  .afterOr {
-    writing-mode: horizontal-tb;
+  .colliderDeal,
+  .colliderVision {
+    padding: 24px;
   }
 
   .ctaHeadline {

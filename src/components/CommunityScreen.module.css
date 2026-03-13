@@ -221,13 +221,54 @@
   font-size: 1.2rem;
 }
 
+.heroJoke {
+  font-size: 0.88rem;
+  font-style: italic;
+  color: var(--w-text-dim);
+  opacity: 0.6;
+  margin-bottom: 16px;
+}
+
 .motto {
   font-size: 1.5rem;
   font-weight: 900;
   font-style: italic;
-  color: var(--w-rust);
+  color: var(--w-text-dim);
   margin-bottom: 36px;
   letter-spacing: -0.02em;
+}
+
+/* ── Rolling vibe word in motto ── */
+.vibeWrap {
+  display: inline-block;
+  height: 1.2em;
+  overflow: hidden;
+  vertical-align: bottom;
+  position: relative;
+  width: 110px;
+  text-align: left;
+}
+
+.vibeTrack {
+  display: flex;
+  flex-direction: column;
+  animation: rollUp 16s linear infinite;
+}
+
+.vibeItem {
+  display: block;
+  height: 1.2em;
+  line-height: 1.2em;
+  font-weight: 900;
+  color: var(--w-rust);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Inline jokes inside step descriptions ── */
+.jokeInline {
+  font-style: italic;
+  opacity: 0.7;
 }
 
 /* ── CTAs ── */
@@ -652,6 +693,79 @@
   font-size: 0.72rem;
   color: var(--w-text-dim);
   opacity: 0.5;
+}
+
+/* ── Expert Section ── */
+.expertSection {
+  padding: 80px 32px;
+  border-top: 1px solid var(--w-border);
+  text-align: center;
+  overflow: hidden;
+}
+
+.expertHeadline {
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  color: var(--w-text);
+}
+
+.expertHeadline em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--w-rust), var(--w-amber));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.expertSub {
+  font-size: 1.1rem;
+  color: var(--w-text-dim);
+  margin-bottom: 32px;
+  font-weight: 500;
+}
+
+.expertRollerWrap {
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 32px;
+  padding: 12px 0;
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+
+.expertRollerTrack {
+  display: flex;
+  gap: 32px;
+  width: max-content;
+  animation: scrollLeft 30s linear infinite;
+}
+
+.expertRollerItem {
+  flex-shrink: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--w-rust);
+  white-space: nowrap;
+  padding: 8px 20px;
+  border: 1px solid var(--w-border);
+  border-radius: 24px;
+  background: var(--w-surface);
+}
+
+@keyframes scrollLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.expertBody {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--w-text-dim);
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 /* ── Responsive ── */

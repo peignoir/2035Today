@@ -1,5 +1,67 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './CommunityScreen.module.css';
+
+/* ── Random joke pools ── */
+
+const HERO_JOKES = [
+  'Yes, even T-800 models.',
+  'Welcome, Mr. Anderson.',
+  'Skynet wished it had this community.',
+  "Not the droids you're looking for? Too bad.",
+  'Replicants welcome. Turing test optional.',
+  'Furiosa approved. ⛽',
+  'Red pill or blue pill? We chose espresso.',
+  'Come with me if you want to build.',
+  'The spice must flow. So must the code.',
+  "Winter is coming. So is AI. We're ready.",
+];
+
+const TIMELINE_JOKES: [string, string, string][] = [
+  // [white mirror joke, microdose joke, circle joke]
+  [
+    'No T-800s on stage. Probably.',
+    "You'll feel like Neo learning kung fu — except it's React.",
+    'The AI apocalypse is more fun with friends. 🧟',
+  ],
+  [
+    'Like a Blade Runner briefing, but optimistic.',
+    'Mad Max with a MacBook. Fury Road, but shipping SaaS.',
+    "Morpheus said 'free your mind.' We say 'find your crew.' 🕶️",
+  ],
+  [
+    'Imagine TED talks, but in the Mos Eisley cantina.',
+    'Move fast, build things. The Terminator would be proud.',
+    'Your survival squad for the robot uprising. Just kidding. Mostly. 🤖',
+  ],
+  [
+    'Sci-fi writers telling you about Tuesday. In 2035.',
+    'Ship faster than the Millennium Falcon. Almost.',
+    'Like the Fellowship, but for AI. One does not simply build alone. 💍',
+  ],
+  [
+    'Black Mirror, but make it a rom-com with robots.',
+    "Hasta la vista, impostor syndrome. You're building now.",
+    'Your crew for when the machines... you know what, never mind. 🧟',
+  ],
+];
+
+const VIBE_WORDS = [
+  'Code',
+  'Up',
+  'Market',
+  'Build',
+  'Robot',
+  'Art',
+  'Ship',
+  'Design',
+  'Launch',
+  'Create',
+];
+
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
 
 /* ── Inline SVG illustrations ── */
 
@@ -37,26 +99,19 @@ function CoffeeCupSVG() {
 function WhiteMirrorIcon() {
   return (
     <svg viewBox="0 0 100 100" className={styles.stepIcon} aria-hidden="true">
-      {/* Old TV shape */}
       <rect x="15" y="12" width="70" height="55" rx="8" fill="none" stroke="#d4603a" strokeWidth="2" />
-      {/* Screen */}
       <rect x="22" y="18" width="56" height="42" rx="3" fill="#d4603a" opacity="0.06" />
-      {/* Scan line */}
       <line x1="22" y1="30" x2="78" y2="30" stroke="#d4603a" strokeWidth="0.5" opacity="0.2">
         <animate attributeName="y1" values="18;60;18" dur="3s" repeatCount="indefinite" />
         <animate attributeName="y2" values="18;60;18" dur="3s" repeatCount="indefinite" />
       </line>
-      {/* "2035" on screen */}
       <text x="50" y="44" textAnchor="middle" fill="#d4603a" opacity="0.4" fontSize="14" fontWeight="bold" fontFamily="monospace">2035</text>
-      {/* Antenna */}
       <line x1="40" y1="12" x2="30" y2="2" stroke="#d4603a" strokeWidth="1.5" />
       <line x1="60" y1="12" x2="70" y2="2" stroke="#d4603a" strokeWidth="1.5" />
       <circle cx="30" cy="2" r="2" fill="#d4603a" opacity="0.5" />
       <circle cx="70" cy="2" r="2" fill="#d4603a" opacity="0.5" />
-      {/* Legs */}
       <line x1="30" y1="67" x2="25" y2="80" stroke="#d4603a" strokeWidth="1.5" />
       <line x1="70" y1="67" x2="75" y2="80" stroke="#d4603a" strokeWidth="1.5" />
-      {/* Static dots */}
       <circle cx="35" cy="30" r="1" fill="#d4603a" opacity="0.3">
         <animate attributeName="opacity" values="0.3;0;0.3" dur="0.8s" repeatCount="indefinite" />
       </circle>
@@ -70,25 +125,17 @@ function WhiteMirrorIcon() {
 function LightningIcon() {
   return (
     <svg viewBox="0 0 100 100" className={styles.stepIcon} aria-hidden="true">
-      {/* Laptop base */}
       <rect x="15" y="55" width="70" height="6" rx="2" fill="none" stroke="#e89b2d" strokeWidth="2" />
-      {/* Laptop screen */}
       <rect x="20" y="20" width="60" height="38" rx="3" fill="none" stroke="#e89b2d" strokeWidth="2" />
-      {/* Lightning on screen */}
       <polygon points="52,24 40,42 48,42 42,58 58,38 50,38" fill="none" stroke="#e89b2d" strokeWidth="1.8" strokeLinejoin="round">
         <animate attributeName="opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite" />
       </polygon>
-      {/* Sparks */}
       <circle cx="30" cy="15" r="1.5" fill="#e89b2d" opacity="0.3">
         <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite" />
       </circle>
       <circle cx="72" cy="28" r="1" fill="#e89b2d" opacity="0.4">
         <animate attributeName="opacity" values="0;0.5;0" dur="1.6s" repeatCount="indefinite" />
       </circle>
-      <circle cx="25" cy="44" r="1" fill="#e89b2d" opacity="0.25">
-        <animate attributeName="opacity" values="0.25;0;0.25" dur="2.3s" repeatCount="indefinite" />
-      </circle>
-      {/* Keyboard dots */}
       <rect x="28" y="57" width="3" height="1" rx="0.5" fill="#e89b2d" opacity="0.3" />
       <rect x="34" y="57" width="3" height="1" rx="0.5" fill="#e89b2d" opacity="0.3" />
       <rect x="40" y="57" width="18" height="1" rx="0.5" fill="#e89b2d" opacity="0.3" />
@@ -101,25 +148,21 @@ function LightningIcon() {
 function CircleIcon() {
   return (
     <svg viewBox="0 0 100 100" className={styles.stepIcon} aria-hidden="true">
-      {/* Center node (you) */}
       <circle cx="50" cy="50" r="10" fill="#5a8a3c" opacity="0.15" />
       <circle cx="50" cy="50" r="10" fill="none" stroke="#5a8a3c" strokeWidth="2" />
       <text x="50" y="54" textAnchor="middle" fill="#5a8a3c" fontSize="8" fontWeight="bold">YOU</text>
-      {/* Outer people nodes */}
       <circle cx="50" cy="15" r="6" fill="none" stroke="#d4603a" strokeWidth="1.5" />
       <circle cx="80" cy="30" r="6" fill="none" stroke="#d4603a" strokeWidth="1.5" />
       <circle cx="80" cy="70" r="6" fill="none" stroke="#d4603a" strokeWidth="1.5" />
       <circle cx="50" cy="85" r="6" fill="none" stroke="#d4603a" strokeWidth="1.5" />
       <circle cx="20" cy="70" r="6" fill="none" stroke="#d4603a" strokeWidth="1.5" />
       <circle cx="20" cy="30" r="6" fill="none" stroke="#d4603a" strokeWidth="1.5" />
-      {/* Connections to center */}
       <line x1="50" y1="40" x2="50" y2="21" stroke="#d4603a" strokeWidth="1" opacity="0.3" strokeDasharray="3 2" />
       <line x1="58" y1="43" x2="75" y2="34" stroke="#d4603a" strokeWidth="1" opacity="0.3" strokeDasharray="3 2" />
       <line x1="58" y1="57" x2="75" y2="66" stroke="#d4603a" strokeWidth="1" opacity="0.3" strokeDasharray="3 2" />
       <line x1="50" y1="60" x2="50" y2="79" stroke="#d4603a" strokeWidth="1" opacity="0.3" strokeDasharray="3 2" />
       <line x1="42" y1="57" x2="25" y2="66" stroke="#d4603a" strokeWidth="1" opacity="0.3" strokeDasharray="3 2" />
       <line x1="42" y1="43" x2="25" y2="34" stroke="#d4603a" strokeWidth="1" opacity="0.3" strokeDasharray="3 2" />
-      {/* Pulse from center */}
       <circle cx="50" cy="50" r="10" fill="none" stroke="#5a8a3c" strokeWidth="1" opacity="0.3">
         <animate attributeName="r" values="10;35;10" dur="4s" repeatCount="indefinite" />
         <animate attributeName="opacity" values="0.3;0;0.3" dur="4s" repeatCount="indefinite" />
@@ -131,13 +174,11 @@ function CircleIcon() {
 function RocketIcon() {
   return (
     <svg viewBox="0 0 80 80" className={styles.afterIcon} aria-hidden="true">
-      {/* Rocket body */}
       <path d="M40 10 C40 10, 55 25, 55 45 L55 55 L25 55 L25 45 C25 25, 40 10, 40 10Z"
             fill="none" stroke="#e89b2d" strokeWidth="2" />
       <circle cx="40" cy="35" r="5" fill="none" stroke="#e89b2d" strokeWidth="1.5" />
       <path d="M25 48 L15 58 L25 55" fill="none" stroke="#e89b2d" strokeWidth="1.5" />
       <path d="M55 48 L65 58 L55 55" fill="none" stroke="#e89b2d" strokeWidth="1.5" />
-      {/* Flame */}
       <path d="M32 55 Q40 72, 48 55" fill="none" stroke="#d4603a" strokeWidth="1.5" opacity="0.7">
         <animate attributeName="d" values="M32 55 Q40 72, 48 55;M32 55 Q40 68, 48 55;M32 55 Q40 72, 48 55" dur="0.6s" repeatCount="indefinite" />
       </path>
@@ -154,7 +195,6 @@ function CommunityIcon() {
       <path d="M42 48 C42 38, 68 38, 68 48" fill="none" stroke="#d4603a" strokeWidth="1.5" />
       <circle cx="40" cy="44" r="7" fill="none" stroke="#5a8a3c" strokeWidth="1.5" />
       <path d="M27 66 C27 56, 53 56, 53 66" fill="none" stroke="#5a8a3c" strokeWidth="1.5" />
-      {/* Heart / connection */}
       <circle cx="40" cy="20" r="2" fill="#d4603a" opacity="0.4">
         <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite" />
       </circle>
@@ -177,7 +217,6 @@ const ROLES = [
 ];
 
 function RollingRoles() {
-  // Double the list for seamless loop
   const doubled = [...ROLES, ...ROLES];
   return (
     <span className={styles.rollerWrap}>
@@ -190,7 +229,52 @@ function RollingRoles() {
   );
 }
 
+/* ── Rolling vibe word for motto ── */
+function RollingVibe() {
+  const doubled = [...VIBE_WORDS, ...VIBE_WORDS];
+  return (
+    <span className={styles.vibeWrap}>
+      <span className={styles.vibeTrack}>
+        {doubled.map((word, i) => (
+          <span key={i} className={styles.vibeItem}>{word}</span>
+        ))}
+      </span>
+    </span>
+  );
+}
+
+/* ── "Expert at anything" examples — rolling horizontally ── */
+const EXPERT_EXAMPLES = [
+  'A designer ships production code.',
+  'A chef launches a SaaS.',
+  'A teacher builds an app overnight.',
+  'A musician deploys a startup.',
+  'A nurse automates her clinic.',
+  'A 16-year-old builds a $1M product.',
+  'A poet writes a smart contract.',
+  'A farmer optimizes supply chains.',
+  'A grandma builds her own chatbot.',
+  'A DJ launches a fintech.',
+];
+
+function RollingExperts() {
+  const doubled = [...EXPERT_EXAMPLES, ...EXPERT_EXAMPLES];
+  return (
+    <div className={styles.expertRollerWrap}>
+      <div className={styles.expertRollerTrack}>
+        {doubled.map((ex, i) => (
+          <span key={i} className={styles.expertRollerItem}>{ex}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function CommunityScreen() {
+  // Pick random jokes on each mount — stable for the session
+  const heroJoke = useMemo(() => pickRandom(HERO_JOKES), []);
+  const timelineJokes = useMemo(() => pickRandom(TIMELINE_JOKES), []);
+
   return (
     <div className={styles.page}>
       {/* ── Nav ── */}
@@ -215,6 +299,7 @@ export function CommunityScreen() {
           <p className={styles.roleLine}>
             For <RollingRoles /> — deal with it, you're all welcome.
           </p>
+          <p className={styles.heroJoke}>{heroJoke}</p>
           <p className={styles.subhead}>
             We all know the world will be different in 2035.
             This is the place where you'll know how to be ready <em>before anyone else</em>.
@@ -226,7 +311,9 @@ export function CommunityScreen() {
             <span className={styles.pillDot}>·</span>
             <span className={styles.pill}>Connect</span>
           </p>
-          <p className={styles.motto}>"Less Doom. More Build."</p>
+          <p className={styles.motto}>
+            Stock Cans or Vibe <RollingVibe />. We Vibe <RollingVibe />.
+          </p>
           <div className={styles.ctaRow}>
             <a href="#the2hours" className={styles.ctaPrimary}>
               How it works ↓
@@ -269,7 +356,7 @@ export function CommunityScreen() {
                   <p className={styles.stepDesc}>
                     Like Black Mirror, but things go <em>right</em>.
                     20 slides × 15 sec — founders, chefs, scientists paint vivid futures.
-                    No Terminator vibes here. Okay, maybe a little. 🤖
+                    {' '}<span className={styles.jokeInline}>{timelineJokes[0]}</span>
                   </p>
                 </div>
               </div>
@@ -293,8 +380,8 @@ export function CommunityScreen() {
                   <p className={styles.stepTag}>Instant Tech Stack Enablement 🔥</p>
                   <p className={styles.stepDesc}>
                     Idea-to-launch. Build fast, repeat. First-timers get the "holy sh*t" moment.
-                    Veterans compete to ship fastest. You'll feel like a 10x founder
-                    — Mad Max with a MacBook.
+                    Veterans compete to ship fastest.
+                    {' '}<span className={styles.jokeInline}>{timelineJokes[1]}</span>
                   </p>
                 </div>
               </div>
@@ -318,7 +405,7 @@ export function CommunityScreen() {
                   <p className={styles.stepDesc}>
                     Form your tribe. 5-6 people who get it.
                     Meet monthly, share wins, cover blind spots.
-                    The AI apocalypse is more fun with friends. 🧟
+                    {' '}<span className={styles.jokeInline}>{timelineJokes[2]}</span>
                   </p>
                 </div>
               </div>
@@ -329,6 +416,25 @@ export function CommunityScreen() {
             <span className={styles.totalIcon}>⏱</span>
             <span>2 hours. That's it. Then go survive the future.</span>
           </div>
+        </div>
+      </section>
+
+      {/* ── AI makes everyone expert ── */}
+      <section className={styles.expertSection}>
+        <div className={styles.sectionInner}>
+          <h2 className={styles.expertHeadline}>
+            AI is making <em>anyone</em> expert at <em>anything</em>.
+          </h2>
+          <p className={styles.expertSub}>We're just getting started.</p>
+
+          <RollingExperts />
+
+          <p className={styles.expertBody}>
+            The rules changed. A designer ships code. A chef launches a SaaS.
+            A 16-year-old builds what used to take a funded team.
+            The only question is: are you in the room where it happens,
+            or reading about it 6 months later?
+          </p>
         </div>
       </section>
 
@@ -394,7 +500,7 @@ export function CommunityScreen() {
       {/* ── Footer ── */}
       <footer className={styles.footer}>
         <span className={styles.footerBrand}>☕ 2035Cafe</span>
-        <span className={styles.footerMotto}>Less Doom. More Build.</span>
+        <span className={styles.footerMotto}>Stock Cans or Vibe Code. We Vibe Code.</span>
         <span className={styles.footerTagline}>Grassroots rebuild. Compress or die.</span>
       </footer>
     </div>

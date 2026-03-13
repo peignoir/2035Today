@@ -297,7 +297,11 @@ export function useMediaRecorder(): MediaRecorderHandle {
 
       // Flush any buffered data before stopping so partial recordings
       // (shorter than the 10s timeslice) still produce chunks.
+      // Resume first if paused — requestData only works in 'recording' state.
       try {
+        if (recorder.state === 'paused') {
+          recorder.resume();
+        }
         if (recorder.state === 'recording') {
           recorder.requestData();
         }

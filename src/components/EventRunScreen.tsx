@@ -137,19 +137,51 @@ export function EventRunScreen() {
 
   const handleRecordingComplete = useCallback(async (blob: Blob) => {
     if (currentPresIndex === null) return;
-    setUploadState({
-      presIndex: currentPresIndex,
-      blob,
-      status: 'confirm',
-      progress: 0,
-    });
-  }, [currentPresIndex]);
+    // Auto-upload immediately — don't risk losing the blob if the user
+    // presses Escape a second time or navigates away.
+    const presIndex = currentPresIndex;
+    setUploadState({ presIndex, blob, status: 'uploading', progress: 10 });
+
+    try {
+      const progressTimer = setInterval(() => {
+        setUploadState((prev) => {
+          if (!prev || prev.status !== 'uploading') return prev;
+          return { ...prev, progress: Math.min(prev.progress + 8, 90) };
+        });
+      }, 500);
+
+      const cdnUrl = await uploadRecording(slug, presIndex, blob);
+
+      clearInterval(progressTimer);
+      setUploadState((prev) => prev ? { ...prev, status: 'done', progress: 100 } : null);
+
+      setEvent((prev) => {
+        if (!prev) return prev;
+        const presentations = prev.presentations.map((p, i) =>
+          i === presIndex ? { ...p, recording: cdnUrl } : p,
+        );
+        const updated = { ...prev, presentations };
+        saveEvent(slug, updated).catch(console.error);
+        return updated;
+      });
+
+      setTimeout(() => setUploadState(null), 2000);
+    } catch (e) {
+      setUploadState({
+        presIndex,
+        blob,
+        status: 'error',
+        progress: 0,
+        error: e instanceof Error ? e.message : 'Upload failed',
+      });
+    }
+  }, [currentPresIndex, slug]);
 
   const handleRecordingFailed = useCallback(() => {
     setRunError('Recording failed — no audio/video data was captured. Please try again.');
   }, []);
 
-  const handleConfirmUpload = useCallback(async () => {
+  const handleRetryUpload = useCallback(async () => {
     if (!uploadState || !event) return;
     const { presIndex, blob } = uploadState;
     setUploadState((prev) => prev ? { ...prev, status: 'uploading', progress: 10 } : null);
@@ -259,6 +291,7 @@ export function EventRunScreen() {
             presentations={presentations}
             playedIds={playedIds}
             recordEnabled={event?.recordEnabled ?? false}
+            uploadBusy={uploadState !== null && uploadState.status === 'uploading'}
             onPlay={handlePlay}
             onDeleteRecording={handleDeleteRecording}
             onExit={handleExit}
@@ -316,28 +349,13 @@ export function EventRunScreen() {
         );
       })()}
 
-      {/* Upload dialog with progress bar */}
+      {/* Upload dialog — auto-uploading, no skip option */}
       {uploadState && (
         <div className={styles.confirmOverlay}>
           <div className={styles.confirmDialog}>
-            {uploadState.status === 'confirm' && (
-              <>
-                <p className={styles.confirmText}>
-                  Recording captured ({(uploadState.blob.size / 1024 / 1024).toFixed(1)} MB). Upload to cloud?
-                </p>
-                <div className={styles.confirmButtons}>
-                  <button className={styles.confirmCancel} onClick={handleSkipUpload}>
-                    Skip
-                  </button>
-                  <button className={styles.confirmProceed} onClick={handleConfirmUpload}>
-                    Upload now
-                  </button>
-                </div>
-              </>
-            )}
             {uploadState.status === 'uploading' && (
               <>
-                <p className={styles.confirmText}>Uploading recording...</p>
+                <p className={styles.confirmText}>Uploading recording ({(uploadState.blob.size / 1024 / 1024).toFixed(1)} MB)...</p>
                 <div className={styles.renderBar} style={{ marginTop: '12px' }}>
                   <div
                     className={styles.renderFill}
@@ -351,7 +369,7 @@ export function EventRunScreen() {
             )}
             {uploadState.status === 'done' && (
               <p className={styles.confirmText} style={{ color: '#22c55e' }}>
-                Uploaded successfully!
+                ✓ Recording saved!
               </p>
             )}
             {uploadState.status === 'error' && (
@@ -363,7 +381,7 @@ export function EventRunScreen() {
                   <button className={styles.confirmCancel} onClick={handleSkipUpload}>
                     Dismiss
                   </button>
-                  <button className={styles.confirmProceed} onClick={handleConfirmUpload}>
+                  <button className={styles.confirmProceed} onClick={handleRetryUpload}>
                     Retry
                   </button>
                 </div>

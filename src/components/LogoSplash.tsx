@@ -8,6 +8,7 @@ interface LogoSplashProps {
   presentations: ShareablePresentation[];
   playedIds: Set<number>;
   recordEnabled?: boolean;
+  uploadBusy?: boolean;
   onPlay: (presIndex: number) => void;
   onDeleteRecording?: (presIndex: number) => void;
   onExit: () => void;
@@ -19,6 +20,7 @@ export function LogoSplash({
   presentations,
   playedIds,
   recordEnabled = false,
+  uploadBusy = false,
   onPlay,
   onDeleteRecording,
   onExit,
@@ -29,12 +31,13 @@ export function LogoSplash({
     const handler = (e: KeyboardEvent) => {
       if (e.code === 'Escape') {
         e.preventDefault();
-        onExit();
+        // Don't exit while a recording is being uploaded
+        if (!uploadBusy) onExit();
       }
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [onExit]);
+  }, [onExit, uploadBusy]);
 
   const handleFullscreen = useCallback((index: number) => {
     const video = document.querySelector(`video[data-rec-idx="${index}"]`) as HTMLVideoElement | null;

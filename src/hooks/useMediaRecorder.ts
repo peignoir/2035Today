@@ -196,19 +196,32 @@ export function useMediaRecorder(): MediaRecorderHandle {
 
   const startRecording = useCallback(async (slides: SlideImage[], preAcquiredAudio?: MediaStream | null) => {
     // Check browser support
-    if (typeof MediaRecorder === 'undefined') return;
+    if (typeof MediaRecorder === 'undefined') {
+      console.warn('[MediaRecorder] MediaRecorder API not available');
+      return;
+    }
     const mime = pickMimeType();
-    if (!mime) return;
+    if (!mime) {
+      console.warn('[MediaRecorder] No supported MIME type found');
+      return;
+    }
     mimeRef.current = mime;
+    console.log('[MediaRecorder] Using MIME type:', mime);
 
     // Bail if captureStream not supported
     const testCanvas = document.createElement('canvas');
-    if (!testCanvas.captureStream) return;
+    if (!testCanvas.captureStream) {
+      console.warn('[MediaRecorder] canvas.captureStream not supported');
+      return;
+    }
 
     // Create offscreen canvas – cap at 1280×720 to keep memory low during 5-min recordings.
     // Slides are rendered at 2× for display, but that resolution is overkill for recording.
     const firstSlide = slides[0];
-    if (!firstSlide) return;
+    if (!firstSlide) {
+      console.warn('[MediaRecorder] No slides provided');
+      return;
+    }
 
     const MAX_W = 1280;
     const MAX_H = 720;
@@ -222,7 +235,10 @@ export function useMediaRecorder(): MediaRecorderHandle {
     canvas.width = recW;
     canvas.height = recH;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      console.warn('[MediaRecorder] Failed to get canvas 2d context');
+      return;
+    }
 
     canvasRef.current = canvas;
     ctxRef.current = ctx;
@@ -272,6 +288,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
     recorder.start(10_000); // collect chunks every 10s (30 chunks over 5 min vs 300)
     startTimeRef.current = Date.now();
     setIsRecording(true);
+    console.log(`[MediaRecorder] Recording started (${recW}x${recH}, ${mime}, audio: ${!!audioStream})`);
 
     // Draw first slide (overlay will be added by PresentationScreen interval)
     drawSlide(firstSlide);
@@ -281,13 +298,18 @@ export function useMediaRecorder(): MediaRecorderHandle {
     return new Promise((resolve) => {
       const recorder = recorderRef.current;
       if (!recorder || recorder.state === 'inactive') {
+        console.warn('[MediaRecorder] stopRecording called but no active recorder (state:', recorder?.state ?? 'null', ')');
         cleanup();
         resolve(null);
         return;
       }
 
+      const elapsed = Date.now() - startTimeRef.current;
+      console.log(`[MediaRecorder] Stopping recording after ${(elapsed / 1000).toFixed(1)}s, chunks so far: ${chunksRef.current.length}`);
+
       recorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: mimeRef.current });
+        console.log(`[MediaRecorder] Final blob: ${(blob.size / 1024 / 1024).toFixed(2)}MB (${chunksRef.current.length} chunks)`);
         chunksRef.current = [];
         cleanup();
         // Always return the blob, even if small — partial recordings are still
@@ -309,7 +331,13 @@ export function useMediaRecorder(): MediaRecorderHandle {
         // requestData may throw if state just changed; safe to ignore
       }
 
-      recorder.stop();
+      try {
+        recorder.stop();
+      } catch (e) {
+        console.error('[MediaRecorder] recorder.stop() threw:', e);
+        cleanup();
+        resolve(null);
+      }
     });
   }, []);
 

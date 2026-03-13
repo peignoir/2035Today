@@ -99,7 +99,10 @@ export function PresentationScreen({
     // Start recording when the talk begins
     if (recordingEnabled && !recorderStartedRef.current) {
       recorderStartedRef.current = true;
-      recorder.startRecording(deck.slides, audioStream);
+      recorder.startRecording(deck.slides, audioStream).catch((err) => {
+        console.error('[Recording] startRecording failed:', err);
+        recorderStartedRef.current = false;
+      });
     }
   }, [resume, recordingEnabled, recorder, deck.slides, audioStream]);
 

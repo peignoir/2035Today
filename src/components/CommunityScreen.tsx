@@ -1,5 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import type { ShareableEvent } from '../types';
+import { listPublicEvents } from '../lib/storage';
 import styles from './CommunityScreen.module.css';
 
 /** HashRouter swallows #anchors — scroll manually instead */
@@ -267,10 +269,32 @@ function RollingExperts() {
   );
 }
 
+function formatEventDate(dateStr: string): string {
+  try {
+    return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+function isPastEvent(dateStr: string): boolean {
+  return new Date(dateStr + 'T23:59:59') < new Date();
+}
+
 export function CommunityScreen() {
   // Pick random jokes on each mount — stable for the session
   const heroJoke = useMemo(() => pickRandom(HERO_JOKES), []);
   const timelineJokes = useMemo(() => pickRandom(TIMELINE_JOKES), []);
+
+  // Load public events
+  const [publicEvents, setPublicEvents] = useState<{ slug: string; event: ShareableEvent }[]>([]);
+  useEffect(() => {
+    listPublicEvents().then(setPublicEvents).catch(console.error);
+  }, []);
 
   return (
     <div className={styles.page}>
@@ -291,15 +315,16 @@ export function CommunityScreen() {
           <CoffeeCupSVG />
           <h1 className={styles.headline}>
             <span className={styles.brandName}>2035Cafe</span>
-            <span className={styles.headlineSub}>The AI Prepper Community</span>
+            <span className={styles.headlineSub}>Fear Nothing, Build Anything</span>
           </h1>
           <p className={styles.roleLine}>
             For <RollingRoles /> — deal with it, you're all welcome.
           </p>
           <p className={styles.heroJoke}>{heroJoke}</p>
           <p className={styles.subhead}>
-            We all know the world will be different in 2035.
-            This is the place where you'll know how to be ready <em>before anyone else</em>.
+            Think AI preppers — not the bunker kind, the <em>builder</em> kind.
+            We're not doomers. We're believers. And we're getting ready
+            for 2035 <em>before anyone else</em>.
           </p>
           <p className={styles.pillRow}>
             <span className={styles.pill}>Be Inspired</span>
@@ -396,11 +421,12 @@ export function CommunityScreen() {
                   <p className={styles.stepDuration}>
                     <span className={`${styles.durationNum} ${styles.numGreen}`}>45</span> min
                   </p>
-                  <h3 className={styles.stepName}>AI Prepper Circle</h3>
+                  <h3 className={styles.stepName}>Builder Circle</h3>
                   <p className={styles.stepTag}>Your Long-Lasting Crew</p>
                   <p className={styles.stepDesc}>
                     Form your tribe. 5-6 people who get it.
                     Meet monthly, share wins, cover blind spots.
+                    Not doomers — builders who believe the future is worth preparing for.
                     {' '}<span className={styles.jokeInline}>{timelineJokes[2]}</span>
                   </p>
                 </div>
@@ -443,6 +469,49 @@ export function CommunityScreen() {
           </p>
         </div>
       </section>
+
+      {/* ── Cities / Past Events ── */}
+      {publicEvents.length > 0 && (
+        <section className={styles.citiesSection}>
+          <div className={styles.sectionInner}>
+            <h2 className={styles.sectionTitle}>Where It's Happening</h2>
+            <p className={styles.sectionSubtitle}>
+              Cities that have already joined the movement. Yours next?
+            </p>
+            <div className={styles.citiesGrid}>
+              {publicEvents.map(({ slug, event: ev }) => {
+                const past = isPastEvent(ev.date);
+                const storyCount = ev.presentations.length;
+                const recordingCount = ev.presentations.filter((p) => p.recording).length;
+                return (
+                  <Link
+                    key={slug}
+                    to={`/${slug}`}
+                    className={`${styles.cityCard} ${past ? styles.cityCardPast : ''}`}
+                  >
+                    {ev.logo && (
+                      <img src={ev.logo} alt={ev.name} className={styles.cityLogo} />
+                    )}
+                    <div className={styles.cityInfo}>
+                      <h3 className={styles.cityName}>{ev.city}</h3>
+                      <p className={styles.cityDate}>
+                        {formatEventDate(ev.date)}
+                        {past && <span className={styles.cityPastBadge}>Past</span>}
+                        {!past && <span className={styles.cityUpcomingBadge}>Upcoming</span>}
+                      </p>
+                      {ev.name && <p className={styles.cityEventName}>{ev.name}</p>}
+                      <p className={styles.cityMeta}>
+                        {storyCount} {storyCount === 1 ? 'story' : 'stories'}
+                        {recordingCount > 0 && ` · ${recordingCount} recorded`}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── The Collider ── */}
       <section id="after" className={styles.colliderSection}>
@@ -538,8 +607,8 @@ export function CommunityScreen() {
       {/* ── Footer ── */}
       <footer className={styles.footer}>
         <span className={styles.footerBrand}>☕ 2035Cafe</span>
-        <span className={styles.footerMotto}>Stock Cans or Vibe Code.</span>
-        <span className={styles.footerTagline}>Grassroots rebuild. Compress or die.</span>
+        <span className={styles.footerMotto}>Fear Nothing, Build Anything.</span>
+        <span className={styles.footerTagline}>Not doomers. Builders.</span>
       </footer>
     </div>
   );

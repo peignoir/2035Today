@@ -76,6 +76,15 @@ export function EventSetupScreen() {
     });
   }, [save]);
 
+  const togglePublic = useCallback(() => {
+    setEvent((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, isPublic: !prev.isPublic };
+      save(updated);
+      return updated;
+    });
+  }, [save]);
+
   // Logo upload — immediately to Supabase
   const onLogoDrop = useCallback(async (files: File[]) => {
     if (files.length === 0 || !slug || !event) return;
@@ -485,6 +494,23 @@ export function EventSetupScreen() {
             </button>
             <span className={styles.toggleLabel}>
               Capture {event.recordEnabled ? 'ON' : 'OFF'}
+            </span>
+          </div>
+
+          <div className={styles.toggleRow}>
+            <button
+              className={`${styles.toggle} ${event.isPublic ? styles.toggleOn : ''}`}
+              onClick={togglePublic}
+              type="button"
+              aria-pressed={event.isPublic ?? false}
+            >
+              <span className={styles.toggleThumb} />
+            </button>
+            <span className={styles.toggleLabel}>
+              Public {event.isPublic ? 'ON' : 'OFF'}
+              <span style={{ fontSize: '0.8em', color: '#888', marginLeft: 6 }}>
+                (shows on community homepage)
+              </span>
             </span>
           </div>
         </section>

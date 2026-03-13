@@ -94,9 +94,9 @@ export function EventLandingScreen({ event }: EventLandingScreenProps) {
       {/* What is Cafe2035 */}
       <section id="what" className={styles.whatSection}>
         <div className={styles.whatContent}>
-          <h2 className={styles.whatHeadline}>The world's first AI prepper meetup.</h2>
+          <h2 className={styles.whatHeadline}>Fear nothing. Build anything.</h2>
           <p className={styles.whatBody}>
-            Cafe2035 brings together creative writers, entrepreneurs, AI researchers, designers, and anyone brave enough to imagine what's next. Over morning coffee or late-night drinks, in cities across the globe, we stage one question: <em>what does 2035 actually look like?</em>
+            Think AI preppers — not the bunker kind, the builder kind. Cafe2035 brings together creative writers, entrepreneurs, AI researchers, designers, and anyone brave enough to imagine what's next. Over morning coffee or late-night drinks, in cities across the globe, we stage one question: <em>what does 2035 actually look like?</em>
           </p>
           <p className={styles.whatBody}>
             Every voice gets the same stage. A sci-fi novelist shares a vision alongside a robotics founder. A teacher alongside a venture capitalist. The diversity is the point — because the future won't be built by one kind of person.

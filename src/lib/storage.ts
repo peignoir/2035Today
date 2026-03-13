@@ -66,6 +66,14 @@ export async function listEvents(): Promise<{ slug: string; event: ShareableEven
   return results;
 }
 
+/** List all public events (isPublic=true). Returns slug + event, sorted by date descending. */
+export async function listPublicEvents(): Promise<{ slug: string; event: ShareableEvent }[]> {
+  const all = await listEvents();
+  return all
+    .filter((e) => e.event.isPublic)
+    .sort((a, b) => b.event.date.localeCompare(a.event.date));
+}
+
 /** Load a single event by slug (e.g. "tallinn/2026-02-27").
  *  Uses Supabase API (not CDN) to avoid stale cache issues.
  *  Auto-discovers recordings, PDFs & logo from storage so the bucket is the source of truth. */

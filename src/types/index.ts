@@ -21,6 +21,7 @@ export interface ShareableEvent {
   presentations: ShareablePresentation[];
   logo?: string;              // CDN URL
   recordEnabled?: boolean;    // admin-only flag
+  isPublic?: boolean;         // show on community homepage
 }
 
 // Organizer application

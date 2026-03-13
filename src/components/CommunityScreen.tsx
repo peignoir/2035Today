@@ -3,37 +3,33 @@ import styles from './CommunityScreen.module.css';
 
 /* ── Inline SVG illustrations ── */
 
-function CoffeeBeerIcon() {
+function CoffeeCupSVG() {
   return (
-    <svg viewBox="0 0 120 120" className={styles.heroIcon} aria-hidden="true">
-      {/* Steam / bubbles */}
-      <circle cx="35" cy="20" r="3" fill="#6366f1" opacity="0.6">
-        <animate attributeName="cy" values="20;8;20" dur="3s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.6;0;0.6" dur="3s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="50" cy="16" r="2.5" fill="#818cf8" opacity="0.4">
-        <animate attributeName="cy" values="16;4;16" dur="2.5s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="42" cy="22" r="2" fill="#a5b4fc" opacity="0.5">
-        <animate attributeName="cy" values="22;10;22" dur="3.5s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.5;0;0.5" dur="3.5s" repeatCount="indefinite" />
-      </circle>
-      {/* Coffee cup */}
-      <rect x="22" y="32" width="42" height="50" rx="6" fill="none" stroke="#6366f1" strokeWidth="2.5" />
-      <path d="M64 45 C78 45, 78 70, 64 70" fill="none" stroke="#6366f1" strokeWidth="2.5" />
-      <rect x="18" y="85" width="50" height="4" rx="2" fill="#6366f1" opacity="0.4" />
-      {/* Beer glass */}
-      <rect x="75" y="28" width="28" height="55" rx="4" fill="none" stroke="#22c55e" strokeWidth="2" opacity="0.7" />
-      <rect x="79" y="34" width="20" height="6" rx="2" fill="#22c55e" opacity="0.2" />
-      <rect x="75" y="85" width="28" height="4" rx="2" fill="#22c55e" opacity="0.3" />
-      {/* Bubbles in beer */}
-      <circle cx="85" cy="60" r="1.5" fill="#22c55e" opacity="0.3">
-        <animate attributeName="cy" values="70;40;70" dur="4s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="92" cy="55" r="1" fill="#22c55e" opacity="0.25">
-        <animate attributeName="cy" values="65;35;65" dur="3s" repeatCount="indefinite" />
-      </circle>
+    <svg viewBox="0 0 140 140" className={styles.heroIcon} aria-hidden="true">
+      {/* Steam wisps */}
+      <path d="M40 30 Q44 18, 40 8" fill="none" stroke="#d4603a" strokeWidth="2" opacity="0.5" strokeLinecap="round">
+        <animate attributeName="d" values="M40 30 Q44 18, 40 8;M40 30 Q36 18, 40 6;M40 30 Q44 18, 40 8" dur="3s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.5;0.15;0.5" dur="3s" repeatCount="indefinite" />
+      </path>
+      <path d="M58 28 Q62 14, 58 4" fill="none" stroke="#d4603a" strokeWidth="2" opacity="0.35" strokeLinecap="round">
+        <animate attributeName="d" values="M58 28 Q62 14, 58 4;M58 28 Q54 14, 58 2;M58 28 Q62 14, 58 4" dur="2.6s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.35;0.1;0.35" dur="2.6s" repeatCount="indefinite" />
+      </path>
+      <path d="M76 30 Q80 16, 76 6" fill="none" stroke="#d4603a" strokeWidth="1.5" opacity="0.3" strokeLinecap="round">
+        <animate attributeName="d" values="M76 30 Q80 16, 76 6;M76 30 Q72 16, 76 4;M76 30 Q80 16, 76 6" dur="3.4s" repeatCount="indefinite" />
+      </path>
+      {/* Cup body */}
+      <path d="M20 40 L24 100 Q24 110, 34 112 L82 112 Q92 110, 92 100 L96 40Z" fill="none" stroke="#d4603a" strokeWidth="2.5" />
+      {/* Handle */}
+      <path d="M96 52 C112 52, 114 80, 96 82" fill="none" stroke="#d4603a" strokeWidth="2.5" />
+      {/* Coffee level */}
+      <rect x="28" y="55" width="60" height="50" rx="4" fill="#d4603a" opacity="0.12" />
+      {/* Binary / code steam */}
+      <text x="42" y="24" fill="#d4603a" opacity="0.2" fontSize="6" fontFamily="monospace">01</text>
+      <text x="62" y="18" fill="#d4603a" opacity="0.15" fontSize="5" fontFamily="monospace">10</text>
+      <text x="50" y="12" fill="#d4603a" opacity="0.1" fontSize="5" fontFamily="monospace">AI</text>
+      {/* Saucer */}
+      <ellipse cx="58" cy="118" rx="48" ry="6" fill="none" stroke="#d4603a" strokeWidth="1.5" opacity="0.4" />
     </svg>
   );
 }
@@ -41,48 +37,63 @@ function CoffeeBeerIcon() {
 function WhiteMirrorIcon() {
   return (
     <svg viewBox="0 0 100 100" className={styles.stepIcon} aria-hidden="true">
-      {/* Eye shape */}
-      <ellipse cx="50" cy="50" rx="40" ry="25" fill="none" stroke="#6366f1" strokeWidth="2">
-        <animate attributeName="ry" values="25;22;25" dur="4s" repeatCount="indefinite" />
-      </ellipse>
-      {/* Iris */}
-      <circle cx="50" cy="50" r="14" fill="none" stroke="#818cf8" strokeWidth="2" />
-      {/* Pupil */}
-      <circle cx="50" cy="50" r="6" fill="#6366f1">
-        <animate attributeName="r" values="6;8;6" dur="3s" repeatCount="indefinite" />
+      {/* Old TV shape */}
+      <rect x="15" y="12" width="70" height="55" rx="8" fill="none" stroke="#d4603a" strokeWidth="2" />
+      {/* Screen */}
+      <rect x="22" y="18" width="56" height="42" rx="3" fill="#d4603a" opacity="0.06" />
+      {/* Scan line */}
+      <line x1="22" y1="30" x2="78" y2="30" stroke="#d4603a" strokeWidth="0.5" opacity="0.2">
+        <animate attributeName="y1" values="18;60;18" dur="3s" repeatCount="indefinite" />
+        <animate attributeName="y2" values="18;60;18" dur="3s" repeatCount="indefinite" />
+      </line>
+      {/* "2035" on screen */}
+      <text x="50" y="44" textAnchor="middle" fill="#d4603a" opacity="0.4" fontSize="14" fontWeight="bold" fontFamily="monospace">2035</text>
+      {/* Antenna */}
+      <line x1="40" y1="12" x2="30" y2="2" stroke="#d4603a" strokeWidth="1.5" />
+      <line x1="60" y1="12" x2="70" y2="2" stroke="#d4603a" strokeWidth="1.5" />
+      <circle cx="30" cy="2" r="2" fill="#d4603a" opacity="0.5" />
+      <circle cx="70" cy="2" r="2" fill="#d4603a" opacity="0.5" />
+      {/* Legs */}
+      <line x1="30" y1="67" x2="25" y2="80" stroke="#d4603a" strokeWidth="1.5" />
+      <line x1="70" y1="67" x2="75" y2="80" stroke="#d4603a" strokeWidth="1.5" />
+      {/* Static dots */}
+      <circle cx="35" cy="30" r="1" fill="#d4603a" opacity="0.3">
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="0.8s" repeatCount="indefinite" />
       </circle>
-      {/* Glint */}
-      <circle cx="45" cy="46" r="2" fill="#f0f0f5" opacity="0.8" />
-      {/* Scan lines */}
-      <line x1="10" y1="50" x2="20" y2="50" stroke="#6366f1" strokeWidth="1" opacity="0.3" />
-      <line x1="80" y1="50" x2="90" y2="50" stroke="#6366f1" strokeWidth="1" opacity="0.3" />
+      <circle cx="60" cy="50" r="1" fill="#d4603a" opacity="0.2">
+        <animate attributeName="opacity" values="0;0.3;0" dur="1.2s" repeatCount="indefinite" />
+      </circle>
     </svg>
   );
 }
 
-function MicrodoseIcon() {
+function LightningIcon() {
   return (
     <svg viewBox="0 0 100 100" className={styles.stepIcon} aria-hidden="true">
-      {/* Lightning bolt */}
-      <polygon points="55,10 35,48 50,48 40,90 70,42 52,42" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinejoin="round">
-        <animate attributeName="opacity" values="1;0.6;1" dur="2s" repeatCount="indefinite" />
+      {/* Laptop base */}
+      <rect x="15" y="55" width="70" height="6" rx="2" fill="none" stroke="#e89b2d" strokeWidth="2" />
+      {/* Laptop screen */}
+      <rect x="20" y="20" width="60" height="38" rx="3" fill="none" stroke="#e89b2d" strokeWidth="2" />
+      {/* Lightning on screen */}
+      <polygon points="52,24 40,42 48,42 42,58 58,38 50,38" fill="none" stroke="#e89b2d" strokeWidth="1.8" strokeLinejoin="round">
+        <animate attributeName="opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite" />
       </polygon>
-      {/* Energy rings */}
-      <circle cx="50" cy="50" r="35" fill="none" stroke="#f59e0b" strokeWidth="1" opacity="0.2">
-        <animate attributeName="r" values="35;42;35" dur="3s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.2;0;0.2" dur="3s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="50" cy="50" r="28" fill="none" stroke="#f59e0b" strokeWidth="1" opacity="0.15">
-        <animate attributeName="r" values="28;36;28" dur="2.5s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.15;0;0.15" dur="2.5s" repeatCount="indefinite" />
-      </circle>
       {/* Sparks */}
-      <circle cx="30" cy="30" r="1.5" fill="#f59e0b" opacity="0.4">
-        <animate attributeName="opacity" values="0.4;0;0.4" dur="1.8s" repeatCount="indefinite" />
+      <circle cx="30" cy="15" r="1.5" fill="#e89b2d" opacity="0.3">
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite" />
       </circle>
-      <circle cx="72" cy="65" r="1.5" fill="#f59e0b" opacity="0.3">
-        <animate attributeName="opacity" values="0;0.5;0" dur="2.2s" repeatCount="indefinite" />
+      <circle cx="72" cy="28" r="1" fill="#e89b2d" opacity="0.4">
+        <animate attributeName="opacity" values="0;0.5;0" dur="1.6s" repeatCount="indefinite" />
       </circle>
+      <circle cx="25" cy="44" r="1" fill="#e89b2d" opacity="0.25">
+        <animate attributeName="opacity" values="0.25;0;0.25" dur="2.3s" repeatCount="indefinite" />
+      </circle>
+      {/* Keyboard dots */}
+      <rect x="28" y="57" width="3" height="1" rx="0.5" fill="#e89b2d" opacity="0.3" />
+      <rect x="34" y="57" width="3" height="1" rx="0.5" fill="#e89b2d" opacity="0.3" />
+      <rect x="40" y="57" width="18" height="1" rx="0.5" fill="#e89b2d" opacity="0.3" />
+      <rect x="62" y="57" width="3" height="1" rx="0.5" fill="#e89b2d" opacity="0.3" />
+      <rect x="68" y="57" width="3" height="1" rx="0.5" fill="#e89b2d" opacity="0.3" />
     </svg>
   );
 }
@@ -90,32 +101,27 @@ function MicrodoseIcon() {
 function CircleIcon() {
   return (
     <svg viewBox="0 0 100 100" className={styles.stepIcon} aria-hidden="true">
-      {/* Center node */}
-      <circle cx="50" cy="50" r="8" fill="#22c55e" opacity="0.6" />
-      {/* Outer nodes */}
-      <circle cx="50" cy="18" r="5" fill="#6366f1" opacity="0.7" />
-      <circle cx="78" cy="34" r="5" fill="#818cf8" opacity="0.7" />
-      <circle cx="78" cy="66" r="5" fill="#a5b4fc" opacity="0.7" />
-      <circle cx="50" cy="82" r="5" fill="#6366f1" opacity="0.7" />
-      <circle cx="22" cy="66" r="5" fill="#818cf8" opacity="0.7" />
-      <circle cx="22" cy="34" r="5" fill="#a5b4fc" opacity="0.7" />
-      {/* Connections */}
-      <line x1="50" y1="18" x2="78" y2="34" stroke="#6366f1" strokeWidth="1" opacity="0.3" />
-      <line x1="78" y1="34" x2="78" y2="66" stroke="#6366f1" strokeWidth="1" opacity="0.3" />
-      <line x1="78" y1="66" x2="50" y2="82" stroke="#6366f1" strokeWidth="1" opacity="0.3" />
-      <line x1="50" y1="82" x2="22" y2="66" stroke="#6366f1" strokeWidth="1" opacity="0.3" />
-      <line x1="22" y1="66" x2="22" y2="34" stroke="#6366f1" strokeWidth="1" opacity="0.3" />
-      <line x1="22" y1="34" x2="50" y2="18" stroke="#6366f1" strokeWidth="1" opacity="0.3" />
-      {/* Center connections */}
-      <line x1="50" y1="50" x2="50" y2="18" stroke="#22c55e" strokeWidth="1" opacity="0.25" />
-      <line x1="50" y1="50" x2="78" y2="34" stroke="#22c55e" strokeWidth="1" opacity="0.25" />
-      <line x1="50" y1="50" x2="78" y2="66" stroke="#22c55e" strokeWidth="1" opacity="0.25" />
-      <line x1="50" y1="50" x2="50" y2="82" stroke="#22c55e" strokeWidth="1" opacity="0.25" />
-      <line x1="50" y1="50" x2="22" y2="66" stroke="#22c55e" strokeWidth="1" opacity="0.25" />
-      <line x1="50" y1="50" x2="22" y2="34" stroke="#22c55e" strokeWidth="1" opacity="0.25" />
-      {/* Pulse */}
-      <circle cx="50" cy="50" r="8" fill="none" stroke="#22c55e" strokeWidth="1" opacity="0.3">
-        <animate attributeName="r" values="8;30;8" dur="4s" repeatCount="indefinite" />
+      {/* Center node (you) */}
+      <circle cx="50" cy="50" r="10" fill="#5a8a3c" opacity="0.15" />
+      <circle cx="50" cy="50" r="10" fill="none" stroke="#5a8a3c" strokeWidth="2" />
+      <text x="50" y="54" textAnchor="middle" fill="#5a8a3c" fontSize="8" fontWeight="bold">YOU</text>
+      {/* Outer people nodes */}
+      <circle cx="50" cy="15" r="6" fill="none" stroke="#d4603a" strokeWidth="1.5" />
+      <circle cx="80" cy="30" r="6" fill="none" stroke="#d4603a" strokeWidth="1.5" />
+      <circle cx="80" cy="70" r="6" fill="none" stroke="#d4603a" strokeWidth="1.5" />
+      <circle cx="50" cy="85" r="6" fill="none" stroke="#d4603a" strokeWidth="1.5" />
+      <circle cx="20" cy="70" r="6" fill="none" stroke="#d4603a" strokeWidth="1.5" />
+      <circle cx="20" cy="30" r="6" fill="none" stroke="#d4603a" strokeWidth="1.5" />
+      {/* Connections to center */}
+      <line x1="50" y1="40" x2="50" y2="21" stroke="#d4603a" strokeWidth="1" opacity="0.3" strokeDasharray="3 2" />
+      <line x1="58" y1="43" x2="75" y2="34" stroke="#d4603a" strokeWidth="1" opacity="0.3" strokeDasharray="3 2" />
+      <line x1="58" y1="57" x2="75" y2="66" stroke="#d4603a" strokeWidth="1" opacity="0.3" strokeDasharray="3 2" />
+      <line x1="50" y1="60" x2="50" y2="79" stroke="#d4603a" strokeWidth="1" opacity="0.3" strokeDasharray="3 2" />
+      <line x1="42" y1="57" x2="25" y2="66" stroke="#d4603a" strokeWidth="1" opacity="0.3" strokeDasharray="3 2" />
+      <line x1="42" y1="43" x2="25" y2="34" stroke="#d4603a" strokeWidth="1" opacity="0.3" strokeDasharray="3 2" />
+      {/* Pulse from center */}
+      <circle cx="50" cy="50" r="10" fill="none" stroke="#5a8a3c" strokeWidth="1" opacity="0.3">
+        <animate attributeName="r" values="10;35;10" dur="4s" repeatCount="indefinite" />
         <animate attributeName="opacity" values="0.3;0;0.3" dur="4s" repeatCount="indefinite" />
       </circle>
     </svg>
@@ -127,18 +133,13 @@ function RocketIcon() {
     <svg viewBox="0 0 80 80" className={styles.afterIcon} aria-hidden="true">
       {/* Rocket body */}
       <path d="M40 10 C40 10, 55 25, 55 45 L55 55 L25 55 L25 45 C25 25, 40 10, 40 10Z"
-            fill="none" stroke="#f59e0b" strokeWidth="2" />
-      {/* Window */}
-      <circle cx="40" cy="35" r="5" fill="none" stroke="#f59e0b" strokeWidth="1.5" />
-      {/* Fins */}
-      <path d="M25 48 L15 58 L25 55" fill="none" stroke="#f59e0b" strokeWidth="1.5" />
-      <path d="M55 48 L65 58 L55 55" fill="none" stroke="#f59e0b" strokeWidth="1.5" />
+            fill="none" stroke="#e89b2d" strokeWidth="2" />
+      <circle cx="40" cy="35" r="5" fill="none" stroke="#e89b2d" strokeWidth="1.5" />
+      <path d="M25 48 L15 58 L25 55" fill="none" stroke="#e89b2d" strokeWidth="1.5" />
+      <path d="M55 48 L65 58 L55 55" fill="none" stroke="#e89b2d" strokeWidth="1.5" />
       {/* Flame */}
-      <path d="M32 55 Q40 72, 48 55" fill="none" stroke="#ef4444" strokeWidth="1.5" opacity="0.7">
+      <path d="M32 55 Q40 72, 48 55" fill="none" stroke="#d4603a" strokeWidth="1.5" opacity="0.7">
         <animate attributeName="d" values="M32 55 Q40 72, 48 55;M32 55 Q40 68, 48 55;M32 55 Q40 72, 48 55" dur="0.6s" repeatCount="indefinite" />
-      </path>
-      <path d="M36 55 Q40 65, 44 55" fill="none" stroke="#f59e0b" strokeWidth="1" opacity="0.5">
-        <animate attributeName="d" values="M36 55 Q40 65, 44 55;M36 55 Q40 60, 44 55;M36 55 Q40 65, 44 55" dur="0.4s" repeatCount="indefinite" />
       </path>
     </svg>
   );
@@ -147,18 +148,45 @@ function RocketIcon() {
 function CommunityIcon() {
   return (
     <svg viewBox="0 0 80 80" className={styles.afterIcon} aria-hidden="true">
-      {/* People outlines */}
-      <circle cx="25" cy="28" r="6" fill="none" stroke="#6366f1" strokeWidth="1.5" />
-      <path d="M13 50 C13 40, 37 40, 37 50" fill="none" stroke="#6366f1" strokeWidth="1.5" />
-      <circle cx="55" cy="28" r="6" fill="none" stroke="#818cf8" strokeWidth="1.5" />
-      <path d="M43 50 C43 40, 67 40, 67 50" fill="none" stroke="#818cf8" strokeWidth="1.5" />
-      <circle cx="40" cy="42" r="6" fill="none" stroke="#22c55e" strokeWidth="1.5" />
-      <path d="M28 64 C28 54, 52 54, 52 64" fill="none" stroke="#22c55e" strokeWidth="1.5" />
-      {/* Connection dots */}
-      <circle cx="40" cy="22" r="1.5" fill="#a5b4fc" opacity="0.5">
-        <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" />
+      <circle cx="25" cy="26" r="7" fill="none" stroke="#d4603a" strokeWidth="1.5" />
+      <path d="M12 48 C12 38, 38 38, 38 48" fill="none" stroke="#d4603a" strokeWidth="1.5" />
+      <circle cx="55" cy="26" r="7" fill="none" stroke="#d4603a" strokeWidth="1.5" />
+      <path d="M42 48 C42 38, 68 38, 68 48" fill="none" stroke="#d4603a" strokeWidth="1.5" />
+      <circle cx="40" cy="44" r="7" fill="none" stroke="#5a8a3c" strokeWidth="1.5" />
+      <path d="M27 66 C27 56, 53 56, 53 66" fill="none" stroke="#5a8a3c" strokeWidth="1.5" />
+      {/* Heart / connection */}
+      <circle cx="40" cy="20" r="2" fill="#d4603a" opacity="0.4">
+        <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite" />
       </circle>
     </svg>
+  );
+}
+
+/* ── Rolling text component ── */
+const ROLES = [
+  'Founders',
+  'Developers',
+  'Designers',
+  'Makers',
+  'Builders',
+  'Hackers',
+  'Artists',
+  'Dreamers',
+  'Operators',
+  'Rebels',
+];
+
+function RollingRoles() {
+  // Double the list for seamless loop
+  const doubled = [...ROLES, ...ROLES];
+  return (
+    <span className={styles.rollerWrap}>
+      <span className={styles.rollerTrack}>
+        {doubled.map((role, i) => (
+          <span key={i} className={styles.rollerItem}>{role}</span>
+        ))}
+      </span>
+    </span>
   );
 }
 
@@ -167,7 +195,7 @@ export function CommunityScreen() {
     <div className={styles.page}>
       {/* ── Nav ── */}
       <nav className={styles.topNav}>
-        <Link to="/" className={styles.navBrand}>☕ Cafe2035</Link>
+        <Link to="/" className={styles.navBrand}>☕ 2035Cafe</Link>
         <div className={styles.navRight}>
           <a href="#the2hours" className={styles.navLink}>The 2 Hours</a>
           <a href="#after" className={styles.navLink}>What's Next</a>
@@ -179,24 +207,29 @@ export function CommunityScreen() {
       <section className={styles.hero}>
         <div className={styles.heroGlow} />
         <div className={styles.heroContent}>
-          <CoffeeBeerIcon />
-          <p className={styles.heroEyebrow}>Morning coffee or evening beers — your call</p>
+          <CoffeeCupSVG />
           <h1 className={styles.headline}>
-            Get Ready for <span className={styles.accent}>2035</span>
+            <span className={styles.brandName}>2035Cafe</span>
+            <span className={styles.headlineSub}>The AI Prepper Community</span>
           </h1>
+          <p className={styles.roleLine}>
+            For <RollingRoles /> — deal with it, you're all welcome.
+          </p>
           <p className={styles.subhead}>
-            Feel <span className={styles.tagLost}>lost</span>?
-            Feel <span className={styles.tagConfused}>confused</span>?
-            Or are you <span className={styles.tagExcited}>excited</span>?
+            We all know the world will be different in 2035.
+            This is the place where you'll know how to be ready <em>before anyone else</em>.
           </p>
-          <p className={styles.subheadSecondary}>
-            This is for you. In <strong>2 hours</strong> you'll do more than
-            what used to take an entire weekend.
+          <p className={styles.pillRow}>
+            <span className={styles.pill}>Be Inspired</span>
+            <span className={styles.pillDot}>·</span>
+            <span className={styles.pill}>Build</span>
+            <span className={styles.pillDot}>·</span>
+            <span className={styles.pill}>Connect</span>
           </p>
-          <p className={styles.trustMe}>Trust me on that.</p>
+          <p className={styles.motto}>"Less Doom. More Build."</p>
           <div className={styles.ctaRow}>
             <a href="#the2hours" className={styles.ctaPrimary}>
-              See how it works ↓
+              How it works ↓
             </a>
             <Link to="/apply" className={styles.ctaSecondary}>
               Run one in your city
@@ -208,9 +241,12 @@ export function CommunityScreen() {
       {/* ── The 2 Hours ── */}
       <section id="the2hours" className={styles.section}>
         <div className={styles.sectionInner}>
-          <h2 className={styles.sectionTitle}>The 2 Hours</h2>
+          <p className={styles.sectionEyebrow}>Morning coffee or evening beers — or water, we don't judge</p>
+          <h2 className={styles.sectionTitle}>The 2-Hour Collider</h2>
           <p className={styles.sectionSubtitle}>
-            A TED talk walked into a hackathon. This is what happened.
+            Compress 3 months into 2 hours. Leave qualified.
+            <br />
+            <span className={styles.strikeJoke}>Startup Weekend?</span> That's the legacy sprint. This is hyper-speed.
           </p>
 
           <div className={styles.timeline}>
@@ -231,9 +267,9 @@ export function CommunityScreen() {
                   <h3 className={styles.stepName}>White Mirror</h3>
                   <p className={styles.stepTag}>Sci-fi stories of 2035</p>
                   <p className={styles.stepDesc}>
-                    Forget Black Mirror. This is the bright side.
-                    20 slides, 15 seconds each — founders, artists, and scientists
-                    paint vivid stories of what 2035 actually looks like when things go <em>right</em>.
+                    Like Black Mirror, but things go <em>right</em>.
+                    20 slides × 15 sec — founders, chefs, scientists paint vivid futures.
+                    No Terminator vibes here. Okay, maybe a little. 🤖
                   </p>
                 </div>
               </div>
@@ -247,17 +283,18 @@ export function CommunityScreen() {
               </div>
               <div className={`${styles.stepCard} ${styles.stepCardAmber}`}>
                 <div className={styles.stepVisual}>
-                  <MicrodoseIcon />
+                  <LightningIcon />
                 </div>
                 <div className={styles.stepContent}>
                   <p className={styles.stepDuration}>
                     <span className={`${styles.durationNum} ${styles.numAmber}`}>60</span> min
                   </p>
                   <h3 className={styles.stepName}>Startup Microdosing</h3>
-                  <p className={styles.stepTag}>Vibing Up 🔥</p>
+                  <p className={styles.stepTag}>Instant Tech Stack Enablement 🔥</p>
                   <p className={styles.stepDesc}>
-                    Hands on. Build something with AI. First-timers get their "holy sh*t" moment.
-                    Veterans race to ship fastest. Feel what it's like to be a 10x founder — in one hour.
+                    Idea-to-launch. Build fast, repeat. First-timers get the "holy sh*t" moment.
+                    Veterans compete to ship fastest. You'll feel like a 10x founder
+                    — Mad Max with a MacBook.
                   </p>
                 </div>
               </div>
@@ -277,11 +314,11 @@ export function CommunityScreen() {
                     <span className={`${styles.durationNum} ${styles.numGreen}`}>45</span> min
                   </p>
                   <h3 className={styles.stepName}>AI Prepper Circle</h3>
-                  <p className={styles.stepTag}>Find Your Tribe</p>
+                  <p className={styles.stepTag}>Your Long-Lasting Crew</p>
                   <p className={styles.stepDesc}>
-                    Form your long-lasting crew. 5-6 people who get it.
-                    Meet monthly, share wins, cover each other's blind spots.
-                    The world is moving fast — don't go alone.
+                    Form your tribe. 5-6 people who get it.
+                    Meet monthly, share wins, cover blind spots.
+                    The AI apocalypse is more fun with friends. 🧟
                   </p>
                 </div>
               </div>
@@ -290,7 +327,7 @@ export function CommunityScreen() {
 
           <div className={styles.totalTime}>
             <span className={styles.totalIcon}>⏱</span>
-            <span>2 hours total — then go change the world</span>
+            <span>2 hours. That's it. Then go survive the future.</span>
           </div>
         </div>
       </section>
@@ -300,7 +337,7 @@ export function CommunityScreen() {
         <div className={styles.sectionInner}>
           <h2 className={styles.sectionTitle}>The After</h2>
           <p className={styles.sectionSubtitle}>
-            The 2 hours are just the door. Here's what's on the other side.
+            The 2 hours are the door. Here's what's behind it.
           </p>
 
           <div className={styles.afterGrid}>
@@ -309,8 +346,8 @@ export function CommunityScreen() {
               <h3 className={styles.afterName}>Community</h3>
               <p className={styles.afterDesc}>
                 Keep meeting. Keep building. Keep learning.
-                Your AI prepper circle stays with you — weekly calls,
-                shared wins, real accountability.
+                Your prepper circle stays with you — a community force multiplier.
+                10x fast, together.
               </p>
               <p className={styles.afterCost}>Free, forever.</p>
             </div>
@@ -339,24 +376,26 @@ export function CommunityScreen() {
       <section className={styles.ctaSection}>
         <div className={styles.ctaSectionGlow} />
         <h2 className={styles.ctaHeadline}>
-          AI is changing everything.<br />
-          <span className={styles.accent}>Let's make it good.</span>
+          AI is the grounding agent.<br />
+          <span className={styles.accentText}>Be ready before everyone else.</span>
         </h2>
         <p className={styles.ctaSubline}>
-          Run a Cafe2035 in your city. We give you the playbook, the content, and the community.
-          You bring the coffee. Or the beers.
+          Run a 2035Cafe in your city. We give you the playbook, the content, and the community.
+          You bring the coffee. Or the beers. Or a zombie costume, we won't judge.
         </p>
         <div className={styles.ctaRow}>
           <Link to="/apply" className={styles.ctaPrimary}>
             Apply to organize
           </Link>
         </div>
+        <p className={styles.endorsedBy}>Endorsed by <strong>2035.vc</strong></p>
       </section>
 
       {/* ── Footer ── */}
       <footer className={styles.footer}>
-        <span className={styles.footerBrand}>☕ Cafe2035</span>
-        <span className={styles.footerTagline}>See the future. Sleep better.</span>
+        <span className={styles.footerBrand}>☕ 2035Cafe</span>
+        <span className={styles.footerMotto}>Less Doom. More Build.</span>
+        <span className={styles.footerTagline}>Grassroots rebuild. Compress or die.</span>
       </footer>
     </div>
   );

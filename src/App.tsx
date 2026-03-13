@@ -7,6 +7,7 @@ import { EventLandingPage } from './components/EventLandingPage';
 import { ApplyScreen } from './components/ApplyScreen';
 import { ApplicationsScreen } from './components/ApplicationsScreen';
 import { CommunityScreen } from './components/CommunityScreen';
+import { MicrodoseScreen } from './components/MicrodoseScreen';
 import styles from './App.module.css';
 
 function NotFound() {
@@ -36,6 +37,9 @@ function App() {
       <Routes>
         {/* Public: organizer application */}
         <Route path="/apply" element={<ApplyScreen />} />
+
+        {/* Public: microdose process */}
+        <Route path="/microdose" element={<MicrodoseScreen />} />
 
         {/* Public event landing page */}
         <Route path="/:city/:date" element={<EventLandingPage />} />

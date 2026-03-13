@@ -145,6 +145,10 @@ export function EventRunScreen() {
     });
   }, [currentPresIndex]);
 
+  const handleRecordingFailed = useCallback(() => {
+    setRunError('Recording failed — no audio/video data was captured. Please try again.');
+  }, []);
+
   const handleConfirmUpload = useCallback(async () => {
     if (!uploadState || !event) return;
     const { presIndex, blob } = uploadState;
@@ -306,6 +310,7 @@ export function EventRunScreen() {
             manageFullscreen={false}
             recordingEnabled={event?.recordEnabled ?? false}
             onRecordingComplete={handleRecordingComplete}
+            onRecordingFailed={handleRecordingFailed}
             audioStream={audioStream}
           />
         );

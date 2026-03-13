@@ -21,6 +21,7 @@ interface PresentationScreenProps {
   manageFullscreen?: boolean;
   recordingEnabled?: boolean;
   onRecordingComplete?: (blob: Blob) => void;
+  onRecordingFailed?: () => void;
   audioStream?: MediaStream | null;
 }
 
@@ -34,6 +35,7 @@ export function PresentationScreen({
   manageFullscreen = true,
   recordingEnabled = false,
   onRecordingComplete,
+  onRecordingFailed,
   audioStream,
 }: PresentationScreenProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -42,15 +44,18 @@ export function PresentationScreen({
   const recorderStartedRef = useRef(false);
   const [waiting, setWaiting] = useState(true);
 
-  // Stop recording helper — returns blob
+  // Stop recording helper — returns blob or signals failure
   const finalizeRecording = useCallback(async () => {
     if (!recorderStartedRef.current) return;
     recorderStartedRef.current = false;
     const blob = await recorder.stopRecording();
-    if (blob && onRecordingComplete) {
+    if (blob && blob.size > 0 && onRecordingComplete) {
       onRecordingComplete(blob);
+    } else if (recordingEnabled && onRecordingFailed) {
+      // Recording was enabled but produced no data — let the parent show an error
+      onRecordingFailed();
     }
-  }, [recorder, onRecordingComplete]);
+  }, [recorder, onRecordingComplete, onRecordingFailed, recordingEnabled]);
 
   const handleFinish = useCallback(() => {
     // Stop recording before finishing

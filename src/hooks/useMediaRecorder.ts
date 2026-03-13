@@ -290,8 +290,20 @@ export function useMediaRecorder(): MediaRecorderHandle {
         const blob = new Blob(chunksRef.current, { type: mimeRef.current });
         chunksRef.current = [];
         cleanup();
-        resolve(blob.size > 0 ? blob : null);
+        // Always return the blob, even if small — partial recordings are still
+        // useful. The caller decides whether to offer upload or show an error.
+        resolve(blob);
       };
+
+      // Flush any buffered data before stopping so partial recordings
+      // (shorter than the 10s timeslice) still produce chunks.
+      try {
+        if (recorder.state === 'recording') {
+          recorder.requestData();
+        }
+      } catch {
+        // requestData may throw if state just changed; safe to ignore
+      }
 
       recorder.stop();
     });

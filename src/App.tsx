@@ -6,6 +6,7 @@ import { EventRunScreen } from './components/EventRunScreen';
 import { EventLandingPage } from './components/EventLandingPage';
 import { ApplyScreen } from './components/ApplyScreen';
 import { ApplicationsScreen } from './components/ApplicationsScreen';
+import { CommunityScreen } from './components/CommunityScreen';
 import styles from './App.module.css';
 
 function NotFound() {
@@ -46,8 +47,8 @@ function App() {
           <Route path="applications" element={<ApplicationsScreen />} />
         </Route>
 
-        {/* Default: redirect root to admin */}
-        <Route path="/" element={<Navigate to="/admin" replace />} />
+        {/* Community homepage */}
+        <Route path="/" element={<CommunityScreen />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </HashRouter>

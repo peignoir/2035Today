@@ -305,6 +305,7 @@ export function CommunityScreen() {
           <button onClick={() => scrollTo('cities')} className={styles.navLink}>Cities</button>
           <button onClick={() => scrollTo('the2hours')} className={styles.navLink}>The 2 Hours</button>
           <button onClick={() => scrollTo('after')} className={styles.navLink}>What's Next</button>
+          <Link to="/admin" className={styles.navLink}>Login</Link>
           <Link to="/apply" className={styles.navCta}>Organize one</Link>
         </div>
       </nav>

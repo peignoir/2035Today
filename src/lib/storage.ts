@@ -110,10 +110,12 @@ export async function loadEvent(slug: string): Promise<ShareableEvent | null> {
               event.presentations[idx].pdfUrl = publicUrl(`${city}/${file.name}`);
             }
           }
-          // Match logo: {date}-logo.{ext}
-          const logoMatch = file.name.match(new RegExp(`^${date}-logo\\.`));
-          if (logoMatch) {
-            event.logo = publicUrl(`${city}/${file.name}`);
+          // Match logo: {date}-logo.{ext} — only if JSON didn't already have one
+          if (!event.logo) {
+            const logoMatch = file.name.match(new RegExp(`^${date}-logo\\.`));
+            if (logoMatch) {
+              event.logo = publicUrl(`${city}/${file.name}`);
+            }
           }
         }
       }
@@ -251,9 +253,27 @@ export async function downloadPdf(slug: string, index: number): Promise<Blob> {
   return data;
 }
 
-/** Upload a logo blob. Returns the CDN URL. */
+/** Upload a logo blob. Returns the CDN URL.
+ *  Cleans up any old logo files first to prevent stale auto-discovered logos. */
 export async function uploadLogo(slug: string, blob: Blob, ext: string): Promise<string> {
   const path = `${slug}-logo.${ext}`;
+  const [city, date] = slug.split('/');
+
+  // Remove any existing logo files (e.g. switching from .png to .jpg)
+  if (city && date) {
+    const { data: files } = await supabase.storage
+      .from(EVENTS_BUCKET)
+      .list(city, { limit: 200 });
+    if (files) {
+      const oldLogos = files
+        .filter((f) => f.name.match(new RegExp(`^${date}-logo\\.`)))
+        .map((f) => `${city}/${f.name}`);
+      if (oldLogos.length > 0) {
+        await supabase.storage.from(EVENTS_BUCKET).remove(oldLogos);
+      }
+    }
+  }
+
   console.log(`[Storage] Uploading logo as ${path}`);
   await upload(path, blob, blob.type || `image/${ext}`);
   console.log(`[Storage] Logo uploaded`);

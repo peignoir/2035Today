@@ -101,6 +101,54 @@
   border-color: var(--color-accent);
 }
 
+/* City groups */
+.cityGroup {
+  margin-bottom: 40px;
+}
+
+.cityHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.cityName {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.cityCount {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--color-border);
+  color: var(--color-text-secondary);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.newCityCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  border: 2px dashed var(--color-dropzone-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.newCityCard:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text-primary);
+  background: rgba(99, 102, 241, 0.04);
+}
+
 /* Grid */
 .grid {
   display: grid;

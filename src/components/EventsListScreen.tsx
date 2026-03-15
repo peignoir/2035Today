@@ -97,7 +97,9 @@ export function EventsListScreen() {
       }
     }
 
-    const date = new Date().toISOString().split('T')[0];
+    const defaultDate = new Date().toISOString().split('T')[0];
+    const date = prompt('Event date (YYYY-MM-DD):', defaultDate)?.trim();
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
     const citySlug = city ? slugify(city) : slugify(name);
     const slug = `${citySlug}/${date}`;
     const newEvent: ShareableEvent = {

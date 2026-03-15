@@ -367,9 +367,7 @@ export function CommunityScreen() {
                       Upcoming
                     </h3>
                     <div className={styles.citiesGrid}>
-                      {upcoming.map(({ slug, event: ev }) => {
-                        const storyCount = ev.presentations.length;
-                        return (
+                      {upcoming.map(({ slug, event: ev }) => (
                           <Link key={slug} to={`/${slug}`} className={styles.cityCard}>
                             {ev.logo && (
                               <img src={ev.logo} alt={ev.name} className={styles.cityLogo} />
@@ -381,14 +379,10 @@ export function CommunityScreen() {
                                 <span className={styles.cityUpcomingBadge}>Upcoming</span>
                               </p>
                               {ev.name && <p className={styles.cityEventName}>{ev.name}</p>}
-                              <p className={styles.cityMeta}>
-                                {storyCount} {storyCount === 1 ? 'story' : 'stories'}
-                              </p>
                             </div>
                             <span className={styles.cityArrow}>&rarr;</span>
                           </Link>
-                        );
-                      })}
+                      ))}
                     </div>
                   </div>
                 )}
@@ -401,10 +395,7 @@ export function CommunityScreen() {
                     </button>
                     {showPast && (
                       <div className={styles.citiesGrid}>
-                        {past.map(({ slug, event: ev }) => {
-                          const storyCount = ev.presentations.length;
-                          const recordingCount = ev.presentations.filter((p) => p.recording).length;
-                          return (
+                        {past.map(({ slug, event: ev }) => (
                             <Link key={slug} to={`/${slug}`} className={`${styles.cityCard} ${styles.cityCardPast}`}>
                               {ev.logo && (
                                 <img src={ev.logo} alt={ev.name} className={styles.cityLogo} />
@@ -415,15 +406,10 @@ export function CommunityScreen() {
                                   {formatEventDate(ev.date)}
                                 </p>
                                 {ev.name && <p className={styles.cityEventName}>{ev.name}</p>}
-                                <p className={styles.cityMeta}>
-                                  {storyCount} {storyCount === 1 ? 'story' : 'stories'}
-                                  {recordingCount > 0 && ` \u00b7 ${recordingCount} recorded`}
-                                </p>
                               </div>
                               <span className={styles.cityArrow}>&rarr;</span>
                             </Link>
-                          );
-                        })}
+                        ))}
                       </div>
                     )}
                   </div>

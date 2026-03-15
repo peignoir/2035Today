@@ -63,6 +63,7 @@ export function EventLandingScreen({ event, citySlug, currentDate }: EventLandin
           <a href="#/" className={styles.navBrand}>Cafe2035</a>
         </div>
         <div className={styles.navRight}>
+          <a href="#/" className={styles.navLink} onClick={(e) => { e.preventDefault(); window.location.hash = '/'; setTimeout(() => document.getElementById('cities')?.scrollIntoView({ behavior: 'smooth' }), 100); }}>All Events</a>
           <button className={styles.navLink} onClick={() => document.getElementById('what')?.scrollIntoView({ behavior: 'smooth' })}>What is this</button>
           <button className={styles.navLink} onClick={() => document.getElementById('speakers')?.scrollIntoView({ behavior: 'smooth' })}>Stories</button>
           {event.link && (

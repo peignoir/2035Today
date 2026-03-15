@@ -7,6 +7,7 @@ import { EventLandingPage } from './components/EventLandingPage';
 import { ApplyScreen } from './components/ApplyScreen';
 import { ApplicationsScreen } from './components/ApplicationsScreen';
 import { CommunityScreen } from './components/CommunityScreen';
+import { CityScreen } from './components/CityScreen';
 import { MicrodoseScreen } from './components/MicrodoseScreen';
 import styles from './App.module.css';
 
@@ -43,6 +44,9 @@ function App() {
 
         {/* Public event landing page */}
         <Route path="/:city/:date" element={<EventLandingPage />} />
+
+        {/* Public city page — all events in a city */}
+        <Route path="/:city" element={<CityScreen />} />
 
         {/* Admin routes (password-gated) */}
         <Route path="/admin" element={<AdminGuard />}>

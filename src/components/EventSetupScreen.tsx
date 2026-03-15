@@ -377,13 +377,13 @@ export function EventSetupScreen() {
 
   const [copied, setCopied] = useState(false);
 
-  const shareUrl = `${window.location.origin}${import.meta.env.BASE_URL}events/${slug}/`;
+  const shareUrl = `${window.location.origin}/#/${slug}`;
 
   const handlePublish = useCallback(async () => {
     // Flush any pending debounced save
     clearTimeout(saveTimerRef.current);
     if (event) await saveEvent(slug, event);
-    window.open(`${window.location.origin}${import.meta.env.BASE_URL}#/${slug}`, '_blank');
+    window.open(`${window.location.origin}/#/${slug}`, '_blank');
   }, [slug, event]);
 
   const handleCopyLink = useCallback(() => {

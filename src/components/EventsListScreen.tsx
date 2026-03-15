@@ -96,7 +96,7 @@ export function EventsListScreen() {
 
   const handleCopyLink = useCallback((e: React.MouseEvent, slug: string) => {
     e.stopPropagation();
-    const shareUrl = `${window.location.origin}${import.meta.env.BASE_URL}events/${slug}/`;
+    const shareUrl = `${window.location.origin}/#/${slug}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
       setCopiedSlug(slug);
       setTimeout(() => setCopiedSlug(null), 2000);

@@ -27,6 +27,8 @@
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+  text-decoration: none;
+  color: inherit;
 }
 
 .navRight {
@@ -449,6 +451,89 @@
   margin-bottom: 24px;
 }
 
+/* ── Past stories from this city ── */
+.pastStoriesSection {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 48px 24px;
+  border-top: 1px solid var(--color-border);
+}
+
+.pastEventBlock {
+  margin-bottom: 32px;
+}
+
+.pastEventHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 12px;
+}
+
+.pastEventHeader:hover .pastEventName {
+  color: var(--color-accent);
+}
+
+.pastEventName {
+  font-size: 1rem;
+  font-weight: 600;
+  transition: color 0.15s;
+}
+
+.pastEventDate {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+}
+
+.pastStoriesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.pastStoryCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.pastStoryVideo {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  background: #000;
+}
+
+.pastStoryInfo {
+  padding: 10px 12px;
+}
+
+.pastStoryTitle {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pastStorySpeaker {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 600px) {
+  .pastStoriesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Footer ── */
 .footer {
   text-align: center;
@@ -466,6 +551,7 @@
   font-weight: 700;
   color: var(--color-text-primary);
   letter-spacing: 0.05em;
+  text-decoration: none;
 }
 
 .footerTagline {

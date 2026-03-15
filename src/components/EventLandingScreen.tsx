@@ -1,13 +1,16 @@
 import { useCallback, useState, useEffect } from 'react';
 import type { ShareableEvent } from '../types';
 import { generateLogo } from '../lib/generateLogo';
+import { listEvents } from '../lib/storage';
 import styles from './EventLandingScreen.module.css';
 
 interface EventLandingScreenProps {
   event: ShareableEvent;
+  citySlug?: string;
+  currentDate?: string;
 }
 
-export function EventLandingScreen({ event }: EventLandingScreenProps) {
+export function EventLandingScreen({ event, citySlug, currentDate }: EventLandingScreenProps) {
   const shortDate = formatShortDate(event.date);
   const [generatedLogoUrl, setGeneratedLogoUrl] = useState<string | null>(null);
 
@@ -27,6 +30,25 @@ export function EventLandingScreen({ event }: EventLandingScreenProps) {
 
   const logoUrl = event.logo || generatedLogoUrl;
 
+  // Fetch past events from the same city that have recordings
+  const [pastStories, setPastStories] = useState<{ slug: string; event: ShareableEvent }[]>([]);
+  useEffect(() => {
+    if (!citySlug) return;
+    let cancelled = false;
+    listEvents().then((all) => {
+      if (cancelled) return;
+      const others = all
+        .filter((e) => {
+          const eCity = e.slug.split('/')[0];
+          const eDate = e.slug.split('/')[1];
+          return eCity === citySlug && eDate !== currentDate && e.event.presentations.some((p) => p.recording);
+        })
+        .sort((a, b) => b.event.date.localeCompare(a.event.date));
+      setPastStories(others);
+    }).catch(console.error);
+    return () => { cancelled = true; };
+  }, [citySlug, currentDate]);
+
   const scrollToReserve = useCallback(() => {
     if (event.link) {
       window.open(event.link, '_blank', 'noopener');
@@ -38,7 +60,7 @@ export function EventLandingScreen({ event }: EventLandingScreenProps) {
       {/* Top nav */}
       <nav className={styles.topNav}>
         <div className={styles.navLeft}>
-          <span className={styles.navBrand}>Cafe2035</span>
+          <a href="#/" className={styles.navBrand}>Cafe2035</a>
         </div>
         <div className={styles.navRight}>
           <button className={styles.navLink} onClick={() => document.getElementById('what')?.scrollIntoView({ behavior: 'smooth' })}>What is this</button>
@@ -220,9 +242,43 @@ export function EventLandingScreen({ event }: EventLandingScreenProps) {
         </section>
       )}
 
+      {/* Past stories from this city */}
+      {pastStories.length > 0 && (
+        <section className={styles.pastStoriesSection}>
+          <h2 className={styles.sectionTitle}>More stories from {event.city || 'this city'}</h2>
+          {pastStories.map(({ slug, event: pastEv }) => (
+            <div key={slug} className={styles.pastEventBlock}>
+              <a href={`#/${slug}`} className={styles.pastEventHeader}>
+                <h3 className={styles.pastEventName}>{pastEv.name}</h3>
+                <span className={styles.pastEventDate}>{formatShortDate(pastEv.date)}</span>
+              </a>
+              <div className={styles.pastStoriesGrid}>
+                {pastEv.presentations.map((pres, i) =>
+                  pres.recording ? (
+                    <div key={i} className={styles.pastStoryCard}>
+                      <video
+                        className={styles.pastStoryVideo}
+                        src={pres.recording}
+                        controls
+                        preload="metadata"
+                        playsInline
+                      />
+                      <div className={styles.pastStoryInfo}>
+                        <span className={styles.pastStoryTitle}>{pres.storyName || 'Untitled'}</span>
+                        <span className={styles.pastStorySpeaker}>{pres.speakerName || 'Speaker'}</span>
+                      </div>
+                    </div>
+                  ) : null,
+                )}
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+
       {/* Footer */}
       <footer className={styles.footer}>
-        <span className={styles.footerBrand}>Cafe2035</span>
+        <a href="#/" className={styles.footerBrand}>Cafe2035</a>
         <span className={styles.footerTagline}>See the future. Sleep better.</span>
         <a href="#/apply" className={styles.footerOrganize}>Organize in your city &rarr;</a>
       </footer>

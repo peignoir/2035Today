@@ -292,6 +292,7 @@ export function CommunityScreen() {
 
   // Load public events
   const [publicEvents, setPublicEvents] = useState<{ slug: string; event: ShareableEvent }[]>([]);
+  const [showPast, setShowPast] = useState(false);
   useEffect(() => {
     listPublicEvents().then(setPublicEvents).catch(console.error);
   }, []);
@@ -394,32 +395,37 @@ export function CommunityScreen() {
 
                 {past.length > 0 && (
                   <div className={styles.citiesGroup}>
-                    <h3 className={styles.citiesGroupLabel}>Past Events</h3>
-                    <div className={styles.citiesGrid}>
-                      {past.map(({ slug, event: ev }) => {
-                        const storyCount = ev.presentations.length;
-                        const recordingCount = ev.presentations.filter((p) => p.recording).length;
-                        return (
-                          <Link key={slug} to={`/${slug}`} className={`${styles.cityCard} ${styles.cityCardPast}`}>
-                            {ev.logo && (
-                              <img src={ev.logo} alt={ev.name} className={styles.cityLogo} />
-                            )}
-                            <div className={styles.cityInfo}>
-                              <h4 className={styles.cityName}>{ev.city}</h4>
-                              <p className={styles.cityDate}>
-                                {formatEventDate(ev.date)}
-                              </p>
-                              {ev.name && <p className={styles.cityEventName}>{ev.name}</p>}
-                              <p className={styles.cityMeta}>
-                                {storyCount} {storyCount === 1 ? 'story' : 'stories'}
-                                {recordingCount > 0 && ` \u00b7 ${recordingCount} recorded`}
-                              </p>
-                            </div>
-                            <span className={styles.cityArrow}>&rarr;</span>
-                          </Link>
-                        );
-                      })}
-                    </div>
+                    <button className={styles.pastToggle} onClick={() => setShowPast(!showPast)}>
+                      <span>Past Events ({past.length})</span>
+                      <span className={`${styles.pastToggleArrow} ${showPast ? styles.pastToggleOpen : ''}`}>&rsaquo;</span>
+                    </button>
+                    {showPast && (
+                      <div className={styles.citiesGrid}>
+                        {past.map(({ slug, event: ev }) => {
+                          const storyCount = ev.presentations.length;
+                          const recordingCount = ev.presentations.filter((p) => p.recording).length;
+                          return (
+                            <Link key={slug} to={`/${slug}`} className={`${styles.cityCard} ${styles.cityCardPast}`}>
+                              {ev.logo && (
+                                <img src={ev.logo} alt={ev.name} className={styles.cityLogo} />
+                              )}
+                              <div className={styles.cityInfo}>
+                                <h4 className={styles.cityName}>{ev.city}</h4>
+                                <p className={styles.cityDate}>
+                                  {formatEventDate(ev.date)}
+                                </p>
+                                {ev.name && <p className={styles.cityEventName}>{ev.name}</p>}
+                                <p className={styles.cityMeta}>
+                                  {storyCount} {storyCount === 1 ? 'story' : 'stories'}
+                                  {recordingCount > 0 && ` \u00b7 ${recordingCount} recorded`}
+                                </p>
+                              </div>
+                              <span className={styles.cityArrow}>&rarr;</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 )}
 

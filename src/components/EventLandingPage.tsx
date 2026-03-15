@@ -54,7 +54,7 @@ export function EventLandingPage() {
 
   return (
     <div className={styles.app}>
-      <EventLandingScreen event={event} />
+      <EventLandingScreen event={event} citySlug={city} currentDate={date} />
     </div>
   );
 }

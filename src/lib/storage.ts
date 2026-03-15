@@ -133,6 +133,52 @@ export async function saveEvent(slug: string, event: ShareableEvent): Promise<vo
   await upload(`${slug}.json`, json, 'application/json');
 }
 
+/** List all distinct city slugs (top-level folders in the bucket). */
+export async function listCities(): Promise<string[]> {
+  const { data: folders } = await supabase.storage
+    .from(EVENTS_BUCKET)
+    .list('', { limit: 200 });
+  if (!folders) return [];
+  return folders
+    .filter((f) => f.id === null || f.name.endsWith('/'))
+    .map((f) => f.name.replace(/\/$/, ''));
+}
+
+/** Move all files for an event from one slug to another (different city folder).
+ *  Downloads each file and re-uploads to the new path, then deletes originals. */
+export async function moveEvent(oldSlug: string, newSlug: string): Promise<void> {
+  const [oldCity, date] = oldSlug.split('/');
+  const [newCity] = newSlug.split('/');
+  if (!oldCity || !date || !newCity || oldCity === newCity) return;
+
+  const { data: files } = await supabase.storage
+    .from(EVENTS_BUCKET)
+    .list(oldCity, { limit: 200 });
+  if (!files) return;
+
+  const eventFiles = files.filter((f) => f.name.startsWith(date));
+  for (const file of eventFiles) {
+    const oldPath = `${oldCity}/${file.name}`;
+    const newPath = `${newCity}/${file.name}`;
+    console.log(`[Storage] Moving ${oldPath} → ${newPath}`);
+    const { data: blob, error: dlErr } = await supabase.storage
+      .from(EVENTS_BUCKET)
+      .download(oldPath);
+    if (dlErr || !blob) { console.error(`[Storage] Failed to download ${oldPath}:`, dlErr); continue; }
+    const { error: upErr } = await supabase.storage
+      .from(EVENTS_BUCKET)
+      .upload(newPath, blob, { contentType: blob.type || 'application/octet-stream', upsert: true });
+    if (upErr) { console.error(`[Storage] Failed to upload ${newPath}:`, upErr); continue; }
+  }
+
+  // Delete old files
+  const toDelete = eventFiles.map((f) => `${oldCity}/${f.name}`);
+  if (toDelete.length > 0) {
+    await supabase.storage.from(EVENTS_BUCKET).remove(toDelete);
+  }
+  console.log(`[Storage] Moved event ${oldSlug} → ${newSlug}`);
+}
+
 /** Delete all files for an event (JSON, recordings, logo). */
 export async function deleteEvent(slug: string): Promise<void> {
   const city = slug.split('/')[0];

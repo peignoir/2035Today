@@ -2,10 +2,20 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import type { ShareableEvent, ShareablePresentation, StoryTone } from '../types';
-import { loadEvent, saveEvent, uploadLogo, uploadRecording, deleteRecording, uploadPdf, deletePdf } from '../lib/storage';
+import { loadEvent, saveEvent, uploadLogo, uploadRecording, deleteRecording, uploadPdf, deletePdf, listCities, moveEvent } from '../lib/storage';
 import { loadAndRenderPdf, PdfValidationError } from '../lib/pdfRenderer';
 import { generateLogo } from '../lib/generateLogo';
 import styles from './EventSetupScreen.module.css';
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    || 'event';
+}
 
 export function EventSetupScreen() {
   const { '*': slugParam } = useParams();
@@ -24,6 +34,13 @@ export function EventSetupScreen() {
   const uploadAbortRef = useRef<AbortController | null>(null);
 
   const isUploading = uploadingRecIdx !== null;
+  const [cities, setCities] = useState<string[]>([]);
+  const [movingCity, setMovingCity] = useState(false);
+
+  // Load existing cities for picker
+  useEffect(() => {
+    listCities().then(setCities).catch(console.error);
+  }, []);
 
   // Load event data from Supabase
   useEffect(() => {
@@ -84,6 +101,52 @@ export function EventSetupScreen() {
       return updated;
     });
   }, [save]);
+
+  // City is always derived from the slug path — keep event.city in sync
+  const citySlugPart = slug.split('/')[0] || '';
+  const cityDisplayName = citySlugPart.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+  useEffect(() => {
+    if (event && event.city !== cityDisplayName && cityDisplayName) {
+      const updated = { ...event, city: cityDisplayName };
+      setEvent(updated);
+      save(updated);
+    }
+  }, [cityDisplayName]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Handle city change — moves all files to new city folder
+  const handleCityChange = useCallback(async (value: string) => {
+    if (!event || !slug) return;
+    const [currentCity, date] = slug.split('/');
+    if (!currentCity || !date) return;
+
+    let newCitySlug: string;
+
+    if (value === '__new__') {
+      const name = prompt('New city name:');
+      if (!name?.trim()) return;
+      newCitySlug = slugify(name.trim());
+    } else {
+      newCitySlug = value;
+    }
+
+    if (newCitySlug === currentCity) return;
+
+    setMovingCity(true);
+    try {
+      const newSlug = `${newCitySlug}/${date}`;
+      const newCityName = newCitySlug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+      await moveEvent(slug, newSlug);
+      const updated = { ...event, city: newCityName };
+      await saveEvent(newSlug, updated);
+      navigate(`/admin/events/${newSlug}`, { replace: true });
+    } catch (err) {
+      console.error('Failed to move event:', err);
+      alert('Failed to move event to new city');
+    } finally {
+      setMovingCity(false);
+    }
+  }, [event, slug, navigate]);
 
   // Logo upload — immediately to Supabase
   const onLogoDrop = useCallback(async (files: File[]) => {
@@ -379,12 +442,12 @@ export function EventSetupScreen() {
 
   const shareUrl = `${window.location.origin}/#/${slug}`;
 
-  const handlePublish = useCallback(async () => {
-    // Flush any pending debounced save
+  const handleGoLive = useCallback(async () => {
+    // Flush any pending debounced save before going live
     clearTimeout(saveTimerRef.current);
     if (event) await saveEvent(slug, event);
-    window.open(`${window.location.origin}/#/${slug}`, '_blank');
-  }, [slug, event]);
+    navigate(`/admin/events/${slug}/run`);
+  }, [slug, event, navigate]);
 
   const handleCopyLink = useCallback(() => {
     navigator.clipboard.writeText(shareUrl).then(() => {
@@ -426,12 +489,11 @@ export function EventSetupScreen() {
             )}
             {copied ? 'Copied!' : 'Share'}
           </button>
-          <button className={styles.shareButton} onClick={handlePublish} disabled={isUploading}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="17 1 21 5 17 9" />
-              <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+          <button className={styles.shareButton} onClick={handleGoLive} disabled={isUploading}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21" />
             </svg>
-            Publish
+            Go Live
           </button>
         </div>
       </header>
@@ -447,20 +509,28 @@ export function EventSetupScreen() {
               type="text"
               value={event.name}
               onChange={(e) => updateField('name', e.target.value)}
-              placeholder="e.g. Caf\u00e9 2035 Tallinn"
+              placeholder="e.g. Café 2035 Tallinn"
               autoFocus={!event.name}
             />
           </div>
           <div className={styles.row}>
             <div className={styles.fieldGroup}>
               <label className={styles.label}>City</label>
-              <input
+              <select
                 className={styles.input}
-                type="text"
-                value={event.city}
-                onChange={(e) => updateField('city', e.target.value)}
-                placeholder="e.g. Tallinn"
-              />
+                value={slug.split('/')[0] || ''}
+                onChange={(e) => handleCityChange(e.target.value)}
+                disabled={movingCity}
+              >
+                <option value="" disabled>Select a city...</option>
+                {(cities.includes(slug.split('/')[0]) ? cities : [slug.split('/')[0], ...cities]).map((c) => (
+                  <option key={c} value={c}>
+                    {c.replace(/-/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase())}
+                  </option>
+                ))}
+                <option value="__new__">+ New city...</option>
+              </select>
+              {movingCity && <span style={{ fontSize: 12, color: '#f59e0b' }}>Moving files...</span>}
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Date</label>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ShareableEvent } from '../types';
-import { listEvents, deleteEvent, saveEvent, uploadLogo } from '../lib/storage';
+import { listEvents, deleteEvent, saveEvent, uploadLogo, listCities } from '../lib/storage';
 import { generateLogo } from '../lib/generateLogo';
 import styles from './EventsListScreen.module.css';
 
@@ -24,12 +24,14 @@ export function EventsListScreen() {
   const navigate = useNavigate();
   const [events, setEvents] = useState<{ slug: string; event: ShareableEvent }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [knownCities, setKnownCities] = useState<string[]>([]);
 
   const loadEvents = useCallback(async () => {
     setLoading(true);
-    const all = await listEvents();
+    const [all, cities] = await Promise.all([listEvents(), listCities()]);
     all.sort((a, b) => b.event.date.localeCompare(a.event.date));
     setEvents(all);
+    setKnownCities(cities);
     setLoading(false);
   }, []);
 
@@ -74,7 +76,27 @@ export function EventsListScreen() {
   const handleCreateEvent = useCallback(async (prefillCity?: string) => {
     const name = prompt('Event name (e.g. Cafe2035 SF):');
     if (!name?.trim()) return;
-    const city = prefillCity || prompt('City:')?.trim() || '';
+
+    let city = prefillCity || '';
+    if (!city) {
+      // Build a picker string from known cities
+      if (knownCities.length > 0) {
+        const options = knownCities.map((c, i) =>
+          `${i + 1}. ${c.replace(/-/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase())}`
+        ).join('\n');
+        const choice = prompt(`Pick a city (number) or type a new city name:\n\n${options}`);
+        if (!choice?.trim()) return;
+        const num = parseInt(choice.trim(), 10);
+        if (num >= 1 && num <= knownCities.length) {
+          city = knownCities[num - 1].replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+        } else {
+          city = choice.trim();
+        }
+      } else {
+        city = prompt('City:')?.trim() || '';
+      }
+    }
+
     const date = new Date().toISOString().split('T')[0];
     const citySlug = city ? slugify(city) : slugify(name);
     const slug = `${citySlug}/${date}`;
@@ -90,7 +112,7 @@ export function EventsListScreen() {
       try { await uploadLogo(slug, blob, 'png'); } catch { /* ignore */ }
     });
     navigate(`/admin/events/${slug}`);
-  }, [navigate]);
+  }, [navigate, knownCities]);
 
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
@@ -130,9 +152,14 @@ export function EventsListScreen() {
         <h1 className={styles.title}>Cafe 2035</h1>
         <p className={styles.subtitle}>A worldwide movement of builders, dreamers, and storytellers</p>
         <p className={styles.quote}>"How many things have been denied one day, only to become realities the next!" — Jules Verne</p>
-        <button className={styles.applicationsLink} onClick={() => navigate('/admin/applications')}>
-          &#x1F4EC; Applications
-        </button>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+          <button className={styles.applicationsLink} onClick={() => navigate('/admin/applications')}>
+            &#x1F4EC; Applications
+          </button>
+          <button className={styles.applicationsLink} onClick={() => { sessionStorage.removeItem('admin_unlocked'); navigate('/admin'); }}>
+            Logout
+          </button>
+        </div>
       </header>
 
       {events.length === 0 ? (

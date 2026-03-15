@@ -340,9 +340,9 @@ export function CommunityScreen() {
             <button onClick={() => scrollTo('the2hours')} className={styles.ctaPrimary}>
               How it works ↓
             </button>
-            <Link to="/apply" className={styles.ctaSecondary}>
-              Run one in your city
-            </Link>
+            <button onClick={() => scrollTo('cities')} className={styles.ctaSecondary}>
+              Find the next one near you
+            </button>
           </div>
         </div>
       </section>

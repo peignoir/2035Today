@@ -649,6 +649,7 @@ export function CommunityScreen() {
         <span className={styles.footerBrand}>☕ 2035Cafe</span>
         <span className={styles.footerMotto}>Fear Nothing, Build Anything.</span>
         <span className={styles.footerTagline}>Not doomers. Builders.</span>
+        <Link to="/admin" className={styles.footerLink}>Login</Link>
       </footer>
     </div>
   );

@@ -928,6 +928,19 @@
   opacity: 0.5;
 }
 
+.footerLink {
+  font-size: 0.72rem;
+  color: var(--w-text-dim);
+  opacity: 0.4;
+  text-decoration: none;
+  transition: opacity 150ms ease;
+  margin-top: 4px;
+}
+
+.footerLink:hover {
+  opacity: 0.8;
+}
+
 /* ── Expert Section ── */
 .expertSection {
   padding: 80px 32px;

@@ -103,15 +103,14 @@ export function PrepareScreen() {
         <header className={styles.hero}>
           <p className={styles.heroEmoji}>&#9749;</p>
           <h1 className={styles.heroTitle}>
-            Welcome to the <span className={styles.accent}>2035 Storytellers Guild</span>.
+            Share your <span className={styles.accent}>vision of 2035</span>.
           </h1>
           <p className={styles.heroLead}>
-            We can't wait to hear your story.
+            We invite founders, writers, and achievers to tell the story of the future they're building.
           </p>
           <p className={styles.heroBody}>
-            You've been invited to join &mdash; or you're curious and want to <a href="#/signup" className={styles.inlineLink}>sign up</a> &mdash;
+            You've been invited to speak &mdash; or you're curious and want to <a href="#/signup" className={styles.inlineLink}>apply</a> &mdash;
             either way, welcome to the <span className={styles.accent}>2035 Storytellers Guild</span>.
-            Sci-fi novelist or first-timer &mdash; doesn't matter.
             What matters is <span className={styles.accent}>your vision</span>.
             No wrong story. No wrong future.
           </p>

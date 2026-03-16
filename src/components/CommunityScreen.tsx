@@ -442,11 +442,15 @@ export function CommunityScreen() {
           <RocketIcon />
           <h2 className={styles.sectionTitle}>The 7-Day Collider</h2>
           <p className={styles.sectionSub}>
-            The first AI-driven program for solo founders.
-            10x faster than any accelerator. From <strong>nothing to launch in 7 days</strong> with
-            p2p human and AI mentoring. AI, robotics, hardware, software, anything goes.
+            Not about MVPs, traction, or product-market fit.
+            This is a <strong>competition for the craziest, most ambitious ideas</strong> powered
+            by future tech. AI, robotics, hardware, software, anything goes.
+            The wilder the vision, the higher you score.
+          </p>
+          <p className={styles.sectionSub}>
             What took a year is now a week. What was impossible is now a side project.
-            And this will only keep accelerating.
+            If you have a crazy idea and can prove you&rsquo;re a 10x founder
+            who can build it, we want to go where no founder has gone before. With you.
           </p>
 
           <div className={styles.colliderSteps}>
@@ -456,19 +460,19 @@ export function CommunityScreen() {
             </div>
             <div className={styles.colliderStep}>
               <span className={styles.stepNum}>2</span>
-              <p>Fresh cohorts <strong>every month</strong>. It&rsquo;s online, but if you can, rent an Airbnb with your peers and kick ass together.</p>
+              <p>Fresh cohorts <strong>every month</strong>. Fully online, fully AI-driven. But if you can, rent an Airbnb with your peers and kick ass together.</p>
             </div>
             <div className={styles.colliderStep}>
               <span className={styles.stepNum}>3</span>
-              <p>Think Hunger Games for solo founders. Best ones get <strong className={styles.investAmount}>$25K</strong> to keep going.</p>
+              <p>7 days, all in. Everyone is welcome to meet, get inspired, and be challenged every day. The best 10x founders get <strong className={styles.investAmount}>$25K</strong> to keep going.</p>
             </div>
           </div>
 
           <p className={styles.colliderVision}>
-            We&rsquo;ll invest in the top founders, but we also support
+            We&rsquo;ll invest in the top founders, but we support
             <strong> all of you</strong> through our platform.
-            Think a positive AI prepper mafia: once you&rsquo;ve been through the
-            experience, you&rsquo;re a member for life.
+            Once you&rsquo;ve been through the experience, you&rsquo;re part of
+            the crew for life.
           </p>
 
           <p className={styles.colliderPromise}>

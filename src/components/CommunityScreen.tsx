@@ -153,27 +153,29 @@ export function CommunityScreen() {
           <div className={styles.beliefGrid}>
             <div className={styles.beliefCard}>
               <BoltIcon />
-              <h3 className={styles.beliefTitle}>Everyone is a builder now</h3>
+              <h3 className={styles.beliefTitle}>Become a 10x founder</h3>
               <p className={styles.beliefDesc}>
-                AI erased the barriers. A designer ships code. A chef launches a startup.
-                The only thing left is <strong>showing up</strong>.
+                AI made everyone a builder. A designer ships code.
+                A chef launches a startup. We&rsquo;re here to help you
+                become <strong>the founder you didn&rsquo;t know you could be</strong>.
               </p>
             </div>
             <div className={styles.beliefCard}>
               <CompassIcon />
-              <h3 className={styles.beliefTitle}>Recalibrate for 2035</h3>
+              <h3 className={styles.beliefTitle}>10x the economy in 10 years</h3>
               <p className={styles.beliefDesc}>
-                The world is changing faster than anyone expected.
-                We&rsquo;re not doomers &mdash; we just need to <strong>get ready</strong>.
+                That&rsquo;s what&rsquo;s coming. Ideas are now worth more than execution.
+                Brand, taste, and community will matter more than code.
+                Time to <strong>get ready</strong>.
               </p>
             </div>
             <div className={styles.beliefCard}>
               <SparkIcon />
-              <h3 className={styles.beliefTitle}>More ambitious, more fun</h3>
+              <h3 className={styles.beliefTitle}>Startups need a new playbook</h3>
               <p className={styles.beliefDesc}>
-                Less pitch decks, more building.
-                Less gatekeeping, more shipping.
-                <strong> Way more fun.</strong>
+                Weekend hackathons and 3-month accelerators won&rsquo;t cut it.
+                This isn&rsquo;t a community for the 0.01% &mdash; it&rsquo;s for everyone.
+                <strong> More ambitious, way more fun.</strong>
               </p>
             </div>
           </div>

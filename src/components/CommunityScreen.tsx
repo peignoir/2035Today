@@ -15,10 +15,15 @@ const WELCOME_PHRASES = [
   { text: 'A teacher reinventing education', color: '#5a8a3c' },
   { text: 'A sci-fi writer imagining 2035', color: '#e89b2d' },
   { text: 'A solo founder obsessed with product', color: '#d4603a' },
-  { text: 'A designer who ships code', color: '#e89b2d' },
-  { text: 'A chef launching a startup', color: '#5a8a3c' },
-  { text: 'A dreamer ready to build', color: '#d4603a' },
-  { text: 'A creator who won\'t wait', color: '#e89b2d' },
+  { text: 'A teenager building a robot', color: '#e89b2d' },
+  { text: 'A chef launching a food app', color: '#5a8a3c' },
+  { text: 'A musician making AI instruments', color: '#d4603a' },
+  { text: 'A nurse automating paperwork', color: '#5a8a3c' },
+  { text: 'A retiree building for fun', color: '#e89b2d' },
+  { text: 'A designer who ships code', color: '#d4603a' },
+  { text: 'An architect rethinking cities', color: '#5a8a3c' },
+  { text: 'A farmer optimizing harvests', color: '#e89b2d' },
+  { text: 'A parent building a kids\' app', color: '#d4603a' },
 ];
 
 function RotatingWelcome() {
@@ -314,9 +319,9 @@ export function CommunityScreen() {
             <span className={styles.tagline}>Fear Nothing, Build Anything.</span>
           </h1>
           <p className={styles.heroMission}>
-            Think <strong className={styles.accent}>AI preppers</strong>, not
-            the bunker kind, the <em>builder</em> kind. A community getting
-            ready for 2035 before everyone else.
+            An <strong className={styles.accent}>AI prepper community</strong>.
+            Optimistic, moving fast, racing toward a world of abundance
+            powered by AI and robots. Get ready before everyone else.
           </p>
           <div className={styles.ctaRow}>
             <button onClick={() => scrollTo('cities')} className={styles.ctaPrimary}>
@@ -439,7 +444,9 @@ export function CommunityScreen() {
           <p className={styles.sectionSub}>
             The first AI-driven program for solo founders.
             10x faster than any accelerator. From <strong>nothing to launch in 7 days</strong> with
-            p2p human and AI mentoring.
+            p2p human and AI mentoring. AI, robotics, hardware, software, anything goes.
+            What took a year is now a week. What was impossible is now a side project.
+            And this will only keep accelerating.
           </p>
 
           <div className={styles.colliderSteps}>

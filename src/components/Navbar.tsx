@@ -20,8 +20,8 @@ export function Navbar({ scrollTo }: NavbarProps) {
           </>
         ) : (
           <>
-            <a href="#/" className={styles.navLink} onClick={(e) => { e.preventDefault(); window.location.hash = '/'; setTimeout(() => document.getElementById('the2hours')?.scrollIntoView({ behavior: 'smooth' }), 200); }}>The 2 Hours</a>
-            <a href="#/" className={styles.navLink} onClick={(e) => { e.preventDefault(); window.location.hash = '/'; setTimeout(() => document.getElementById('after')?.scrollIntoView({ behavior: 'smooth' }), 200); }}>What's Next</a>
+            <a href="#/" className={styles.navLink} onClick={(e) => { e.preventDefault(); window.location.hash = '/'; setTimeout(() => document.getElementById('cities')?.scrollIntoView({ behavior: 'smooth' }), 200); }}>Cities</a>
+            <a href="#/" className={styles.navLink} onClick={(e) => { e.preventDefault(); window.location.hash = '/'; setTimeout(() => document.getElementById('the2hours')?.scrollIntoView({ behavior: 'smooth' }), 200); }}>How it works</a>
           </>
         )}
         <Link to="/prepare" className={styles.navLink}>Tell a story</Link>

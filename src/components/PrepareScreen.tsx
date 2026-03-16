@@ -110,7 +110,7 @@ export function PrepareScreen() {
             Welcome to the <span className={styles.accent}>2035 Storytellers Guild</span>.
           </h1>
           <p className={styles.heroLead}>
-            You've been invited because someone believes you have a future worth sharing.
+            We can't wait to hear your story.
           </p>
           <p className={styles.heroBody}>
             Sci-fi novelist or first-timer &mdash; doesn't matter.

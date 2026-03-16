@@ -19,6 +19,7 @@ export function SpeakerSignupsScreen() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [availableEvents, setAvailableEvents] = useState<{ slug: string; event: ShareableEvent }[]>([]);
   const [assigningId, setAssigningId] = useState<string | null>(null); // show event picker
+  const [hideRejected, setHideRejected] = useState(true);
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -212,6 +213,21 @@ export function SpeakerSignupsScreen() {
     }
   }, []);
 
+  const handleDelete = useCallback(async (row: SignupRow) => {
+    if (!confirm(`Delete signup from ${row.signup.name}? This cannot be undone.`)) return;
+    setActionLoading(row.signup.id);
+    try {
+      const signups = await loadSignups(row.slug);
+      const filtered = signups.filter((s) => s.id !== row.signup.id);
+      await saveSignups(row.slug, filtered);
+      setRows((prev) => prev.filter((r) => r.signup.id !== row.signup.id));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to delete');
+    } finally {
+      setActionLoading(null);
+    }
+  }, []);
+
   const formatEventLabel = (row: SignupRow) => {
     if (row.isOpen) {
       const city = row.slug.replace('open/', '').replace(/-/g, ' ');
@@ -238,6 +254,21 @@ export function SpeakerSignupsScreen() {
         <Link to="/admin" className={styles.backLink}>&larr; Back to events</Link>
       </header>
 
+      <div className={styles.filters}>
+        <button
+          className={hideRejected ? styles.filterTabActive : styles.filterTab}
+          onClick={() => setHideRejected(true)}
+        >
+          Active
+        </button>
+        <button
+          className={!hideRejected ? styles.filterTabActive : styles.filterTab}
+          onClick={() => setHideRejected(false)}
+        >
+          All ({rows.length})
+        </button>
+      </div>
+
       {rows.length === 0 ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>&#x1F399;</div>
@@ -245,7 +276,7 @@ export function SpeakerSignupsScreen() {
         </div>
       ) : (
         <div className={styles.list}>
-          {rows.map((row) => (
+          {rows.filter((r) => !hideRejected || r.signup.status !== 'rejected').map((row) => (
             <div key={row.signup.id} className={styles.card}>
               <div className={styles.cardHeader}>
                 <div className={styles.cardNameRow}>
@@ -300,11 +331,18 @@ export function SpeakerSignupsScreen() {
               {row.signup.status === 'rejected' ? (
                 <div className={styles.cardActions}>
                   <button
-                    className={styles.approveButton}
+                    className={styles.undoButton}
                     onClick={() => handleUnreject(row)}
                     disabled={actionLoading === row.signup.id}
                   >
                     {actionLoading === row.signup.id ? '...' : 'Undo reject'}
+                  </button>
+                  <button
+                    className={styles.deleteButton}
+                    onClick={() => handleDelete(row)}
+                    disabled={actionLoading === row.signup.id}
+                  >
+                    {actionLoading === row.signup.id ? '...' : 'Delete'}
                   </button>
                 </div>
               ) : row.approved ? (

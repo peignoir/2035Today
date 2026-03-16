@@ -521,6 +521,19 @@ export function CommunityScreen() {
         </div>
       </section>
 
+      {/* ── AI Organizer callout ── */}
+      <div className={styles.aiCallout}>
+        <span className={styles.aiCalloutIcon}>🤖</span>
+        <div>
+          <p className={styles.aiCalloutTitle}>Your organizer is an AI.</p>
+          <p className={styles.aiCalloutDesc}>
+            It guides you through the event, keeps time, runs the slides,
+            and makes sure every storyteller lands their moment.
+            The curator sets the vision &mdash; the AI runs the show.
+          </p>
+        </div>
+      </div>
+
       {/* ── Motto Banner ── */}
       <section className={styles.mottoBanner}>
         <p className={styles.mottoText}>

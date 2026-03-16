@@ -45,7 +45,7 @@ export function EventLandingPage() {
         <div className={styles.passwordGate}>
           <h2 className={styles.passwordTitle}>Event not found</h2>
           <p style={{ color: '#999', textAlign: 'center' }}>
-            Ask the organizer for a share link to open this event on this device.
+            Ask the curator for a share link to open this event on this device.
           </p>
         </div>
       </div>

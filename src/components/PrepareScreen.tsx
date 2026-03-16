@@ -444,7 +444,7 @@ export function PrepareScreen() {
           <p className={styles.footerMessage}>
             Fear nothing. Build anything.
           </p>
-          <p className={styles.footerSub}>Questions? Reach out to your event organizer.</p>
+          <p className={styles.footerSub}>Questions? Reach out to your event curator.</p>
           <a href="#/" className={styles.footerBrand}>Cafe2035</a>
         </footer>
       </div>

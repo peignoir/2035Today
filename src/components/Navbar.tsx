@@ -2,8 +2,6 @@ import { useState, useCallback, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styles from './Navbar.module.css';
 
-const isAdmin = () => sessionStorage.getItem('admin_unlocked') === 'true';
-
 interface NavbarProps {
   scrollTo?: (id: string) => void;
   onLogout?: () => void;

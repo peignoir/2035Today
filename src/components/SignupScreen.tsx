@@ -8,10 +8,13 @@ interface EventOption {
   event: ShareableEvent;
 }
 
+const OPEN_APPLICATION = '__open__';
+
 export function SignupScreen() {
   const [events, setEvents] = useState<EventOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSlug, setSelectedSlug] = useState('');
+  const [customCity, setCustomCity] = useState('');
 
   // Form fields
   const [name, setName] = useState('');
@@ -40,9 +43,12 @@ export function SignupScreen() {
     });
   }, []);
 
+  const isOpenApplication = selectedSlug === OPEN_APPLICATION;
+
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedSlug) { setError('Please select an event.'); return; }
+    if (!selectedSlug) { setError('Please select an event or choose open application.'); return; }
+    if (isOpenApplication && !customCity.trim()) { setError('Please enter your city.'); return; }
     if (!name.trim()) { setError('Please enter your name.'); return; }
     if (!email.trim()) { setError('Please enter your email.'); return; }
     if (!storyTitle.trim()) { setError('Please enter a story title.'); return; }
@@ -66,14 +72,20 @@ export function SignupScreen() {
     };
 
     try {
-      await addSignup(selectedSlug, signup);
+      if (isOpenApplication) {
+        // Store under a special "open-applications" path
+        const citySlug = customCity.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
+        await addSignup(`open/${citySlug}`, signup);
+      } else {
+        await addSignup(selectedSlug, signup);
+      }
       setSubmitted(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit. Try again.');
     } finally {
       setSubmitting(false);
     }
-  }, [selectedSlug, name, email, phone, format, storyTitle, authorName, tone, description]);
+  }, [selectedSlug, isOpenApplication, customCity, name, email, phone, format, storyTitle, authorName, tone, description]);
 
   const formatEventLabel = (opt: EventOption) => {
     const city = opt.event.city || opt.slug.split('/')[0];
@@ -93,7 +105,7 @@ export function SignupScreen() {
             <p className={styles.successEmoji}>&#10003;</p>
             <h1 className={styles.successTitle}>You're in!</h1>
             <p className={styles.successBody}>
-              We've received your signup. The organizer will be in touch soon.
+              We've received your story. The organizer will be in touch soon.
             </p>
             <p className={styles.successBody}>
               In the meantime, <a href="#/prepare" className={styles.link}>prepare your story</a>.
@@ -114,7 +126,7 @@ export function SignupScreen() {
         <header className={styles.hero}>
           <p className={styles.heroEmoji}>&#9749;</p>
           <h1 className={styles.heroTitle}>
-            Sign up as a <span className={styles.accent}>storyteller</span>
+            Submit your <span className={styles.accent}>story</span>
           </h1>
           <p className={styles.heroLead}>
             Pick your event, tell us about your story.
@@ -128,28 +140,36 @@ export function SignupScreen() {
             {/* Event picker */}
             <div className={styles.field}>
               <label className={styles.label}>Event</label>
-              {events.length > 0 ? (
-                <select
-                  className={styles.select}
-                  value={selectedSlug}
-                  onChange={(e) => setSelectedSlug(e.target.value)}
-                >
-                  <option value="">Select an event...</option>
-                  {events.map((opt) => (
-                    <option key={opt.slug} value={opt.slug}>
-                      {formatEventLabel(opt)}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <div className={styles.noEvents}>
-                  <p>No events scheduled yet.</p>
-                  <p className={styles.subText}>
-                    Want to organize one? <a href="#/apply" className={styles.link}>Apply as an organizer</a>
-                  </p>
-                </div>
-              )}
+              <select
+                className={styles.select}
+                value={selectedSlug}
+                onChange={(e) => setSelectedSlug(e.target.value)}
+              >
+                <option value="">Select an event...</option>
+                {events.map((opt) => (
+                  <option key={opt.slug} value={opt.slug}>
+                    {formatEventLabel(opt)}
+                  </option>
+                ))}
+                <option value={OPEN_APPLICATION}>
+                  Open application — my city isn't listed
+                </option>
+              </select>
             </div>
+
+            {/* Custom city (only for open application) */}
+            {isOpenApplication && (
+              <div className={styles.field}>
+                <label className={styles.label}>Your city</label>
+                <input
+                  type="text"
+                  className={styles.input}
+                  value={customCity}
+                  onChange={(e) => setCustomCity(e.target.value)}
+                  placeholder="San Francisco, Tokyo, Berlin..."
+                />
+              </div>
+            )}
 
             {/* Name */}
             <div className={styles.field}>
@@ -286,9 +306,9 @@ export function SignupScreen() {
             <button
               type="submit"
               className={styles.submitButton}
-              disabled={submitting || events.length === 0}
+              disabled={submitting}
             >
-              {submitting ? 'Submitting...' : 'Sign up as a storyteller'}
+              {submitting ? 'Submitting...' : 'Submit your story'}
             </button>
 
             <p className={styles.prepLink}>

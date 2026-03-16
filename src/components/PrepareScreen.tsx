@@ -284,10 +284,10 @@ export function PrepareScreen() {
 
         {/* Video Test */}
         <section className={styles.testSection}>
-          <h2 className={styles.sectionTitle}>Test your video (~5 min, optional)</h2>
+          <h2 className={styles.sectionTitle}>Test your video (5 min, optional)</h2>
           <p className={styles.sectionDesc}>
             Can't be there in person? Record yourself narrating over your slides.
-            Aim for <span className={styles.accent}>~5 minutes</span>, max 200 MB.
+            Aim for <span className={styles.accent}>exactly 5 minutes</span>, max 200 MB.
           </p>
           <label className={styles.fileInput}>
             <input type="file" accept="video/mp4,.mp4,video/*" onChange={handleVideoUpload} />

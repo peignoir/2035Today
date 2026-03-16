@@ -306,7 +306,7 @@ export function CommunityScreen() {
           <button onClick={() => scrollTo('cities')} className={styles.navLink}>Cities</button>
           <button onClick={() => scrollTo('the2hours')} className={styles.navLink}>The 2 Hours</button>
           <button onClick={() => scrollTo('after')} className={styles.navLink}>What's Next</button>
-          <Link to="/signup" className={styles.navLink}>Tell a story</Link>
+          <Link to="/prepare" className={styles.navLink}>Tell a story</Link>
           <Link to="/admin" className={styles.navLink}>Login</Link>
           <Link to="/apply" className={styles.navCta}>Organize one</Link>
         </div>
@@ -647,8 +647,8 @@ export function CommunityScreen() {
           <Link to="/apply" className={styles.ctaPrimary}>
             Apply to organize
           </Link>
-          <Link to="/signup" className={styles.ctaSecondary}>
-            Sign up as a storyteller
+          <Link to="/prepare" className={styles.ctaSecondary}>
+            Been invited to tell a story?
           </Link>
         </div>
       </section>

@@ -113,9 +113,9 @@ export function PrepareScreen() {
             We can't wait to hear your story.
           </p>
           <p className={styles.heroBody}>
-            You've been invited to join &mdash; or you want to <a href="#/signup" className={styles.inlineLink}>apply</a> &mdash;
-            the <span className={styles.accent}>2035 Storytellers Guild</span>.
-            Whether you're a sci-fi novelist or a first-timer &mdash; doesn't matter.
+            You've been invited to join &mdash; or you're curious and want to <a href="#/signup" className={styles.inlineLink}>sign up</a> &mdash;
+            either way, welcome to the <span className={styles.accent}>2035 Storytellers Guild</span>.
+            Sci-fi novelist or first-timer &mdash; doesn't matter.
             What matters is <span className={styles.accent}>your vision</span>.
             No wrong story. No wrong future.
           </p>

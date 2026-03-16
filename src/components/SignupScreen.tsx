@@ -101,9 +101,9 @@ export function SignupScreen() {
       <div className={styles.container}>
           <div className={styles.success}>
             <p className={styles.successEmoji}>&#10003;</p>
-            <h1 className={styles.successTitle}>You're in!</h1>
+            <h1 className={styles.successTitle}>Thank you!</h1>
             <p className={styles.successBody}>
-              We've received your story. The organizer will be in touch soon.
+              The curator will review your story and get back to you soon.
             </p>
             <p className={styles.successBody}>
               In the meantime, <a href="#/prepare" className={styles.link}>prepare your story</a>.

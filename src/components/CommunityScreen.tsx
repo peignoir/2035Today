@@ -12,50 +12,131 @@ function scrollTo(id: string) {
 
 /* ── Inline SVG icons ── */
 
-function BoltIcon() {
+/** Tiny founder + 9 robot helpers + 1 lobster — "become a 10x founder" */
+function FounderArmyIcon() {
+  /* Mini robot: head square + antenna + two dot eyes, ~6px wide */
+  const bot = (x: number, y: number, key: number) => (
+    <g key={key}>
+      <rect x={x} y={y + 2} width="5" height="5" rx="1" fill="#e89b2d" opacity="0.25" stroke="#e89b2d" strokeWidth="0.8" />
+      <line x1={x + 2.5} y1={y + 2} x2={x + 2.5} y2={y} stroke="#e89b2d" strokeWidth="0.7" />
+      <circle cx={x + 2.5} cy={y} r="0.7" fill="#e89b2d" opacity="0.5" />
+      <circle cx={x + 1.5} cy={y + 4.2} r="0.5" fill="#e89b2d" />
+      <circle cx={x + 3.5} cy={y + 4.2} r="0.5" fill="#e89b2d" />
+    </g>
+  );
   return (
-    <svg viewBox="0 0 32 32" className={styles.beliefIcon} aria-hidden="true">
-      <polygon points="18,2 8,18 14,18 12,30 24,13 17,13" fill="none" stroke="#d4603a" strokeWidth="2" strokeLinejoin="round" />
+    <svg viewBox="0 0 56 32" className={styles.beliefIconWide} aria-hidden="true">
+      {/* The founder — center, slightly taller */}
+      <circle cx="28" cy="6" r="3" fill="none" stroke="#d4603a" strokeWidth="1.5" />
+      <line x1="28" y1="9" x2="28" y2="19" stroke="#d4603a" strokeWidth="1.5" />
+      <line x1="28" y1="12" x2="23" y2="16" stroke="#d4603a" strokeWidth="1.3" />
+      <line x1="28" y1="12" x2="33" y2="16" stroke="#d4603a" strokeWidth="1.3" />
+      <line x1="28" y1="19" x2="25" y2="25" stroke="#d4603a" strokeWidth="1.3" />
+      <line x1="28" y1="19" x2="31" y2="25" stroke="#d4603a" strokeWidth="1.3" />
+      {/* 9 mini robots in two rows flanking the founder */}
+      {bot(2, 14, 0)}
+      {bot(9, 12, 1)}
+      {bot(16, 16, 2)}
+      {bot(36, 16, 3)}
+      {bot(43, 12, 4)}
+      {bot(50, 14, 5)}
+      {bot(5, 23, 6)}
+      {bot(13, 25, 7)}
+      {bot(43, 25, 8)}
+      {/* The lobster! (OpenClaw) — bottom right */}
+      <g>
+        {/* Body */}
+        <ellipse cx="51" cy="27" rx="3" ry="1.8" fill="#d4603a" opacity="0.25" stroke="#d4603a" strokeWidth="0.8" />
+        {/* Claws */}
+        <path d="M48 27 L46 25 L47 24" fill="none" stroke="#d4603a" strokeWidth="0.8" />
+        <path d="M48 27 L46 29 L47 30" fill="none" stroke="#d4603a" strokeWidth="0.8" />
+        {/* Tail */}
+        <path d="M54 27 L56 27" stroke="#d4603a" strokeWidth="0.7" />
+        {/* Eyes */}
+        <circle cx="49.5" cy="25.8" r="0.4" fill="#d4603a" />
+        <circle cx="50.8" cy="25.8" r="0.4" fill="#d4603a" />
+      </g>
     </svg>
   );
 }
 
-function CompassIcon() {
+/** Futuristic city skyline with rising graph — "10x the economy" */
+function SkyscraperIcon() {
   return (
-    <svg viewBox="0 0 32 32" className={styles.beliefIcon} aria-hidden="true">
-      <circle cx="16" cy="16" r="13" fill="none" stroke="#d4603a" strokeWidth="1.8" />
-      <circle cx="16" cy="16" r="2" fill="#d4603a" opacity="0.4" />
-      <polygon points="16,6 18,14 16,16 14,14" fill="#d4603a" opacity="0.7" />
-      <polygon points="16,26 14,18 16,16 18,18" fill="#d4603a" opacity="0.3" />
-      <line x1="16" y1="1" x2="16" y2="5" stroke="#d4603a" strokeWidth="1.2" opacity="0.4" />
-      <line x1="16" y1="27" x2="16" y2="31" stroke="#d4603a" strokeWidth="1.2" opacity="0.4" />
-      <line x1="1" y1="16" x2="5" y2="16" stroke="#d4603a" strokeWidth="1.2" opacity="0.4" />
-      <line x1="27" y1="16" x2="31" y2="16" stroke="#d4603a" strokeWidth="1.2" opacity="0.4" />
+    <svg viewBox="0 0 48 48" className={styles.beliefIcon} aria-hidden="true">
+      {/* Buildings */}
+      <rect x="4" y="28" width="6" height="16" fill="#d4603a" opacity="0.1" stroke="#d4603a" strokeWidth="1.2" />
+      <rect x="12" y="22" width="5" height="22" fill="#d4603a" opacity="0.1" stroke="#d4603a" strokeWidth="1.2" />
+      <rect x="19" y="16" width="7" height="28" fill="#d4603a" opacity="0.15" stroke="#d4603a" strokeWidth="1.2" />
+      <rect x="28" y="24" width="5" height="20" fill="#d4603a" opacity="0.1" stroke="#d4603a" strokeWidth="1.2" />
+      <rect x="35" y="30" width="6" height="14" fill="#d4603a" opacity="0.1" stroke="#d4603a" strokeWidth="1.2" />
+      {/* Antenna on tallest */}
+      <line x1="22.5" y1="16" x2="22.5" y2="10" stroke="#d4603a" strokeWidth="1" />
+      <circle cx="22.5" cy="9" r="1.5" fill="#e89b2d" opacity="0.6">
+        <animate attributeName="opacity" values="0.6;0.2;0.6" dur="1.5s" repeatCount="indefinite" />
+      </circle>
+      {/* Growth arrow */}
+      <polyline points="6,38 16,30 26,24 38,12" fill="none" stroke="#e89b2d" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.7" />
+      <polygon points="38,12 38,18 32,14" fill="#e89b2d" opacity="0.5" />
+      {/* Ground */}
+      <line x1="2" y1="44" x2="46" y2="44" stroke="#d4603a" strokeWidth="1" opacity="0.3" />
     </svg>
   );
 }
 
-function SparkIcon() {
+/** Exploding old rulebook — "startups need a new playbook" */
+function NewPlaybookIcon() {
   return (
-    <svg viewBox="0 0 32 32" className={styles.beliefIcon} aria-hidden="true">
-      <path d="M16 2 L18 12 L28 10 L20 16 L28 22 L18 20 L16 30 L14 20 L4 22 L12 16 L4 10 L14 12Z"
-            fill="none" stroke="#d4603a" strokeWidth="1.6" strokeLinejoin="round" />
-      <circle cx="16" cy="16" r="2.5" fill="#d4603a" opacity="0.3" />
+    <svg viewBox="0 0 48 48" className={styles.beliefIcon} aria-hidden="true">
+      {/* Old book (crossed out) */}
+      <rect x="12" y="10" width="18" height="24" rx="2" fill="none" stroke="#d4603a" strokeWidth="1.5" opacity="0.4" />
+      <line x1="16" y1="16" x2="26" y2="16" stroke="#d4603a" strokeWidth="1" opacity="0.3" />
+      <line x1="16" y1="20" x2="26" y2="20" stroke="#d4603a" strokeWidth="1" opacity="0.3" />
+      <line x1="16" y1="24" x2="22" y2="24" stroke="#d4603a" strokeWidth="1" opacity="0.3" />
+      {/* Big X over old book */}
+      <line x1="10" y1="8" x2="32" y2="36" stroke="#d4603a" strokeWidth="2" opacity="0.5" />
+      <line x1="32" y1="8" x2="10" y2="36" stroke="#d4603a" strokeWidth="2" opacity="0.5" />
+      {/* Burst rays — new energy */}
+      <line x1="21" y1="4" x2="21" y2="1" stroke="#e89b2d" strokeWidth="1.5" opacity="0.6" />
+      <line x1="34" y1="8" x2="38" y2="4" stroke="#e89b2d" strokeWidth="1.5" opacity="0.5" />
+      <line x1="38" y1="20" x2="43" y2="18" stroke="#e89b2d" strokeWidth="1.5" opacity="0.4" />
+      <line x1="36" y1="32" x2="40" y2="36" stroke="#e89b2d" strokeWidth="1.5" opacity="0.5" />
+      <line x1="8" y1="8" x2="4" y2="4" stroke="#e89b2d" strokeWidth="1.5" opacity="0.4" />
+      <line x1="6" y1="32" x2="2" y2="36" stroke="#e89b2d" strokeWidth="1.5" opacity="0.4" />
+      {/* Spark dots */}
+      <circle cx="40" cy="10" r="1.5" fill="#e89b2d" opacity="0.5">
+        <animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.2s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="6" cy="6" r="1" fill="#e89b2d" opacity="0.4">
+        <animate attributeName="opacity" values="0.1;0.5;0.1" dur="1s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="42" cy="26" r="1" fill="#e89b2d" opacity="0.3">
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="0.8s" repeatCount="indefinite" />
+      </circle>
     </svg>
   );
 }
 
+/** Rocket for Collider section */
 function RocketIcon() {
   return (
-    <svg viewBox="0 0 32 32" className={styles.rocketIcon} aria-hidden="true">
-      <path d="M16 4 C16 4 22 10 22 20 L22 24 L10 24 L10 20 C10 10 16 4 16 4Z"
+    <svg viewBox="0 0 48 48" className={styles.rocketIcon} aria-hidden="true">
+      <path d="M24 6 C24 6 32 14 32 28 L32 34 L16 34 L16 28 C16 14 24 6 24 6Z"
             fill="none" stroke="#e89b2d" strokeWidth="1.8" />
-      <circle cx="16" cy="15" r="2.5" fill="none" stroke="#e89b2d" strokeWidth="1.2" />
-      <path d="M10 21 L6 26 L10 24" fill="none" stroke="#e89b2d" strokeWidth="1.2" />
-      <path d="M22 21 L26 26 L22 24" fill="none" stroke="#e89b2d" strokeWidth="1.2" />
-      <path d="M13 24 Q16 30 19 24" fill="none" stroke="#d4603a" strokeWidth="1.2" opacity="0.6">
-        <animate attributeName="d" values="M13 24 Q16 30 19 24;M13 24 Q16 28 19 24;M13 24 Q16 30 19 24" dur="0.8s" repeatCount="indefinite" />
+      <circle cx="24" cy="21" r="3.5" fill="none" stroke="#e89b2d" strokeWidth="1.3" />
+      <path d="M16 30 L10 38 L16 35" fill="none" stroke="#e89b2d" strokeWidth="1.3" />
+      <path d="M32 30 L38 38 L32 35" fill="none" stroke="#e89b2d" strokeWidth="1.3" />
+      <path d="M20 34 Q24 44 28 34" fill="none" stroke="#d4603a" strokeWidth="1.5" opacity="0.6">
+        <animate attributeName="d" values="M20 34 Q24 44 28 34;M20 34 Q24 40 28 34;M20 34 Q24 44 28 34" dur="0.6s" repeatCount="indefinite" />
       </path>
+      {/* Stars */}
+      <circle cx="8" cy="10" r="1" fill="#e89b2d" opacity="0.3">
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="40" cy="16" r="1.2" fill="#e89b2d" opacity="0.4">
+        <animate attributeName="opacity" values="0;0.5;0" dur="1.6s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="12" cy="22" r="0.8" fill="#d4603a" opacity="0.3" />
     </svg>
   );
 }
@@ -133,8 +214,10 @@ export function CommunityScreen() {
             the bunker kind, the <em>builder</em> kind. We&rsquo;re a community getting
             ready for 2035 before everyone else.
           </p>
-          <p className={styles.heroPills}>
-            Get inspired &middot; Meet your people &middot; Start building
+          <p className={styles.heroWho}>
+            Sci-fi writers. Teachers rethinking education. Solo founders
+            obsessed with product. If you care more about <em>what</em> you
+            build than <em>how</em> &mdash; you belong here.
           </p>
           <div className={styles.ctaRow}>
             <button onClick={() => scrollTo('cities')} className={styles.ctaPrimary}>
@@ -152,7 +235,7 @@ export function CommunityScreen() {
         <div className={styles.inner}>
           <div className={styles.beliefGrid}>
             <div className={styles.beliefCard}>
-              <BoltIcon />
+              <FounderArmyIcon />
               <h3 className={styles.beliefTitle}>Become a 10x founder</h3>
               <p className={styles.beliefDesc}>
                 AI made everyone a builder. A designer ships code.
@@ -161,7 +244,7 @@ export function CommunityScreen() {
               </p>
             </div>
             <div className={styles.beliefCard}>
-              <CompassIcon />
+              <SkyscraperIcon />
               <h3 className={styles.beliefTitle}>10x the economy in 10 years</h3>
               <p className={styles.beliefDesc}>
                 That&rsquo;s what&rsquo;s coming. Ideas are now worth more than execution.
@@ -170,12 +253,13 @@ export function CommunityScreen() {
               </p>
             </div>
             <div className={styles.beliefCard}>
-              <SparkIcon />
+              <NewPlaybookIcon />
               <h3 className={styles.beliefTitle}>Startups need a new playbook</h3>
               <p className={styles.beliefDesc}>
-                Weekend hackathons and 3-month accelerators won&rsquo;t cut it.
-                This isn&rsquo;t a community for the 0.01% &mdash; it&rsquo;s for everyone.
-                <strong> More ambitious, way more fun.</strong>
+                Weekend hackathons and 3-month accelerators won&rsquo;t cut it
+                &mdash; trust us, we used to run the largest one in the world.
+                We miss <strong>grassroots</strong>. We want the fun and creators back.
+                Not a community for the 0.01% &mdash; for everyone.
               </p>
             </div>
           </div>
@@ -262,8 +346,10 @@ export function CommunityScreen() {
           </div>
 
           <p className={styles.colliderVision}>
-            VC is a tool. At some point money won&rsquo;t matter &mdash; but while it does,
-            we invest in the best solo founders out there.
+            We&rsquo;ll invest in the top founders &mdash; but we also support
+            <strong> all of you</strong> through our platform.
+            Think a positive AI prepper mafia: once you&rsquo;ve been through the
+            experience, you&rsquo;re a member for life.
           </p>
         </div>
       </section>

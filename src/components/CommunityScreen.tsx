@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { ShareableEvent } from '../types';
 import { listPublicEvents } from '../lib/storage';
+import { Navbar } from './Navbar';
 import styles from './CommunityScreen.module.css';
 
 /** HashRouter swallows #anchors — scroll manually instead */
@@ -300,20 +301,7 @@ export function CommunityScreen() {
   return (
     <div className={styles.page}>
       {/* ── Nav ── */}
-      <nav className={styles.topNav}>
-        <Link to="/" className={styles.navBrand}>☕ 2035Cafe</Link>
-        <div className={styles.navRight}>
-          <button onClick={() => scrollTo('cities')} className={styles.navLink}>Cities</button>
-          <button onClick={() => scrollTo('the2hours')} className={styles.navLink}>How it works</button>
-          <Link to="/prepare" className={styles.navLink}>Tell a story</Link>
-          {sessionStorage.getItem('admin_unlocked') === 'true' ? (
-            <Link to="/admin" className={styles.navLink}>Admin</Link>
-          ) : (
-            <Link to="/admin" className={styles.navLink}>Login</Link>
-          )}
-          <Link to="/apply" className={styles.navCta}>Organize one</Link>
-        </div>
-      </nav>
+      <Navbar scrollTo={scrollTo} />
 
       {/* ── Hero ── */}
       <section className={styles.hero}>

@@ -3,13 +3,27 @@ import styles from './CommunityScreen.module.css';
 
 const isAdmin = () => sessionStorage.getItem('admin_unlocked') === 'true';
 
-export function Navbar() {
+interface NavbarProps {
+  /** Pass a scrollTo function to get LP-style scroll buttons instead of links */
+  scrollTo?: (id: string) => void;
+}
+
+export function Navbar({ scrollTo }: NavbarProps) {
   return (
     <nav className={styles.topNav}>
       <Link to="/" className={styles.navBrand}>☕ 2035Cafe</Link>
       <div className={styles.navRight}>
-        <a href="#/the2hours" className={styles.navLink} onClick={(e) => { e.preventDefault(); window.location.hash = '/'; setTimeout(() => document.getElementById('the2hours')?.scrollIntoView({ behavior: 'smooth' }), 200); }}>The 2 Hours</a>
-        <a href="#/after" className={styles.navLink} onClick={(e) => { e.preventDefault(); window.location.hash = '/'; setTimeout(() => document.getElementById('after')?.scrollIntoView({ behavior: 'smooth' }), 200); }}>What's Next</a>
+        {scrollTo ? (
+          <>
+            <button onClick={() => scrollTo('cities')} className={styles.navLink}>Cities</button>
+            <button onClick={() => scrollTo('the2hours')} className={styles.navLink}>How it works</button>
+          </>
+        ) : (
+          <>
+            <a href="#/" className={styles.navLink} onClick={(e) => { e.preventDefault(); window.location.hash = '/'; setTimeout(() => document.getElementById('the2hours')?.scrollIntoView({ behavior: 'smooth' }), 200); }}>The 2 Hours</a>
+            <a href="#/" className={styles.navLink} onClick={(e) => { e.preventDefault(); window.location.hash = '/'; setTimeout(() => document.getElementById('after')?.scrollIntoView({ behavior: 'smooth' }), 200); }}>What's Next</a>
+          </>
+        )}
         <Link to="/prepare" className={styles.navLink}>Tell a story</Link>
         {isAdmin() ? (
           <Link to="/admin" className={styles.navLink}>Admin</Link>

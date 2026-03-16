@@ -343,7 +343,7 @@ export function SignupScreen() {
         )}
 
         <footer className={styles.footer}>
-          <a href="#/" className={styles.footerBrand}>Cafe2035</a>
+          <a href="#/" className={styles.footerBrand}>2035Cafe</a>
         </footer>
       </div>
     </>

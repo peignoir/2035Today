@@ -65,7 +65,7 @@ export function PrepareScreen() {
     video.onloadedmetadata = () => {
       URL.revokeObjectURL(video.src);
       if (video.duration > 330) {
-        setVideoError(`Video is ${Math.round(video.duration)}s \u2014 should be around 5 minutes (300s). Consider trimming it.`);
+        setVideoError(`Video is ${Math.round(video.duration)}s \u2014 should be around 5 minutes (300s). Consider trimming.`);
       } else if (video.duration < 60) {
         setVideoError(`Video is only ${Math.round(video.duration)}s \u2014 it should be around 5 minutes.`);
       }
@@ -103,73 +103,66 @@ export function PrepareScreen() {
       </nav>
 
       <div className={styles.container}>
-        {/* Welcome hero */}
+        {/* Welcome */}
         <header className={styles.hero}>
           <p className={styles.heroEmoji}>&#9749;</p>
           <h1 className={styles.heroTitle}>
-            Welcome, <span className={styles.accent}>AI prepper</span>.
+            Welcome, <span className={styles.accent}>storyteller</span>.
           </h1>
           <p className={styles.heroLead}>
-            Relax. Grab a coffee. This is going to be fun.
+            This is going to be fun. Here's everything you need.
           </p>
           <p className={styles.heroBody}>
-            Whether you're a published sci-fi novelist, a robotics founder, or someone who's never been on
-            stage before &mdash; it doesn't matter. You're here because you have a vision of 2035, and that's
-            all you need. There is no wrong story. No wrong future.
+            Sci-fi novelist or first-timer &mdash; doesn't matter.
+            You have a vision of 2035 and that's all you need.
+            <span className={styles.accent}> No wrong story. No wrong future.</span>
           </p>
           <p className={styles.heroBody}>
-            Think of it this way: the world is moving so fast that we're basically hunter-gatherers staring
-            at the horizon, trying to imagine what "agriculture" will bring. Nobody knows exactly what's coming
-            &mdash; but <strong>you have a hunch</strong>. Maybe it looks like Star Trek &mdash; abundance, exploration,
-            humanity at its best. Maybe it looks more like Mad Max &mdash; a warning, a fight, a wake-up call.
-            Both are powerful. Both are needed. That's the whole point.
+            The world is moving so fast we're basically <span className={styles.accent}>hunter-gatherers
+            staring at the horizon</span>, trying to imagine what "agriculture" will bring.
+            Your story might look like <span className={styles.accent2}>Star Trek</span> &mdash; abundance, humanity at its
+            best. Or like <span className={styles.accent2}>Mad Max</span> &mdash; a warning worth hearing.
+            Both are powerful. Both are needed.
           </p>
           <p className={styles.heroBody}>
-            We call it being an <strong>AI prepper</strong> &mdash; not the bunker kind, the builder kind.
-            You're not hiding from the future. You're rehearsing it out loud, over coffee, with a room full
-            of people who are just as curious as you are.
-          </p>
-          <p className={styles.heroPunch}>
-            Crafting your story will be inspiring. Performing it will be exhilarating. And you'll walk away
-            thinking about it for weeks. Let's get you ready.
+            Think of it as a <span className={styles.accent}>campfire story</span> &mdash;
+            you talk, the images illustrate. Not a pitch deck. A <em>story</em>.
           </p>
         </header>
 
-        {/* Story crafting guide */}
+        {/* Steps */}
         <section className={styles.directions}>
-          <h2 className={styles.sectionTitle}>Craft your 5-minute story</h2>
+          <h2 className={styles.sectionTitle}>7 steps to your 5-minute story</h2>
 
           <div className={styles.steps}>
             <div className={styles.step}>
               <span className={styles.stepNumber}>1</span>
               <div>
-                <h3 className={styles.stepTitle}>Start with what you believe</h3>
+                <h3 className={styles.stepTitle}>What do <em>you</em> believe?</h3>
                 <p className={styles.stepDesc}>
-                  The key is a <strong>good story</strong> &mdash; and a good story starts with conviction. What do you
-                  truly believe 2035 looks like? Not what the headlines say, not what a trend report predicts &mdash;
-                  what do <em>you</em> see? That belief becomes the world your characters live in.
+                  What does <span className={styles.accent}>your 2035</span> look like?
+                  That conviction is the world your characters live in.
                 </p>
               </div>
             </div>
             <div className={styles.step}>
               <span className={styles.stepNumber}>2</span>
               <div>
-                <h3 className={styles.stepTitle}>Focus on your characters</h3>
+                <h3 className={styles.stepTitle}>Find an everyday moment</h3>
                 <p className={styles.stepDesc}>
-                  Now zoom in. Think of an everyday moment in that world &mdash; something completely normal for 2035,
-                  but <strong>mind-blowing by today's standards</strong>. A kid doing homework with an AI tutor. A couple
-                  cooking dinner with a robot sous-chef. A grandmother video-calling through AR glasses. The more
-                  mundane, the more powerful &mdash; because the ordinary is what makes the future feel real.
+                  Something <span className={styles.accent}>totally normal in 2035</span> but
+                  mind-blowing today. A kid's homework. A doctor visit.
+                  The more mundane, the more real.
                 </p>
               </div>
             </div>
             <div className={styles.step}>
               <span className={styles.stepNumber}>3</span>
               <div>
-                <h3 className={styles.stepTitle}>Break it into 20 scenes</h3>
+                <h3 className={styles.stepTitle}>20 scenes, 15 seconds each</h3>
                 <p className={styles.stepDesc}>
-                  Each scene = 1 slide = <strong>15 seconds of narration</strong>. One moment, one image. Keep it
-                  tight. 20 scenes &times; 15s = your 5-minute story.
+                  One scene = one slide = <span className={styles.accent}>15 sec of narration</span>.
+                  20 &times; 15s = 5 minutes. Keep each scene tight.
                 </p>
               </div>
             </div>
@@ -178,8 +171,8 @@ export function PrepareScreen() {
               <div>
                 <h3 className={styles.stepTitle}>Write it out</h3>
                 <p className={styles.stepDesc}>
-                  Open your favorite text editor and assemble the 20 scenes. Read it out loud. Does it flow?
-                  Does each moment pull you into the next? Trim, rewrite, sharpen &mdash; until the story feels alive.
+                  Assemble your scenes. Read out loud. Does it flow?
+                  Trim and sharpen until it feels alive.
                 </p>
               </div>
             </div>
@@ -188,61 +181,52 @@ export function PrepareScreen() {
               <div>
                 <h3 className={styles.stepTitle}>Generate the images</h3>
                 <p className={styles.stepDesc}>
-                  Once your narrative is solid, bring it to life visually. Use <strong>Midjourney, DALL-E, Flux,
-                  Nano Banana</strong> &mdash; whatever speaks to you. Pro tip: create a "world prompt" that
-                  stays consistent across scenes &mdash; e.g. <em>"a world where everyone wears AI AR glasses unless
-                  they're older and still use iPhone-like devices..."</em> &mdash; plus detailed character descriptions
-                  so your people look the same in every scene.
+                  Use <span className={styles.accent}>Midjourney, DALL-E, Flux, Nano Banana</span> &mdash;
+                  whatever you like. <span className={styles.warn}>Zero text on the images!</span> You're
+                  the narrator, not the slides. Keep a consistent "world prompt" + character descriptions
+                  so everything looks coherent.
                 </p>
               </div>
             </div>
             <div className={styles.step}>
               <span className={styles.stepNumber}>6</span>
               <div>
-                <h3 className={styles.stepTitle}>Assemble your 20-slide PDF</h3>
+                <h3 className={styles.stepTitle}>Make a 20-slide PDF</h3>
                 <p className={styles.stepDesc}>
-                  Drop your images into Google Slides, Canva, Keynote, or PowerPoint. One image per slide,
-                  <strong> landscape 16:9</strong>. Export as PDF &mdash; exactly <strong>20 pages</strong>, max 30 MB.
+                  One image per slide, <span className={styles.accent}>landscape 16:9</span>.
+                  Export as PDF &mdash; exactly <span className={styles.accent}>20 pages</span>, max 30 MB.
                 </p>
               </div>
             </div>
             <div className={styles.step}>
               <span className={styles.stepNumber}>7</span>
               <div>
-                <h3 className={styles.stepTitle}>Rehearse with the timer</h3>
+                <h3 className={styles.stepTitle}>Rehearse!</h3>
                 <p className={styles.stepDesc}>
-                  Use the test tool below. Hit Play, watch your slides auto-advance every 15 seconds, and
-                  practice narrating. Do it two or three times. You'll find your rhythm &mdash; and 5 minutes will
-                  feel like exactly the right amount.
+                  Use the timer below. Hit Play, practice narrating while slides auto-advance.
+                  Do it 2-3 times. <span className={styles.accent}>15 seconds goes fast!</span>
                 </p>
               </div>
             </div>
-          </div>
-
-          <div className={styles.tips}>
-            <h3 className={styles.tipsTitle}>&#9749; Remember</h3>
-            <ul className={styles.tipsList}>
-              <li>The <strong>story is what matters</strong> &mdash; AI is just how you bring it to life</li>
-              <li>Focus on your <strong>characters</strong> &mdash; who are they, what do they feel, what surprises them?</li>
-              <li>Big images, minimal text &mdash; the audience listens to you, not reads your slides</li>
-              <li>Star Trek or Mad Max &mdash; abundance or warning &mdash; both are welcome, both are needed</li>
-              <li>Keep your visuals consistent: same world prompt, same characters, same style</li>
-              <li>15 seconds per slide goes fast &mdash; practice is your best friend</li>
-            </ul>
           </div>
         </section>
 
         {/* PDF Test */}
         <section className={styles.testSection}>
-          <h2 className={styles.sectionTitle}>Test your PDF (20 slides)</h2>
-          <p className={styles.sectionDesc}>
-            Upload your PDF and see exactly how it will look on stage. Hit Play to simulate the
-            auto-advance and practice your narration in real time.
-          </p>
-          <label className={styles.fileInput}>
-            <input type="file" accept=".pdf,application/pdf" onChange={handlePdfUpload} />
-            <span className={styles.fileButton}>Choose PDF (20 slides)</span>
-          </label>
+          <h2 className={styles.sectionTitle}>Test your PDF</h2>
+          <div className={styles.pdfActions}>
+            <label className={styles.fileInput}>
+              <input type="file" accept=".pdf,application/pdf" onChange={handlePdfUpload} />
+              <span className={styles.fileButton}>Choose your PDF (20 slides)</span>
+            </label>
+            <a
+              href={`${import.meta.env.BASE_URL}example-story.pdf`}
+              download="Cafe2035-example-story.pdf"
+              className={styles.exampleLink}
+            >
+              &#8595; Download an example story
+            </a>
+          </div>
 
           {pdfLoading && (
             <div className={styles.loadingBar}>
@@ -292,7 +276,7 @@ export function PrepareScreen() {
                 </div>
               </div>
               <p className={styles.slideCheck}>
-                &#10003; PDF is valid &mdash; {pdfSlides.length} slides detected. You're good to go!
+                &#10003; {pdfSlides.length} slides &mdash; you're good to go!
               </p>
             </div>
           )}
@@ -302,12 +286,12 @@ export function PrepareScreen() {
         <section className={styles.testSection}>
           <h2 className={styles.sectionTitle}>Test your video (~5 min, optional)</h2>
           <p className={styles.sectionDesc}>
-            Can't be there in person? Record yourself narrating over your slides (screen + camera).
-            Upload the MP4 here to make sure it plays back perfectly. Aim for <strong>~5 minutes</strong>, max 200 MB.
+            Can't be there in person? Record yourself narrating over your slides.
+            Aim for <span className={styles.accent}>~5 minutes</span>, max 200 MB.
           </p>
           <label className={styles.fileInput}>
             <input type="file" accept="video/mp4,.mp4,video/*" onChange={handleVideoUpload} />
-            <span className={styles.fileButton}>Choose video (MP4, ~5 min)</span>
+            <span className={styles.fileButton}>Choose video (MP4)</span>
           </label>
 
           {videoError && <p className={styles.error}>{videoError}</p>}
@@ -322,7 +306,7 @@ export function PrepareScreen() {
                 className={styles.videoPlayer}
               />
               <p className={styles.slideCheck}>
-                &#10003; Video loads correctly. Check that audio and visuals are in sync.
+                &#10003; Video loads. Check audio and visuals are in sync.
               </p>
             </div>
           )}

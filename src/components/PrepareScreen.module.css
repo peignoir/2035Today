@@ -63,6 +63,13 @@
   margin: 0 0 20px;
 }
 
+.sectionDesc {
+  font-size: 0.9rem;
+  color: #bbb;
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
 .steps {
   display: flex;
   flex-direction: column;

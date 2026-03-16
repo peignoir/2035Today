@@ -52,7 +52,6 @@ export function PrepareScreen() {
     if (!file) return;
     setVideoError(null);
 
-    // Validate file
     if (!file.type.startsWith('video/')) {
       setVideoError('Please select a video file (MP4 recommended).');
       return;
@@ -62,18 +61,16 @@ export function PrepareScreen() {
       return;
     }
 
-    // Revoke previous
     if (videoUrl) URL.revokeObjectURL(videoUrl);
     const url = URL.createObjectURL(file);
     setVideoUrl(url);
 
-    // Validate duration
     const video = document.createElement('video');
     video.preload = 'metadata';
     video.onloadedmetadata = () => {
       URL.revokeObjectURL(video.src);
-      if (video.duration > 420) {
-        setVideoError(`Video is ${Math.round(video.duration)}s — max is 7 minutes (420s). Consider trimming it.`);
+      if (video.duration > 330) {
+        setVideoError(`Video is ${Math.round(video.duration)}s — should be around 5 minutes (300s). Consider trimming it.`);
       } else if (video.duration < 60) {
         setVideoError(`Video is only ${Math.round(video.duration)}s — it should be around 5 minutes.`);
       }
@@ -95,7 +92,7 @@ export function PrepareScreen() {
         }
         return prev + 1;
       });
-    }, 15000); // 15 seconds per slide
+    }, 15000);
   }, [pdfSlides]);
 
   const handleStop = useCallback(() => {
@@ -109,7 +106,7 @@ export function PrepareScreen() {
       <nav className={styles.topNav}>
         <a href="#/" className={styles.navBrand}>Cafe2035</a>
         {city && date && (
-          <a href={`#/${city}/${date}`} className={styles.navLink}>← Back to event</a>
+          <a href={`#/${city}/${date}`} className={styles.navLink}>&larr; Back to event</a>
         )}
       </nav>
 
@@ -119,63 +116,91 @@ export function PrepareScreen() {
           {eventLabel && <p className={styles.subtitle}>{eventLabel}</p>}
         </header>
 
-        {/* Directions */}
+        {/* Story crafting guide */}
         <section className={styles.directions}>
-          <h2 className={styles.sectionTitle}>How to prepare your 5-minute story</h2>
+          <h2 className={styles.sectionTitle}>How to craft your 5-minute story</h2>
+
           <div className={styles.steps}>
             <div className={styles.step}>
               <span className={styles.stepNumber}>1</span>
               <div>
-                <h3 className={styles.stepTitle}>Create 20 slides</h3>
+                <h3 className={styles.stepTitle}>Start with what you believe</h3>
                 <p className={styles.stepDesc}>
-                  Use any tool — Google Slides, Canva, Keynote, PowerPoint. Each slide will auto-advance every <strong>15 seconds</strong> (20 × 15s = 5 minutes total). Think visual, not text-heavy. AI-generated images work great.
+                  The key is a <strong>good story</strong> — focus on your characters. Think first about what you truly believe 2035 will look like. That conviction becomes the background of your world.
                 </p>
               </div>
             </div>
             <div className={styles.step}>
               <span className={styles.stepNumber}>2</span>
               <div>
-                <h3 className={styles.stepTitle}>Export as PDF</h3>
+                <h3 className={styles.stepTitle}>Find your everyday story</h3>
                 <p className={styles.stepDesc}>
-                  File → Download → PDF. Make sure you have <strong>exactly 20 pages</strong> (one per slide). Max 30 MB.
+                  Think of an everyday-life story set in your 2035 — something normal that would seem <strong>amazing by today's standards</strong>. A morning commute, a doctor visit, a kid's homework. The mundane is what makes it real.
                 </p>
               </div>
             </div>
             <div className={styles.step}>
               <span className={styles.stepNumber}>3</span>
               <div>
-                <h3 className={styles.stepTitle}>Test it below</h3>
+                <h3 className={styles.stepTitle}>Break it into 20 scenes</h3>
                 <p className={styles.stepDesc}>
-                  Upload your PDF to preview how it looks. Click <strong>Play</strong> to simulate the auto-advance timing. Practice your narration while slides change!
+                  Each scene = 1 slide = <strong>15 seconds of narration</strong>. Keep each scene tight — a single moment, a single image. 20 scenes &times; 15s = 5 minutes total.
                 </p>
               </div>
             </div>
             <div className={styles.step}>
               <span className={styles.stepNumber}>4</span>
               <div>
-                <h3 className={styles.stepTitle}>Optional: pre-record a video</h3>
+                <h3 className={styles.stepTitle}>Write the story</h3>
                 <p className={styles.stepDesc}>
-                  If you can't attend in person, record yourself narrating over your slides (screen + camera). Upload the MP4 below to verify it plays correctly. Keep it under <strong>7 minutes</strong> and <strong>200 MB</strong>.
+                  Assemble your 20 scenes in your favorite text editor. Read it out loud — does it flow? Does each scene transition naturally? Adjust until the story feels right.
+                </p>
+              </div>
+            </div>
+            <div className={styles.step}>
+              <span className={styles.stepNumber}>5</span>
+              <div>
+                <h3 className={styles.stepTitle}>Generate the images</h3>
+                <p className={styles.stepDesc}>
+                  Once your story and scenes are solid, start generating images (e.g. using <strong>Midjourney, DALL-E, Flux, Nano Banana</strong>). Pro tip: keep a general prompt for your "world" — e.g. <em>"a world where everyone wears AI AR glasses unless they're older and use iPhone-like devices"</em> — plus character descriptions to keep them coherent across scenes.
+                </p>
+              </div>
+            </div>
+            <div className={styles.step}>
+              <span className={styles.stepNumber}>6</span>
+              <div>
+                <h3 className={styles.stepTitle}>Assemble as a 20-slide PDF</h3>
+                <p className={styles.stepDesc}>
+                  Use Google Slides, Canva, Keynote, or PowerPoint. One image per slide, <strong>landscape 16:9</strong>. Export as PDF — exactly <strong>20 pages</strong>, max 30 MB.
+                </p>
+              </div>
+            </div>
+            <div className={styles.step}>
+              <span className={styles.stepNumber}>7</span>
+              <div>
+                <h3 className={styles.stepTitle}>Iterate &amp; rehearse</h3>
+                <p className={styles.stepDesc}>
+                  Check if it flows. Adjust scenes and narration. Do a couple of test runs with the auto-advancing timer below to nail your <strong>5-minute timing</strong>. 15 seconds goes fast!
                 </p>
               </div>
             </div>
           </div>
 
           <div className={styles.tips}>
-            <h3 className={styles.tipsTitle}>💡 Tips</h3>
+            <h3 className={styles.tipsTitle}>Good luck! A few tips:</h3>
             <ul className={styles.tipsList}>
-              <li>Use <strong>landscape</strong> (16:9) slides — they fill the screen better</li>
+              <li>The <strong>story is what matters</strong> — AI is how you bring it to life</li>
               <li>Big images, minimal text — the audience listens to YOU, not reads slides</li>
-              <li>Tell a story about 2035 — optimistic or dystopian, your choice</li>
-              <li>Practice with the auto-advance timer — 15 seconds goes fast!</li>
-              <li>AI-generated visuals (Midjourney, DALL-E, Flux) are encouraged</li>
+              <li>Optimistic or dystopian, your choice — both are welcome</li>
+              <li>Keep a consistent visual style across your 20 images (same prompt base + characters)</li>
+              <li>Practice with the auto-advance timer below — it's the best way to prepare</li>
             </ul>
           </div>
         </section>
 
         {/* PDF Test */}
         <section className={styles.testSection}>
-          <h2 className={styles.sectionTitle}>🎯 Test your PDF</h2>
+          <h2 className={styles.sectionTitle}>Test your PDF (20 slides)</h2>
           <label className={styles.fileInput}>
             <input type="file" accept=".pdf,application/pdf" onChange={handlePdfUpload} />
             <span className={styles.fileButton}>Choose PDF (20 slides)</span>
@@ -206,11 +231,11 @@ export function PrepareScreen() {
               <div className={styles.slideControls}>
                 {!playing ? (
                   <button className={styles.playButton} onClick={handlePlay}>
-                    ▶ Play (auto-advance 15s)
+                    &#9654; Play (auto-advance 15s)
                   </button>
                 ) : (
                   <button className={styles.stopButton} onClick={handleStop}>
-                    ⏹ Stop
+                    &#9209; Stop
                   </button>
                 )}
                 <div className={styles.slideNav}>
@@ -218,18 +243,18 @@ export function PrepareScreen() {
                     disabled={currentSlide === 0 || playing}
                     onClick={() => setCurrentSlide((p) => p - 1)}
                   >
-                    ← Prev
+                    &larr; Prev
                   </button>
                   <button
                     disabled={currentSlide === 19 || playing}
                     onClick={() => setCurrentSlide((p) => p + 1)}
                   >
-                    Next →
+                    Next &rarr;
                   </button>
                 </div>
               </div>
               <p className={styles.slideCheck}>
-                ✅ PDF is valid — {pdfSlides.length} slides detected. You're good to go!
+                &#10003; PDF is valid — {pdfSlides.length} slides detected. You're good to go!
               </p>
             </div>
           )}
@@ -237,10 +262,13 @@ export function PrepareScreen() {
 
         {/* Video Test */}
         <section className={styles.testSection}>
-          <h2 className={styles.sectionTitle}>🎬 Test your video (optional)</h2>
+          <h2 className={styles.sectionTitle}>Test your video (~5 min, optional)</h2>
+          <p className={styles.sectionDesc}>
+            If you can't attend in person, record yourself narrating over your slides (screen + camera). Upload the MP4 below to verify it plays correctly. Keep it around <strong>5 minutes</strong> and under <strong>200 MB</strong>.
+          </p>
           <label className={styles.fileInput}>
             <input type="file" accept="video/mp4,.mp4,video/*" onChange={handleVideoUpload} />
-            <span className={styles.fileButton}>Choose video (MP4, max 200 MB)</span>
+            <span className={styles.fileButton}>Choose video (MP4, ~5 min)</span>
           </label>
 
           {videoError && <p className={styles.error}>{videoError}</p>}
@@ -255,7 +283,7 @@ export function PrepareScreen() {
                 className={styles.videoPlayer}
               />
               <p className={styles.slideCheck}>
-                ✅ Video loads correctly. Check that audio and visuals are in sync.
+                &#10003; Video loads correctly. Check that audio and visuals are in sync.
               </p>
             </div>
           )}

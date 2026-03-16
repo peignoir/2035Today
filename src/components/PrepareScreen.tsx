@@ -113,12 +113,28 @@ export function PrepareScreen() {
           <div className={styles.heroDivider} />
 
           <div className={styles.heroCards}>
-            <div className={styles.heroCard}>
-              <span className={styles.heroCardIcon}>🚀</span>
-              <p>Your story might look like <strong>Star Trek</strong> &mdash; abundance, humanity at its best.</p>
+            <div className={`${styles.heroCard} ${styles.heroCardUtopia}`}>
+              <svg className={styles.heroCardSvg} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="40" r="36" stroke="#e8913a" strokeWidth="1.5" opacity="0.3" />
+                <circle cx="40" cy="40" r="24" stroke="#e8913a" strokeWidth="1" opacity="0.2" />
+                <path d="M40 12 L42 30 L52 18 L44 32 L56 28 L46 36 L60 40 L46 44 L56 52 L44 48 L52 62 L42 50 L40 68 L38 50 L28 62 L36 48 L24 52 L34 44 L20 40 L34 36 L24 28 L36 32 L28 18 L38 30 Z" fill="#e8913a" opacity="0.6" />
+                <circle cx="40" cy="40" r="8" fill="#e8913a" opacity="0.8" />
+              </svg>
+              <h3 className={styles.heroCardTitle}>Utopian</h3>
+              <p>Your story might look like <strong>Star Trek</strong> &mdash; abundance, humanity at its best. A world you'd want to live in.</p>
             </div>
-            <div className={styles.heroCard}>
-              <span className={styles.heroCardIcon}>🔥</span>
+            <div className={`${styles.heroCard} ${styles.heroCardDystopia}`}>
+              <svg className={styles.heroCardSvg} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="16" y="24" width="12" height="40" rx="1" fill="#c44" opacity="0.3" />
+                <rect x="34" y="16" width="12" height="48" rx="1" fill="#c44" opacity="0.4" />
+                <rect x="52" y="20" width="12" height="44" rx="1" fill="#c44" opacity="0.3" />
+                <path d="M10 64 L70 64" stroke="#c44" strokeWidth="1.5" opacity="0.5" />
+                <circle cx="40" cy="10" r="4" fill="#c44" opacity="0.6" />
+                <path d="M36 10 L44 10" stroke="#111" strokeWidth="1" />
+                <path d="M40 8 L40 12" stroke="#111" strokeWidth="1" />
+                <path d="M15 30 L25 35 M55 28 L65 33" stroke="#c44" strokeWidth="0.8" opacity="0.3" />
+              </svg>
+              <h3 className={styles.heroCardTitle}>Dystopian</h3>
               <p>Or like <strong>Mad Max</strong> &mdash; a warning worth hearing. Both are powerful. Both are needed.</p>
             </div>
           </div>

@@ -114,6 +114,34 @@
   color: #e8d5b8;
 }
 
+.heroCardSvg {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 12px;
+}
+
+.heroCardTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 8px;
+  color: #ddd;
+}
+
+.heroCardUtopia .heroCardTitle {
+  color: #e8913a;
+}
+
+.heroCardDystopia {
+  background: rgba(204, 68, 68, 0.06);
+  border-color: rgba(204, 68, 68, 0.15);
+}
+
+.heroCardDystopia .heroCardTitle {
+  color: #c44;
+}
+
 .heroCardIcon {
   font-size: 1.8rem;
   display: block;

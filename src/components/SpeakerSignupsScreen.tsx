@@ -17,6 +17,8 @@ export function SpeakerSignupsScreen() {
   const [rows, setRows] = useState<SignupRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [availableEvents, setAvailableEvents] = useState<{ slug: string; event: ShareableEvent }[]>([]);
+  const [assigningId, setAssigningId] = useState<string | null>(null); // show event picker
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -33,6 +35,8 @@ export function SpeakerSignupsScreen() {
         allRows.push({ signup, slug, event, approved, isOpen: false });
       }
     }
+
+    setAvailableEvents(events);
 
     // 2. Load open applications (stored under open/{city}-signups.json)
     try {
@@ -176,6 +180,38 @@ export function SpeakerSignupsScreen() {
     }
   }, []);
 
+  const handleAssignToEvent = useCallback(async (row: SignupRow, targetSlug: string) => {
+    setActionLoading(row.signup.id);
+    try {
+      const targetEvent = await loadEvent(targetSlug);
+      if (!targetEvent) throw new Error('Event not found');
+
+      // Add signup to target event's signups
+      const targetSignups = await loadSignups(targetSlug);
+      targetSignups.push(row.signup);
+      await saveSignups(targetSlug, targetSignups);
+
+      // Remove from open signups
+      const openSignups = await loadSignups(row.slug);
+      const filtered = openSignups.filter((s) => s.id !== row.signup.id);
+      await saveSignups(row.slug, filtered);
+
+      // Update local state — move row to the target event
+      setRows((prev) =>
+        prev.map((r) =>
+          r.signup.id === row.signup.id
+            ? { ...r, slug: targetSlug, event: targetEvent, isOpen: false }
+            : r,
+        ),
+      );
+      setAssigningId(null);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to assign');
+    } finally {
+      setActionLoading(null);
+    }
+  }, []);
+
   const formatEventLabel = (row: SignupRow) => {
     if (row.isOpen) {
       const city = row.slug.replace('open/', '').replace(/-/g, ' ');
@@ -281,7 +317,42 @@ export function SpeakerSignupsScreen() {
                     {actionLoading === row.signup.id ? '...' : 'Remove from event'}
                   </button>
                 </div>
-              ) : !row.isOpen ? (
+              ) : row.isOpen ? (
+                <div className={styles.cardActions}>
+                  {assigningId === row.signup.id ? (
+                    <select
+                      className={styles.eventSelect}
+                      defaultValue=""
+                      onChange={(e) => {
+                        if (e.target.value) handleAssignToEvent(row, e.target.value);
+                      }}
+                      disabled={actionLoading === row.signup.id}
+                    >
+                      <option value="" disabled>Pick an event...</option>
+                      {availableEvents.map(({ slug, event }) => (
+                        <option key={slug} value={slug}>
+                          {event.city} — {event.date}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <button
+                      className={styles.approveButton}
+                      onClick={() => setAssigningId(row.signup.id)}
+                      disabled={actionLoading === row.signup.id}
+                    >
+                      Assign to event
+                    </button>
+                  )}
+                  <button
+                    className={styles.rejectButton}
+                    onClick={() => handleReject(row)}
+                    disabled={actionLoading === row.signup.id}
+                  >
+                    {actionLoading === row.signup.id ? '...' : 'Reject'}
+                  </button>
+                </div>
+              ) : (
                 <div className={styles.cardActions}>
                   <button
                     className={styles.approveButton}
@@ -298,7 +369,7 @@ export function SpeakerSignupsScreen() {
                     {actionLoading === row.signup.id ? '...' : 'Reject'}
                   </button>
                 </div>
-              ) : null}
+              )}
             </div>
           ))}
         </div>

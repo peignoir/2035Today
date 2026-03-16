@@ -105,27 +105,34 @@ export function PrepareScreen() {
       <div className={styles.container}>
         {/* Welcome hero */}
         <header className={styles.hero}>
+          <p className={styles.heroEmoji}>&#9749;</p>
           <h1 className={styles.heroTitle}>
-            You're about to show the world <span className={styles.accent}>your</span> 2035.
+            Welcome, <span className={styles.accent}>AI prepper</span>.
           </h1>
           <p className={styles.heroLead}>
-            And it's going to be a lot of fun.
+            Relax. Grab a coffee. This is going to be fun.
           </p>
           <p className={styles.heroBody}>
-            Whether you're a published sci-fi author or this is your very first time on stage &mdash; it doesn't matter.
-            What matters is <strong>your vision</strong>. There is no wrong story. No wrong future. You might paint an
-            abundance future where technology lifts everyone up (White Mirror), or sound the alarm on a path we need to
-            fight to prevent (Black Mirror). Both are powerful. Both are needed.
+            Whether you're a published sci-fi novelist, a robotics founder, or someone who's never been on
+            stage before &mdash; it doesn't matter. You're here because you have a vision of 2035, and that's
+            all you need. There is no wrong story. No wrong future.
           </p>
           <p className={styles.heroBody}>
-            All we can promise you: crafting your story will be inspiring, performing it will be
-            exhilarating, and sharing your vision with a room full of curious minds will be one of those moments
-            you remember.
+            Think of it this way: the world is moving so fast that we're basically hunter-gatherers staring
+            at the horizon, trying to imagine what "agriculture" will bring. Nobody knows exactly what's coming
+            &mdash; but <strong>you have a hunch</strong>. Maybe it looks like Star Trek &mdash; abundance, exploration,
+            humanity at its best. Maybe it looks more like Mad Max &mdash; a warning, a fight, a wake-up call.
+            Both are powerful. Both are needed. That's the whole point.
+          </p>
+          <p className={styles.heroBody}>
+            We call it being an <strong>AI prepper</strong> &mdash; not the bunker kind, the builder kind.
+            You're not hiding from the future. You're rehearsing it out loud, over coffee, with a room full
+            of people who are just as curious as you are.
           </p>
           <p className={styles.heroPunch}>
-            Let's get you ready.
+            Crafting your story will be inspiring. Performing it will be exhilarating. And you'll walk away
+            thinking about it for weeks. Let's get you ready.
           </p>
-          <span className={styles.heroBadge}>Cafe2035</span>
         </header>
 
         {/* Story crafting guide */}
@@ -147,12 +154,12 @@ export function PrepareScreen() {
             <div className={styles.step}>
               <span className={styles.stepNumber}>2</span>
               <div>
-                <h3 className={styles.stepTitle}>Find your everyday story</h3>
+                <h3 className={styles.stepTitle}>Focus on your characters</h3>
                 <p className={styles.stepDesc}>
                   Now zoom in. Think of an everyday moment in that world &mdash; something completely normal for 2035,
-                  but <strong>mind-blowing by today's standards</strong>. A kid doing homework. A couple having dinner.
-                  A doctor visit. The more mundane, the more powerful &mdash; because the ordinary is what makes the
-                  future feel real.
+                  but <strong>mind-blowing by today's standards</strong>. A kid doing homework with an AI tutor. A couple
+                  cooking dinner with a robot sous-chef. A grandmother video-calling through AR glasses. The more
+                  mundane, the more powerful &mdash; because the ordinary is what makes the future feel real.
                 </p>
               </div>
             </div>
@@ -182,10 +189,10 @@ export function PrepareScreen() {
                 <h3 className={styles.stepTitle}>Generate the images</h3>
                 <p className={styles.stepDesc}>
                   Once your narrative is solid, bring it to life visually. Use <strong>Midjourney, DALL-E, Flux,
-                  Nano Banana</strong> &mdash; whatever tool speaks to you. Pro tip: create a "world prompt" that
+                  Nano Banana</strong> &mdash; whatever speaks to you. Pro tip: create a "world prompt" that
                   stays consistent across scenes &mdash; e.g. <em>"a world where everyone wears AI AR glasses unless
                   they're older and still use iPhone-like devices..."</em> &mdash; plus detailed character descriptions
-                  so your people look like the same people in every scene.
+                  so your people look the same in every scene.
                 </p>
               </div>
             </div>
@@ -213,12 +220,12 @@ export function PrepareScreen() {
           </div>
 
           <div className={styles.tips}>
-            <h3 className={styles.tipsTitle}>Remember:</h3>
+            <h3 className={styles.tipsTitle}>&#9749; Remember</h3>
             <ul className={styles.tipsList}>
               <li>The <strong>story is what matters</strong> &mdash; AI is just how you bring it to life</li>
-              <li>Focus on your <strong>characters</strong> &mdash; who are they, what do they feel, what do they see?</li>
+              <li>Focus on your <strong>characters</strong> &mdash; who are they, what do they feel, what surprises them?</li>
               <li>Big images, minimal text &mdash; the audience listens to you, not reads your slides</li>
-              <li>White Mirror or Black Mirror &mdash; abundance or warning &mdash; both are welcome, both are needed</li>
+              <li>Star Trek or Mad Max &mdash; abundance or warning &mdash; both are welcome, both are needed</li>
               <li>Keep your visuals consistent: same world prompt, same characters, same style</li>
               <li>15 seconds per slide goes fast &mdash; practice is your best friend</li>
             </ul>
@@ -229,7 +236,7 @@ export function PrepareScreen() {
         <section className={styles.testSection}>
           <h2 className={styles.sectionTitle}>Test your PDF (20 slides)</h2>
           <p className={styles.sectionDesc}>
-            Upload your PDF and preview exactly how it will look on stage. Hit Play to simulate the
+            Upload your PDF and see exactly how it will look on stage. Hit Play to simulate the
             auto-advance and practice your narration in real time.
           </p>
           <label className={styles.fileInput}>
@@ -323,7 +330,7 @@ export function PrepareScreen() {
 
         <footer className={styles.footer}>
           <p className={styles.footerMessage}>
-            You've got this. The future is in this room &mdash; yours included.
+            Fear nothing. Build anything.
           </p>
           <p className={styles.footerSub}>Questions? Reach out to your event organizer.</p>
           <a href="#/" className={styles.footerBrand}>Cafe2035</a>

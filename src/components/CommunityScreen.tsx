@@ -43,18 +43,30 @@ function FounderArmyIcon() {
       {bot(5, 23, 6)}
       {bot(13, 25, 7)}
       {bot(43, 25, 8)}
-      {/* The lobster! (OpenClaw) — bottom right */}
-      <g>
-        {/* Body */}
-        <ellipse cx="51" cy="27" rx="3" ry="1.8" fill="#d4603a" opacity="0.25" stroke="#d4603a" strokeWidth="0.8" />
-        {/* Claws */}
-        <path d="M48 27 L46 25 L47 24" fill="none" stroke="#d4603a" strokeWidth="0.8" />
-        <path d="M48 27 L46 29 L47 30" fill="none" stroke="#d4603a" strokeWidth="0.8" />
-        {/* Tail */}
-        <path d="M54 27 L56 27" stroke="#d4603a" strokeWidth="0.7" />
-        {/* Eyes */}
-        <circle cx="49.5" cy="25.8" r="0.4" fill="#d4603a" />
-        <circle cx="50.8" cy="25.8" r="0.4" fill="#d4603a" />
+      {/* The lobster! (OpenClaw) — bottom right, emoji-style 🦞 */}
+      <g transform="translate(44, 22) scale(0.9)">
+        {/* Body — segmented oval */}
+        <ellipse cx="7" cy="6" rx="4" ry="3" fill="#d4603a" opacity="0.35" stroke="#d4603a" strokeWidth="0.8" />
+        {/* Tail fan */}
+        <path d="M11 6 Q14 4 13 2" fill="none" stroke="#d4603a" strokeWidth="0.8" />
+        <path d="M11 6 Q15 6 14 4" fill="none" stroke="#d4603a" strokeWidth="0.7" />
+        <path d="M11 6 Q14 8 13 10" fill="none" stroke="#d4603a" strokeWidth="0.8" />
+        {/* Left claw (top) — big open pincer */}
+        <path d="M3 5 L-1 2 L0 0" fill="none" stroke="#d4603a" strokeWidth="0.9" strokeLinecap="round" />
+        <path d="M-1 2 L-2 4" fill="none" stroke="#d4603a" strokeWidth="0.9" strokeLinecap="round" />
+        {/* Right claw (bottom) — big open pincer */}
+        <path d="M3 7 L-1 10 L0 12" fill="none" stroke="#d4603a" strokeWidth="0.9" strokeLinecap="round" />
+        <path d="M-1 10 L-2 8" fill="none" stroke="#d4603a" strokeWidth="0.9" strokeLinecap="round" />
+        {/* Legs */}
+        <line x1="5" y1="3.5" x2="4" y2="1.5" stroke="#d4603a" strokeWidth="0.5" />
+        <line x1="7" y1="3.5" x2="7" y2="1.5" stroke="#d4603a" strokeWidth="0.5" />
+        <line x1="5" y1="8.5" x2="4" y2="10.5" stroke="#d4603a" strokeWidth="0.5" />
+        <line x1="7" y1="8.5" x2="7" y2="10.5" stroke="#d4603a" strokeWidth="0.5" />
+        {/* Eyes on stalks */}
+        <line x1="4" y1="4.5" x2="2.5" y2="2.5" stroke="#d4603a" strokeWidth="0.5" />
+        <circle cx="2.5" cy="2.2" r="0.6" fill="#d4603a" />
+        <line x1="4" y1="7.5" x2="2.5" y2="9.5" stroke="#d4603a" strokeWidth="0.5" />
+        <circle cx="2.5" cy="9.8" r="0.6" fill="#d4603a" />
       </g>
     </svg>
   );
@@ -245,11 +257,12 @@ export function CommunityScreen() {
             </div>
             <div className={styles.beliefCard}>
               <SkyscraperIcon />
-              <h3 className={styles.beliefTitle}>10x the economy in 10 years</h3>
+              <h3 className={styles.beliefTitle}>Think 10x everything in 10 years</h3>
               <p className={styles.beliefDesc}>
-                That&rsquo;s what&rsquo;s coming. Ideas are now worth more than execution.
-                Brand, taste, and community will matter more than code.
-                Time to <strong>get ready</strong>.
+                10x founders. 10x the economy. 10x faster to build, to ship, to learn.
+                Ideas worth more than execution. Brand and taste worth more than code.
+                We believe <strong>abundance is coming</strong> &mdash; and we want to
+                help get us there.
               </p>
             </div>
             <div className={styles.beliefCard}>

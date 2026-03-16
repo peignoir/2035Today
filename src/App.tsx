@@ -11,6 +11,7 @@ import { CityScreen } from './components/CityScreen';
 import { MicrodoseScreen } from './components/MicrodoseScreen';
 import { PrepareScreen } from './components/PrepareScreen';
 import { SignupScreen } from './components/SignupScreen';
+import { SpeakerSignupsScreen } from './components/SpeakerSignupsScreen';
 import styles from './App.module.css';
 
 function NotFound() {
@@ -61,6 +62,7 @@ function App() {
           <Route index element={<EventsListScreen />} />
           <Route path="events/*" element={<EventRouter />} />
           <Route path="applications" element={<ApplicationsScreen />} />
+          <Route path="signups" element={<SpeakerSignupsScreen />} />
         </Route>
 
         {/* Community homepage */}

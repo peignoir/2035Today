@@ -83,7 +83,7 @@ export function ApplicationsScreen() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Applications</h1>
+        <h1 className={styles.title}>Organizer Applications</h1>
         <Link to="/admin" className={styles.backLink}>&larr; Back to events</Link>
       </header>
 

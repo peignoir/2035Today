@@ -156,7 +156,10 @@ export function EventsListScreen() {
         <p className={styles.quote}>"How many things have been denied one day, only to become realities the next!" — Jules Verne</p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
           <button className={styles.applicationsLink} onClick={() => navigate('/admin/applications')}>
-            &#x1F4EC; Applications
+            &#x1F4EC; Organizer Applications
+          </button>
+          <button className={styles.applicationsLink} onClick={() => navigate('/admin/signups')}>
+            &#x1F399; Storyteller Signups
           </button>
           <button className={styles.applicationsLink} onClick={() => { sessionStorage.removeItem('admin_unlocked'); window.location.hash = '/admin'; window.location.reload(); }}>
             Logout

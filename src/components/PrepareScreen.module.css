@@ -80,6 +80,60 @@
   margin: 0 0 28px;
 }
 
+.heroDivider {
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #e8913a, #e8913a55);
+  border-radius: 2px;
+  margin: 0 auto 32px;
+}
+
+.heroCards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.heroCard {
+  background: rgba(232, 145, 58, 0.06);
+  border: 1px solid rgba(232, 145, 58, 0.15);
+  border-radius: 14px;
+  padding: 24px 20px;
+  text-align: left;
+}
+
+.heroCard p {
+  font-size: 0.95rem;
+  color: #bbb;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.heroCard strong {
+  color: #e8d5b8;
+}
+
+.heroCardIcon {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.heroQuote {
+  margin: 28px auto 0;
+  padding: 20px 24px;
+  border-left: 3px solid #e8913a;
+  background: rgba(232, 145, 58, 0.04);
+  border-radius: 0 10px 10px 0;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: #ddd;
+  line-height: 1.6;
+  text-align: left;
+  max-width: 520px;
+}
+
 .heroBody {
   font-size: 1rem;
   color: #aaa;
@@ -420,6 +474,9 @@
   }
   .heroLead {
     font-size: 1.1rem;
+  }
+  .heroCards {
+    grid-template-columns: 1fr;
   }
   .step {
     gap: 12px;

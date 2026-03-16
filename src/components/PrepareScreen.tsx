@@ -101,30 +101,44 @@ export function PrepareScreen() {
       <div className={styles.container}>
         {/* Welcome */}
         <header className={styles.hero}>
-          <p className={styles.heroEmoji}>&#9749;</p>
           <h1 className={styles.heroTitle}>
-            Join the <span className={styles.accent}>2035 Storytellers Guild</span>.
+            Join the <span className={styles.accent}>2035 Storytellers Guild</span>
           </h1>
           <p className={styles.heroLead}>
-            We invite founders, writers, and achievers to share their vision of the future.
+            We invite successful founders, creative sci-fi writers,
+            and amazing experts in their fields to tell the story
+            of the future they're building.
           </p>
+
+          <div className={styles.heroDivider} />
+
+          <div className={styles.heroCards}>
+            <div className={styles.heroCard}>
+              <span className={styles.heroCardIcon}>🚀</span>
+              <p>Your story might look like <strong>Star Trek</strong> &mdash; abundance, humanity at its best.</p>
+            </div>
+            <div className={styles.heroCard}>
+              <span className={styles.heroCardIcon}>🔥</span>
+              <p>Or like <strong>Mad Max</strong> &mdash; a warning worth hearing. Both are powerful. Both are needed.</p>
+            </div>
+          </div>
+
           <p className={styles.heroBody}>
-            You've been invited to speak &mdash; or you're curious and want to <a href="#/signup" className={styles.inlineLink}>apply</a> &mdash;
-            either way, welcome to the <span className={styles.accent}>2035 Storytellers Guild</span>.
-            What matters is <span className={styles.accent}>your vision</span>.
-            No wrong story. No wrong future.
+            You've been invited to speak &mdash; or you're curious and want to{' '}
+            <a href="#/signup" className={styles.inlineLink}>apply</a> &mdash;
+            either way, welcome.
+            The world is moving so fast we're basically hunter-gatherers staring at the horizon,
+            trying to imagine what "agriculture" will bring.
           </p>
-          <p className={styles.heroBody}>
-            The world is moving so fast we're basically <span className={styles.accent}>hunter-gatherers
-            staring at the horizon</span>, trying to imagine what "agriculture" will bring.
-            Your story might look like <span className={styles.accent2}>Star Trek</span> &mdash; abundance, humanity at its
-            best. Or like <span className={styles.accent2}>Mad Max</span> &mdash; a warning worth hearing.
-            Both are powerful. Both are needed.
-          </p>
+
           <p className={styles.heroBody}>
             Think of it as a <span className={styles.accent}>campfire story</span> &mdash;
             you talk, the images illustrate. Not a pitch deck. A <em>story</em>.
           </p>
+
+          <blockquote className={styles.heroQuote}>
+            What matters is your vision. No wrong story. No wrong future.
+          </blockquote>
         </header>
 
         {/* Steps */}

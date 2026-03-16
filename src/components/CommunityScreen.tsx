@@ -10,6 +10,56 @@ function scrollTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 }
 
+/* ── Inline SVG icons ── */
+
+function BoltIcon() {
+  return (
+    <svg viewBox="0 0 32 32" className={styles.beliefIcon} aria-hidden="true">
+      <polygon points="18,2 8,18 14,18 12,30 24,13 17,13" fill="none" stroke="#d4603a" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function CompassIcon() {
+  return (
+    <svg viewBox="0 0 32 32" className={styles.beliefIcon} aria-hidden="true">
+      <circle cx="16" cy="16" r="13" fill="none" stroke="#d4603a" strokeWidth="1.8" />
+      <circle cx="16" cy="16" r="2" fill="#d4603a" opacity="0.4" />
+      <polygon points="16,6 18,14 16,16 14,14" fill="#d4603a" opacity="0.7" />
+      <polygon points="16,26 14,18 16,16 18,18" fill="#d4603a" opacity="0.3" />
+      <line x1="16" y1="1" x2="16" y2="5" stroke="#d4603a" strokeWidth="1.2" opacity="0.4" />
+      <line x1="16" y1="27" x2="16" y2="31" stroke="#d4603a" strokeWidth="1.2" opacity="0.4" />
+      <line x1="1" y1="16" x2="5" y2="16" stroke="#d4603a" strokeWidth="1.2" opacity="0.4" />
+      <line x1="27" y1="16" x2="31" y2="16" stroke="#d4603a" strokeWidth="1.2" opacity="0.4" />
+    </svg>
+  );
+}
+
+function SparkIcon() {
+  return (
+    <svg viewBox="0 0 32 32" className={styles.beliefIcon} aria-hidden="true">
+      <path d="M16 2 L18 12 L28 10 L20 16 L28 22 L18 20 L16 30 L14 20 L4 22 L12 16 L4 10 L14 12Z"
+            fill="none" stroke="#d4603a" strokeWidth="1.6" strokeLinejoin="round" />
+      <circle cx="16" cy="16" r="2.5" fill="#d4603a" opacity="0.3" />
+    </svg>
+  );
+}
+
+function RocketIcon() {
+  return (
+    <svg viewBox="0 0 32 32" className={styles.rocketIcon} aria-hidden="true">
+      <path d="M16 4 C16 4 22 10 22 20 L22 24 L10 24 L10 20 C10 10 16 4 16 4Z"
+            fill="none" stroke="#e89b2d" strokeWidth="1.8" />
+      <circle cx="16" cy="15" r="2.5" fill="none" stroke="#e89b2d" strokeWidth="1.2" />
+      <path d="M10 21 L6 26 L10 24" fill="none" stroke="#e89b2d" strokeWidth="1.2" />
+      <path d="M22 21 L26 26 L22 24" fill="none" stroke="#e89b2d" strokeWidth="1.2" />
+      <path d="M13 24 Q16 30 19 24" fill="none" stroke="#d4603a" strokeWidth="1.2" opacity="0.6">
+        <animate attributeName="d" values="M13 24 Q16 30 19 24;M13 24 Q16 28 19 24;M13 24 Q16 30 19 24" dur="0.8s" repeatCount="indefinite" />
+      </path>
+    </svg>
+  );
+}
+
 /* ── Coffee Cup SVG ── */
 function CoffeeCupSVG() {
   return (
@@ -102,7 +152,7 @@ export function CommunityScreen() {
         <div className={styles.inner}>
           <div className={styles.beliefGrid}>
             <div className={styles.beliefCard}>
-              <span className={styles.beliefEmoji}>&#9889;</span>
+              <BoltIcon />
               <h3 className={styles.beliefTitle}>Everyone is a builder now</h3>
               <p className={styles.beliefDesc}>
                 AI erased the barriers. A designer ships code. A chef launches a startup.
@@ -110,7 +160,7 @@ export function CommunityScreen() {
               </p>
             </div>
             <div className={styles.beliefCard}>
-              <span className={styles.beliefEmoji}>&#128301;</span>
+              <CompassIcon />
               <h3 className={styles.beliefTitle}>Recalibrate for 2035</h3>
               <p className={styles.beliefDesc}>
                 The world is changing faster than anyone expected.
@@ -118,7 +168,7 @@ export function CommunityScreen() {
               </p>
             </div>
             <div className={styles.beliefCard}>
-              <span className={styles.beliefEmoji}>&#127881;</span>
+              <SparkIcon />
               <h3 className={styles.beliefTitle}>More ambitious, more fun</h3>
               <p className={styles.beliefDesc}>
                 Less pitch decks, more building.
@@ -186,7 +236,8 @@ export function CommunityScreen() {
       {/* ── The Collider ── */}
       <section id="collider" className={styles.section}>
         <div className={styles.inner}>
-          <p className={styles.ventureTag}>&#128640; 2035.vc &mdash; our venture arm</p>
+          <RocketIcon />
+          <p className={styles.ventureTag}>2035.vc &mdash; our venture arm</p>
           <h2 className={styles.sectionTitle}>The 7-Day Collider</h2>
           <p className={styles.sectionSub}>
             The fastest startup program ever built.

@@ -33,12 +33,7 @@ export function Navbar({ scrollTo, onLogout }: NavbarProps) {
       <Link to="/prepare" className={styles.navLink} onClick={close}>Share your vision</Link>
       <Link to="/apply" className={styles.navLink} onClick={close}>Become a Curator</Link>
       <button onClick={() => goToSection('cities')} className={styles.navCta}>Find an event</button>
-      {isAdmin() && (
-        <>
-          <Link to="/admin" className={styles.navLink} onClick={close}>Admin</Link>
-          {onLogout && <button onClick={() => { onLogout(); close(); }} className={styles.navLink}>Logout</button>}
-        </>
-      )}
+      {onLogout && <button onClick={() => { onLogout(); close(); }} className={styles.navLink}>Logout</button>}
     </>
   );
 

@@ -149,7 +149,7 @@ export function PrepareScreen() {
                 <path d="M40 8 L40 12" stroke="#111" strokeWidth="1" />
                 <path d="M15 30 L25 35 M55 28 L65 33" stroke="#c44" strokeWidth="0.8" opacity="0.3" />
               </svg>
-              <h3 className={styles.heroCardTitle}>Dystopian</h3>
+              <h3 className={styles.heroCardTitle}>Dystopian <span className={styles.hopeNote}>(with a touch of hope!)</span></h3>
               <p>Or like <strong>Mad Max</strong> &mdash; a warning worth hearing. Both are powerful. Both are needed.</p>
             </div>
           </div>

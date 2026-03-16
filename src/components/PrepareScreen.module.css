@@ -142,6 +142,15 @@
   color: #c44;
 }
 
+.hopeNote {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  color: #e8913a;
+  font-style: italic;
+}
+
 .heroCardIcon {
   font-size: 1.8rem;
   display: block;

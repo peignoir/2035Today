@@ -211,6 +211,18 @@ export function PrepareScreen() {
           </div>
         </section>
 
+        {/* White Mirror */}
+        <section className={styles.whiteSection}>
+          <h2 className={styles.sectionTitle}>
+            Your <span className={styles.accent}>White Mirror</span> presentation
+          </h2>
+          <p className={styles.sectionDesc}>
+            We call them <strong>White Mirror</strong> stories &mdash; the opposite of the always-negative
+            future on screen. Even dystopian tales need a spark of hope: like Pandora's box,
+            the last thing that remains is <span className={styles.accent}>hope</span>.
+          </p>
+        </section>
+
         {/* Steps */}
         <section className={styles.directions}>
           <h2 className={styles.sectionTitle}>7 steps to your 5-minute story</h2>
@@ -394,6 +406,33 @@ export function PrepareScreen() {
               </p>
             </div>
           )}
+        </section>
+
+        {/* Story ideas */}
+        <section className={styles.ideasSection}>
+          <h2 className={styles.sectionTitle}>Need inspiration?</h2>
+          <p className={styles.sectionDesc}>
+            Tell the story of how we&hellip;
+          </p>
+          <div className={styles.ideasGrid}>
+            {[
+              { icon: '🍽', label: 'Eat in 2035' },
+              { icon: '🗳', label: 'Vote in 2035' },
+              { icon: '💼', label: 'Work (or not) in 2035' },
+              { icon: '💰', label: 'Invest in 2035' },
+              { icon: '🏥', label: 'Heal in 2035' },
+              { icon: '🎓', label: 'Learn in 2035' },
+              { icon: '🚀', label: 'Travel in 2035' },
+              { icon: '🏠', label: 'Live in 2035' },
+              { icon: '🤖', label: 'Coexist with AI in 2035' },
+              { icon: '🌍', label: 'Save the planet in 2035' },
+            ].map((idea) => (
+              <div key={idea.label} className={styles.ideaChip}>
+                <span className={styles.ideaIcon}>{idea.icon}</span>
+                <span>{idea.label}</span>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className={styles.signupCta}>

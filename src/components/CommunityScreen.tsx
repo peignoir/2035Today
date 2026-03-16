@@ -427,7 +427,7 @@ export function CommunityScreen() {
       {/* ── The 2 Hours ── */}
       <section id="the2hours" className={styles.section}>
         <div className={styles.sectionInner}>
-          <p className={styles.sectionEyebrow}>Morning cafe or evening irish coffee — the curator decides the vibe</p>
+          <p className={styles.sectionEyebrow}>Morning café or evening Irish coffee — the curator decides the vibe</p>
           <h2 className={styles.sectionTitle}>The Most Life-Changing 2h of Your Life</h2>
           <p className={styles.sectionSubtitle}>
             That's the goal. No fluff, no panels, no networking bingo.

@@ -485,6 +485,50 @@
   max-height: 400px;
 }
 
+/* ── White Mirror section ── */
+.whiteSection {
+  margin-bottom: 40px;
+  padding: 28px 24px;
+  background: rgba(232, 145, 58, 0.03);
+  border: 1px solid rgba(232, 145, 58, 0.1);
+  border-radius: 14px;
+}
+
+/* ── Story Ideas ── */
+.ideasSection {
+  margin-bottom: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--color-border);
+}
+
+.ideasGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.ideaChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  background: rgba(232, 145, 58, 0.08);
+  border: 1px solid rgba(232, 145, 58, 0.15);
+  font-size: 0.88rem;
+  color: #ccc;
+  transition: background 0.15s;
+}
+
+.ideaChip:hover {
+  background: rgba(232, 145, 58, 0.15);
+}
+
+.ideaIcon {
+  font-size: 1.1rem;
+}
+
 /* ── Signup CTA ── */
 .signupCta {
   text-align: center;

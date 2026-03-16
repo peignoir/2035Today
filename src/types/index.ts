@@ -48,6 +48,7 @@ export interface SpeakerSignup {
   name: string;
   email: string;
   phone?: string;
+  linkedin?: string;
   format: 'slides' | 'video';
   storyTitle: string;
   authorName: string;

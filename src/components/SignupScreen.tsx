@@ -24,6 +24,7 @@ export function SignupScreen() {
   const [storyTitle, setStoryTitle] = useState('');
   const [authorName, setAuthorName] = useState('');
   const [tone, setTone] = useState<'positive' | 'negative'>('positive');
+  const [linkedin, setLinkedin] = useState('');
   const [description, setDescription] = useState('');
 
   const [submitting, setSubmitting] = useState(false);
@@ -53,7 +54,7 @@ export function SignupScreen() {
     if (!email.trim()) { setError('Please enter your email.'); return; }
     if (!storyTitle.trim()) { setError('Please enter a story title.'); return; }
     if (!authorName.trim()) { setError('Please enter the author name.'); return; }
-    if (!description.trim()) { setError('Please write a short description.'); return; }
+    if (!linkedin.trim() && !description.trim()) { setError('Please provide your LinkedIn profile or a short bio (or both).'); return; }
 
     setError(null);
     setSubmitting(true);
@@ -64,6 +65,7 @@ export function SignupScreen() {
       name: name.trim(),
       email: email.trim(),
       phone: phone.trim() || undefined,
+      linkedin: linkedin.trim() || undefined,
       format,
       storyTitle: storyTitle.trim(),
       authorName: authorName.trim(),
@@ -85,7 +87,7 @@ export function SignupScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [selectedSlug, isOpenApplication, customCity, name, email, phone, format, storyTitle, authorName, tone, description]);
+  }, [selectedSlug, isOpenApplication, customCity, name, email, phone, linkedin, format, storyTitle, authorName, tone, description]);
 
   const formatEventLabel = (opt: EventOption) => {
     const city = opt.event.city || opt.slug.split('/')[0];
@@ -198,6 +200,18 @@ export function SignupScreen() {
               />
             </div>
 
+            {/* LinkedIn */}
+            <div className={styles.field}>
+              <label className={styles.label}>LinkedIn {description.trim() ? <span className={styles.optional}>(optional if bio provided)</span> : null}</label>
+              <input
+                type="url"
+                className={styles.input}
+                value={linkedin}
+                onChange={(e) => setLinkedin(e.target.value)}
+                placeholder="https://linkedin.com/in/yourprofile"
+              />
+            </div>
+
             {/* Author name */}
             <div className={styles.field}>
               <label className={styles.label}>Author name (as shown on stage)</label>
@@ -280,9 +294,9 @@ export function SignupScreen() {
               </div>
             </div>
 
-            {/* Description */}
+            {/* Description / Bio */}
             <div className={styles.field}>
-              <label className={styles.label}>Short description</label>
+              <label className={styles.label}>Short bio {linkedin.trim() ? <span className={styles.optional}>(optional if LinkedIn provided)</span> : null}</label>
               <textarea
                 className={styles.textarea}
                 value={description}

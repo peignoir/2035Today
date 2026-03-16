@@ -314,6 +314,13 @@ export function SpeakerSignupsScreen() {
                     &#x1F4DE; {row.signup.phone}
                   </span>
                 )}
+                {row.signup.linkedin && (
+                  <span className={styles.metaItem}>
+                    <a href={row.signup.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: '#6ca0dc', textDecoration: 'none' }}>
+                      🔗 LinkedIn
+                    </a>
+                  </span>
+                )}
                 <span className={styles.metaItem}>
                   {row.signup.format === 'slides' ? '🖼 Slides' : '🎬 Video'}
                 </span>

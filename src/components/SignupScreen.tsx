@@ -29,8 +29,11 @@ export function SignupScreen() {
 
   useEffect(() => {
     listEvents().then((list) => {
-      // Sort by date ascending, show all events (public or not)
-      const sorted = list.sort((a, b) => a.event.date.localeCompare(b.event.date));
+      // Filter out past events, sort by date ascending
+      const today = new Date().toISOString().split('T')[0];
+      const sorted = list
+        .filter((e) => e.event.date >= today)
+        .sort((a, b) => a.event.date.localeCompare(b.event.date));
       setEvents(sorted);
       if (sorted.length === 1) setSelectedSlug(sorted[0].slug);
       setLoading(false);

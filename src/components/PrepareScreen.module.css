@@ -373,6 +373,11 @@
   transition: opacity 0.15s;
 }
 
+.ctaButton:visited,
+.ctaButton:link {
+  color: #fff;
+}
+
 .ctaButton:hover {
   opacity: 0.85;
 }

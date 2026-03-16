@@ -307,7 +307,11 @@ export function CommunityScreen() {
           <button onClick={() => scrollTo('the2hours')} className={styles.navLink}>The 2 Hours</button>
           <button onClick={() => scrollTo('after')} className={styles.navLink}>What's Next</button>
           <Link to="/prepare" className={styles.navLink}>Tell a story</Link>
-          <Link to="/admin" className={styles.navLink}>Login</Link>
+          {sessionStorage.getItem('admin_unlocked') === 'true' ? (
+            <Link to="/admin" className={styles.navLink}>Admin</Link>
+          ) : (
+            <Link to="/admin" className={styles.navLink}>Login</Link>
+          )}
           <Link to="/apply" className={styles.navCta}>Organize one</Link>
         </div>
       </nav>

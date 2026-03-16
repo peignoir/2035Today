@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import styles from '../App.module.css';
+import navStyles from './CommunityScreen.module.css';
 
 const ADMIN_EMAIL = 'franck@recorp.co';
 const ADMIN_PASSWORD = 'pofpof';
@@ -13,6 +14,7 @@ export function AdminGuard() {
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState(false);
+  const location = useLocation();
 
   const handlePasswordSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +28,12 @@ export function AdminGuard() {
       setLoginError(true);
     }
   }, [emailInput, passwordInput]);
+
+  const handleLogout = useCallback(() => {
+    sessionStorage.removeItem(ADMIN_SESSION_KEY);
+    window.location.hash = '/';
+    window.location.reload();
+  }, []);
 
   if (!adminUnlocked) {
     return (
@@ -55,5 +63,19 @@ export function AdminGuard() {
     );
   }
 
-  return <Outlet />;
+  const isAdminHome = location.pathname === '/admin' || location.pathname === '/admin/';
+
+  return (
+    <div className={navStyles.page}>
+      <nav className={navStyles.topNav}>
+        <Link to="/" className={navStyles.navBrand}>☕ 2035Cafe</Link>
+        <div className={navStyles.navRight}>
+          <Link to="/prepare" className={navStyles.navLink}>Tell a story</Link>
+          <Link to="/admin" className={isAdminHome ? navStyles.navCta : navStyles.navLink}>Admin</Link>
+          <button onClick={handleLogout} className={navStyles.navLink}>Logout</button>
+        </div>
+      </nav>
+      <Outlet />
+    </div>
+  );
 }

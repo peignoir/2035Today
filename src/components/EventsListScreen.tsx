@@ -161,9 +161,6 @@ export function EventsListScreen() {
           <button className={styles.applicationsLink} onClick={() => navigate('/admin/signups')}>
             &#x1F399; Storyteller Signups
           </button>
-          <button className={styles.applicationsLink} onClick={() => { sessionStorage.removeItem('admin_unlocked'); window.location.hash = '/admin'; window.location.reload(); }}>
-            Logout
-          </button>
         </div>
       </header>
 

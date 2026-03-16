@@ -1,9 +1,24 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { loadAndRenderPdf, PdfValidationError } from '../lib/pdfRenderer';
 import type { SlideImage } from '../types';
 import styles from './PrepareScreen.module.css';
 
+const QUOTES = [
+  { text: 'How many things have been denied one day, only to become realities the next!', author: 'Jules Verne' },
+  { text: 'The future is already here — it\'s just not evenly distributed.', author: 'William Gibson' },
+  { text: 'Any sufficiently advanced technology is indistinguishable from magic.', author: 'Arthur C. Clarke' },
+  { text: 'The best way to predict the future is to invent it.', author: 'Alan Kay' },
+  { text: 'Science fiction is the most important literature in the history of the world.', author: 'Ray Bradbury' },
+  { text: 'We are called to be architects of the future, not its victims.', author: 'Buckminster Fuller' },
+];
+
 export function PrepareScreen() {
+  const [quoteIdx, setQuoteIdx] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setQuoteIdx((i) => (i + 1) % QUOTES.length), 8000);
+    return () => clearInterval(id);
+  }, []);
 
   const [pdfSlides, setPdfSlides] = useState<SlideImage[] | null>(null);
   const [pdfError, setPdfError] = useState<string | null>(null);
@@ -152,10 +167,49 @@ export function PrepareScreen() {
             you talk, the images illustrate. Not a pitch deck. A <em>story</em>.
           </p>
 
-          <blockquote className={styles.heroQuote}>
-            What matters is your vision. No wrong story. No wrong future.
+          <blockquote className={styles.heroQuote} key={quoteIdx}>
+            <p className={styles.quoteText}>&ldquo;{QUOTES[quoteIdx].text}&rdquo;</p>
+            <cite className={styles.quoteAuthor}>&mdash; {QUOTES[quoteIdx].author}</cite>
           </blockquote>
         </header>
+
+        {/* Mission visual */}
+        <section className={styles.missionSection}>
+          <div className={styles.missionVisual}>
+            <svg className={styles.missionSvg} viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Open book */}
+              <path d="M60 25 Q40 20 20 30 L20 80 Q40 72 60 78 Q80 72 100 80 L100 30 Q80 20 60 25 Z" fill="rgba(232,145,58,0.08)" stroke="#e8913a" strokeWidth="1.2" />
+              <path d="M60 25 L60 78" stroke="#e8913a" strokeWidth="0.8" opacity="0.5" />
+              {/* Page lines left */}
+              <path d="M28 40 L52 36" stroke="#e8913a" strokeWidth="0.5" opacity="0.3" />
+              <path d="M28 48 L52 44" stroke="#e8913a" strokeWidth="0.5" opacity="0.3" />
+              <path d="M28 56 L52 52" stroke="#e8913a" strokeWidth="0.5" opacity="0.3" />
+              <path d="M28 64 L52 60" stroke="#e8913a" strokeWidth="0.5" opacity="0.3" />
+              {/* Page lines right */}
+              <path d="M68 36 L92 40" stroke="#e8913a" strokeWidth="0.5" opacity="0.3" />
+              <path d="M68 44 L92 48" stroke="#e8913a" strokeWidth="0.5" opacity="0.3" />
+              <path d="M68 52 L92 56" stroke="#e8913a" strokeWidth="0.5" opacity="0.3" />
+              <path d="M68 60 L92 64" stroke="#e8913a" strokeWidth="0.5" opacity="0.3" />
+              {/* Stars rising from book */}
+              <circle cx="45" cy="18" r="2" fill="#e8913a" opacity="0.6" />
+              <circle cx="60" cy="10" r="2.5" fill="#e8913a" opacity="0.8" />
+              <circle cx="75" cy="16" r="1.8" fill="#e8913a" opacity="0.5" />
+              <circle cx="52" cy="8" r="1.2" fill="#e8913a" opacity="0.4" />
+              <circle cx="70" cy="6" r="1.5" fill="#e8913a" opacity="0.3" />
+            </svg>
+          </div>
+          <div className={styles.missionText}>
+            <h2 className={styles.missionTitle}>We are AI optimists <span className={styles.accent}>&amp;</span> realists</h2>
+            <p className={styles.missionBody}>
+              We're recruiting the founders, writers, and visionaries who are actually building the future &mdash;
+              to share their stories and <span className={styles.accent}>tilt the balance in the right direction</span>.
+            </p>
+            <p className={styles.missionBody}>
+              Every story told at a 2035Cafe is an act of hope. Not blind optimism &mdash;
+              <em>informed</em> optimism, from people who've seen both the promise and the peril up close.
+            </p>
+          </div>
+        </section>
 
         {/* Steps */}
         <section className={styles.directions}>

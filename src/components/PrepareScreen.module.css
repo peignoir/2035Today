@@ -154,12 +154,68 @@
   border-left: 3px solid #e8913a;
   background: rgba(232, 145, 58, 0.04);
   border-radius: 0 10px 10px 0;
+  text-align: left;
+  max-width: 520px;
+  animation: quoteFadeIn 0.8s ease;
+}
+
+.quoteText {
   font-size: 1.05rem;
   font-style: italic;
   color: #ddd;
   line-height: 1.6;
-  text-align: left;
-  max-width: 520px;
+  margin: 0 0 8px;
+}
+
+.quoteAuthor {
+  font-size: 0.85rem;
+  color: #e8913a;
+  font-style: normal;
+  font-weight: 600;
+}
+
+@keyframes quoteFadeIn {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Mission section ── */
+.missionSection {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 48px;
+  padding: 32px 24px;
+  background: rgba(232, 145, 58, 0.04);
+  border: 1px solid rgba(232, 145, 58, 0.1);
+  border-radius: 16px;
+}
+
+.missionVisual {
+  flex-shrink: 0;
+}
+
+.missionSvg {
+  width: 120px;
+  height: 100px;
+}
+
+.missionTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: #eee;
+}
+
+.missionBody {
+  font-size: 0.95rem;
+  color: #aaa;
+  line-height: 1.7;
+  margin: 0 0 10px;
+}
+
+.missionBody:last-child {
+  margin-bottom: 0;
 }
 
 .heroBody {
@@ -505,6 +561,15 @@
   }
   .heroCards {
     grid-template-columns: 1fr;
+  }
+  .missionSection {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px 16px;
+  }
+  .missionSvg {
+    width: 100px;
+    height: 80px;
   }
   .step {
     gap: 12px;

@@ -191,10 +191,13 @@ export function PrepareScreen() {
             <div className={styles.step}>
               <span className={styles.stepNumber}>6</span>
               <div>
-                <h3 className={styles.stepTitle}>Make a 20-slide PDF</h3>
+                <h3 className={styles.stepTitle}>Deliver your storyboard</h3>
                 <p className={styles.stepDesc}>
-                  One image per slide, <span className={styles.accent}>landscape 16:9</span>.
-                  Export as PDF &mdash; exactly <span className={styles.accent}>20 pages</span>, max 30 MB.
+                  <span className={styles.accent}>Option A:</span> A <span className={styles.accent}>20-image PDF</span> &mdash;
+                  one image per slide, landscape 16:9, exactly 20 pages, max 30 MB.
+                  Slides auto-advance on stage while you narrate live.<br />
+                  <span className={styles.accent}>Option B:</span> A <span className={styles.accent}>5-minute video</span> &mdash;
+                  record yourself narrating over your storyboard. MP4, max 200 MB.
                 </p>
               </div>
             </div>

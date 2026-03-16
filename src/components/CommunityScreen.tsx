@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { ShareableEvent } from '../types';
 import { listPublicEvents } from '../lib/storage';
@@ -8,6 +8,47 @@ import styles from './CommunityScreen.module.css';
 /** HashRouter swallows #anchors — scroll manually instead */
 function scrollTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ── Rotating hero phrases ── */
+const HERO_PHRASES = [
+  { text: 'Sci-fi writers', color: '#e89b2d' },
+  { text: 'Teachers rethinking education', color: '#5a8a3c' },
+  { text: 'Solo founders obsessed with product', color: '#d4603a' },
+  { text: 'Designers who ship code', color: '#e89b2d' },
+  { text: 'Chefs launching startups', color: '#5a8a3c' },
+  { text: 'Dreamers building for 2035', color: '#d4603a' },
+];
+
+function RotatingWho() {
+  const [idx, setIdx] = useState(0);
+  const [visible, setVisible] = useState(true);
+  const advance = useCallback(() => {
+    setVisible(false);
+    setTimeout(() => {
+      setIdx((i) => (i + 1) % HERO_PHRASES.length);
+      setVisible(true);
+    }, 400);
+  }, []);
+  useEffect(() => {
+    const id = setInterval(advance, 2800);
+    return () => clearInterval(id);
+  }, [advance]);
+  const phrase = HERO_PHRASES[idx];
+  return (
+    <p className={styles.heroWho}>
+      <span
+        className={`${styles.rotatingText} ${visible ? styles.rotatingIn : styles.rotatingOut}`}
+        style={{ color: phrase.color }}
+      >
+        {phrase.text}
+      </span>
+      <br />
+      <span className={styles.heroWhoSub}>
+        If you care more about <em>what</em> you build than <em>how</em>, you belong here.
+      </span>
+    </p>
+  );
 }
 
 /* ── Inline SVG icons ── */
@@ -43,31 +84,8 @@ function FounderArmyIcon() {
       {bot(5, 23, 6)}
       {bot(13, 25, 7)}
       {bot(43, 25, 8)}
-      {/* The lobster! (OpenClaw) — bottom right, emoji-style 🦞 */}
-      <g transform="translate(44, 22) scale(0.9)">
-        {/* Body — segmented oval */}
-        <ellipse cx="7" cy="6" rx="4" ry="3" fill="#d4603a" opacity="0.35" stroke="#d4603a" strokeWidth="0.8" />
-        {/* Tail fan */}
-        <path d="M11 6 Q14 4 13 2" fill="none" stroke="#d4603a" strokeWidth="0.8" />
-        <path d="M11 6 Q15 6 14 4" fill="none" stroke="#d4603a" strokeWidth="0.7" />
-        <path d="M11 6 Q14 8 13 10" fill="none" stroke="#d4603a" strokeWidth="0.8" />
-        {/* Left claw (top) — big open pincer */}
-        <path d="M3 5 L-1 2 L0 0" fill="none" stroke="#d4603a" strokeWidth="0.9" strokeLinecap="round" />
-        <path d="M-1 2 L-2 4" fill="none" stroke="#d4603a" strokeWidth="0.9" strokeLinecap="round" />
-        {/* Right claw (bottom) — big open pincer */}
-        <path d="M3 7 L-1 10 L0 12" fill="none" stroke="#d4603a" strokeWidth="0.9" strokeLinecap="round" />
-        <path d="M-1 10 L-2 8" fill="none" stroke="#d4603a" strokeWidth="0.9" strokeLinecap="round" />
-        {/* Legs */}
-        <line x1="5" y1="3.5" x2="4" y2="1.5" stroke="#d4603a" strokeWidth="0.5" />
-        <line x1="7" y1="3.5" x2="7" y2="1.5" stroke="#d4603a" strokeWidth="0.5" />
-        <line x1="5" y1="8.5" x2="4" y2="10.5" stroke="#d4603a" strokeWidth="0.5" />
-        <line x1="7" y1="8.5" x2="7" y2="10.5" stroke="#d4603a" strokeWidth="0.5" />
-        {/* Eyes on stalks */}
-        <line x1="4" y1="4.5" x2="2.5" y2="2.5" stroke="#d4603a" strokeWidth="0.5" />
-        <circle cx="2.5" cy="2.2" r="0.6" fill="#d4603a" />
-        <line x1="4" y1="7.5" x2="2.5" y2="9.5" stroke="#d4603a" strokeWidth="0.5" />
-        <circle cx="2.5" cy="9.8" r="0.6" fill="#d4603a" />
-      </g>
+      {/* The lobster! (OpenClaw) — bottom right */}
+      <text x="50" y="30" fontSize="8" textAnchor="middle">&#x1F99E;</text>
     </svg>
   );
 }
@@ -222,15 +240,11 @@ export function CommunityScreen() {
             <span className={styles.tagline}>Fear Nothing, Build Anything.</span>
           </h1>
           <p className={styles.heroMission}>
-            Think <strong className={styles.accent}>AI preppers</strong> &mdash; not
-            the bunker kind, the <em>builder</em> kind. We&rsquo;re a community getting
+            Think <strong className={styles.accent}>AI preppers</strong>, not
+            the bunker kind, the <em>builder</em> kind. A community getting
             ready for 2035 before everyone else.
           </p>
-          <p className={styles.heroWho}>
-            Sci-fi writers. Teachers rethinking education. Solo founders
-            obsessed with product. If you care more about <em>what</em> you
-            build than <em>how</em> &mdash; you belong here.
-          </p>
+          <RotatingWho />
           <div className={styles.ctaRow}>
             <button onClick={() => scrollTo('cities')} className={styles.ctaPrimary}>
               Find an event
@@ -261,7 +275,7 @@ export function CommunityScreen() {
               <p className={styles.beliefDesc}>
                 10x founders. 10x the economy. 10x faster to build, to ship, to learn.
                 Ideas worth more than execution. Brand and taste worth more than code.
-                We believe <strong>abundance is coming</strong> &mdash; and we want to
+                We believe <strong>abundance is coming</strong>, and we want to
                 help get us there.
               </p>
             </div>
@@ -269,10 +283,10 @@ export function CommunityScreen() {
               <NewPlaybookIcon />
               <h3 className={styles.beliefTitle}>Startups need a new playbook</h3>
               <p className={styles.beliefDesc}>
-                Weekend hackathons and 3-month accelerators won&rsquo;t cut it
-                &mdash; trust us, we used to run the largest one in the world.
+                Weekend hackathons and 3-month accelerators won&rsquo;t cut it,
+                trust us, we used to run the largest one in the world.
                 We miss <strong>grassroots</strong>. We want the fun and creators back.
-                Not a community for the 0.01% &mdash; for everyone.
+                Not a community for the 0.01%, for everyone.
               </p>
             </div>
           </div>
@@ -284,7 +298,7 @@ export function CommunityScreen() {
         <div className={styles.inner}>
           <h2 className={styles.sectionTitle}>2 hours. 3 acts. No fluff.</h2>
           <p className={styles.sectionSub}>
-            Morning caf&eacute; or evening Irish coffee &mdash; the curator picks the vibe.
+            Morning caf&eacute; or evening Irish coffee, the curator picks the vibe.
             An AI runs the show.
           </p>
 
@@ -296,7 +310,7 @@ export function CommunityScreen() {
               </div>
               <h3 className={styles.actName}>White Mirror</h3>
               <p className={styles.actDesc}>
-                Sci-fi stories about 2035 &mdash; like Black Mirror,
+                Sci-fi stories about 2035, like Black Mirror,
                 but things go <em className={styles.accent}>right</em>.
                 20 auto-advancing slides or a 5-min AI film.
               </p>
@@ -320,7 +334,7 @@ export function CommunityScreen() {
               </div>
               <h3 className={styles.actName}>Builder Circle</h3>
               <p className={styles.actDesc}>
-                Form your crew &mdash; 5-6 people who get it.
+                Form your crew, 5-6 people who get it.
                 Meet monthly, share wins, cover blind spots.
               </p>
             </div>
@@ -336,7 +350,7 @@ export function CommunityScreen() {
       <section id="collider" className={styles.section}>
         <div className={styles.inner}>
           <RocketIcon />
-          <p className={styles.ventureTag}>2035.vc &mdash; our venture arm</p>
+          <p className={styles.ventureTag}>2035.vc, our venture arm</p>
           <h2 className={styles.sectionTitle}>The 7-Day Collider</h2>
           <p className={styles.sectionSub}>
             The fastest startup program ever built.
@@ -346,7 +360,7 @@ export function CommunityScreen() {
           <div className={styles.colliderSteps}>
             <div className={styles.colliderStep}>
               <span className={styles.stepNum}>1</span>
-              <p>Do a <strong>Startup Microdosing</strong> session first &mdash; that&rsquo;s your entry ticket.</p>
+              <p>Do a <strong>Startup Microdosing</strong> session first, that&rsquo;s your entry ticket.</p>
             </div>
             <div className={styles.colliderStep}>
               <span className={styles.stepNum}>2</span>
@@ -359,7 +373,7 @@ export function CommunityScreen() {
           </div>
 
           <p className={styles.colliderVision}>
-            We&rsquo;ll invest in the top founders &mdash; but we also support
+            We&rsquo;ll invest in the top founders, but we also support
             <strong> all of you</strong> through our platform.
             Think a positive AI prepper mafia: once you&rsquo;ve been through the
             experience, you&rsquo;re a member for life.
@@ -435,7 +449,7 @@ export function CommunityScreen() {
 
                 {publicEvents.length === 0 && (
                   <p className={styles.emptyState}>
-                    No public events yet &mdash; be the first!
+                    No public events yet, be the first!
                   </p>
                 )}
               </>
@@ -456,7 +470,7 @@ export function CommunityScreen() {
           <span className={styles.accentText}>Fear Nothing, Build Anything.</span>
         </h2>
         <p className={styles.finalSub}>
-          Join a 2035Cafe near you &mdash; or start one in your city.
+          Join a 2035Cafe near you, or start one in your city.
         </p>
         <div className={styles.ctaRow}>
           <Link to="/apply" className={styles.ctaPrimary}>

@@ -1,12 +1,9 @@
 import { useState, useCallback, useRef } from 'react';
-import { useParams } from 'react-router-dom';
 import { loadAndRenderPdf, PdfValidationError } from '../lib/pdfRenderer';
 import type { SlideImage } from '../types';
 import styles from './PrepareScreen.module.css';
 
 export function PrepareScreen() {
-  const { city, date } = useParams<{ city: string; date: string }>();
-  const cityName = (city || '').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
   const [pdfSlides, setPdfSlides] = useState<SlideImage[] | null>(null);
   const [pdfError, setPdfError] = useState<string | null>(null);
@@ -103,9 +100,6 @@ export function PrepareScreen() {
     <div className={styles.page}>
       <nav className={styles.topNav}>
         <a href="#/" className={styles.navBrand}>Cafe2035</a>
-        {city && date && (
-          <a href={`#/${city}/${date}`} className={styles.navLink}>&larr; Back to event</a>
-        )}
       </nav>
 
       <div className={styles.container}>
@@ -131,7 +125,7 @@ export function PrepareScreen() {
           <p className={styles.heroPunch}>
             Let's get you ready.
           </p>
-          {cityName && <span className={styles.heroBadge}>Cafe2035 {cityName}</span>}
+          <span className={styles.heroBadge}>Cafe2035</span>
         </header>
 
         {/* Story crafting guide */}

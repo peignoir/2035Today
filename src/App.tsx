@@ -44,7 +44,7 @@ function App() {
         <Route path="/microdose" element={<MicrodoseScreen />} />
 
         {/* Public: speaker prep page (not linked from LP) */}
-        <Route path="/prepare/:city/:date" element={<PrepareScreen />} />
+        <Route path="/prepare" element={<PrepareScreen />} />
 
         {/* Public event landing page */}
         <Route path="/:city/:date" element={<EventLandingPage />} />

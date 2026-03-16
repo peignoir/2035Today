@@ -103,10 +103,10 @@ export function PrepareScreen() {
         <header className={styles.hero}>
           <p className={styles.heroEmoji}>&#9749;</p>
           <h1 className={styles.heroTitle}>
-            Share your <span className={styles.accent}>vision of 2035</span>.
+            Join the <span className={styles.accent}>2035 Storytellers Guild</span>.
           </h1>
           <p className={styles.heroLead}>
-            We invite founders, writers, and achievers to tell the story of the future they're building.
+            We invite founders, writers, and achievers to share their vision of the future.
           </p>
           <p className={styles.heroBody}>
             You've been invited to speak &mdash; or you're curious and want to <a href="#/signup" className={styles.inlineLink}>apply</a> &mdash;

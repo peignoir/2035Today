@@ -30,7 +30,7 @@ export function Navbar({ scrollTo, onLogout }: NavbarProps) {
   const links = (
     <>
       <button onClick={() => goToSection('the2hours')} className={styles.navLink}>How it works</button>
-      <Link to="/prepare" className={styles.navLink} onClick={close}>Share your vision</Link>
+      <Link to="/prepare" className={styles.navLink} onClick={close}>Become a Storyteller</Link>
       <Link to="/apply" className={styles.navLink} onClick={close}>Become a Curator</Link>
       <button onClick={() => goToSection('cities')} className={styles.navCta}>Find an event</button>
       {onLogout && <button onClick={() => { onLogout(); close(); }} className={styles.navLink}>Logout</button>}

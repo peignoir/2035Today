@@ -10,6 +10,7 @@ import { CommunityScreen } from './components/CommunityScreen';
 import { CityScreen } from './components/CityScreen';
 import { MicrodoseScreen } from './components/MicrodoseScreen';
 import { PrepareScreen } from './components/PrepareScreen';
+import { SignupScreen } from './components/SignupScreen';
 import styles from './App.module.css';
 
 function NotFound() {
@@ -45,6 +46,9 @@ function App() {
 
         {/* Public: speaker prep page (not linked from LP) */}
         <Route path="/prepare" element={<PrepareScreen />} />
+
+        {/* Public: speaker signup */}
+        <Route path="/signup" element={<SignupScreen />} />
 
         {/* Public event landing page */}
         <Route path="/:city/:date" element={<EventLandingPage />} />

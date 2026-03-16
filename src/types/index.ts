@@ -41,6 +41,20 @@ export interface Application {
   reviewed_at?: string;
 }
 
+// Speaker signup (public form)
+export interface SpeakerSignup {
+  id: string;
+  created_at: string;
+  name: string;
+  email: string;
+  phone?: string;
+  format: 'slides' | 'video';
+  storyTitle: string;
+  authorName: string;
+  tone: 'positive' | 'negative';
+  description: string;
+}
+
 // Presentation runtime types (in-memory only)
 export interface SlideImage {
   pageNumber: number;

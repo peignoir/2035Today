@@ -1,4 +1,4 @@
-import type { ShareableEvent } from '../types';
+import type { ShareableEvent, SpeakerSignup } from '../types';
 import { supabase, EVENTS_BUCKET } from './supabase';
 
 /** Get the public CDN URL for a file in the events bucket. */
@@ -324,4 +324,33 @@ export async function uploadLogo(slug: string, blob: Blob, ext: string): Promise
   await upload(path, blob, blob.type || `image/${ext}`);
   console.log(`[Storage] Logo uploaded`);
   return publicUrl(path);
+}
+
+/** Load speaker signups for an event. */
+export async function loadSignups(slug: string): Promise<SpeakerSignup[]> {
+  const path = `${slug}-signups.json`;
+  try {
+    const { data: blob, error } = await supabase.storage
+      .from(EVENTS_BUCKET)
+      .download(path);
+    if (error || !blob) return [];
+    return JSON.parse(await blob.text()) as SpeakerSignup[];
+  } catch {
+    return [];
+  }
+}
+
+/** Save a new speaker signup for an event. */
+export async function addSignup(slug: string, signup: SpeakerSignup): Promise<void> {
+  const existing = await loadSignups(slug);
+  existing.push(signup);
+  const json = JSON.stringify(existing, null, 2);
+  await upload(`${slug}-signups.json`, json, 'application/json');
+}
+
+/** List upcoming public events (date >= today). */
+export async function listUpcomingPublicEvents(): Promise<{ slug: string; event: ShareableEvent }[]> {
+  const all = await listPublicEvents();
+  const today = new Date().toISOString().split('T')[0];
+  return all.filter((e) => e.event.date >= today);
 }

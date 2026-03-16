@@ -113,7 +113,9 @@ export function PrepareScreen() {
             We can't wait to hear your story.
           </p>
           <p className={styles.heroBody}>
-            Sci-fi novelist or first-timer &mdash; doesn't matter.
+            You've been invited to join &mdash; or you want to <a href="#/signup" className={styles.inlineLink}>apply</a> &mdash;
+            the <span className={styles.accent}>2035 Storytellers Guild</span>.
+            Whether you're a sci-fi novelist or a first-timer &mdash; doesn't matter.
             What matters is <span className={styles.accent}>your vision</span>.
             No wrong story. No wrong future.
           </p>
@@ -313,6 +315,11 @@ export function PrepareScreen() {
               </p>
             </div>
           )}
+        </section>
+
+        <section className={styles.signupCta}>
+          <h2 className={styles.ctaTitle}>Ready?</h2>
+          <a href="#/signup" className={styles.ctaButton}>Sign up as a storyteller</a>
         </section>
 
         <footer className={styles.footer}>

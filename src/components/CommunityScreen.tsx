@@ -370,10 +370,11 @@ export function CommunityScreen() {
       {/* ── The 2 Hours ── */}
       <section id="the2hours" className={styles.section}>
         <div className={styles.inner}>
-          <h2 className={styles.sectionTitle}>2h to make sense of the AI revolution and actually build something.</h2>
+          <h2 className={styles.sectionTitle}><span className={styles.accent}>2h</span> to get ahead and stay ahead.</h2>
           <p className={styles.sectionSub}>
-            Stay on top of what&rsquo;s happening. Get inspired. Share with others
-            who get it. Morning caf&eacute; or evening Irish coffee, the curator
+            Cut through the noise. Every month, the AI landscape shifts.
+            We break it down, you build on it.
+            Morning caf&eacute; or evening Irish coffee, the curator
             picks the vibe. An AI runs the show.
           </p>
 

@@ -133,39 +133,27 @@ function BuilderCircleIcon() {
 
 /* ── Inline SVG icons ── */
 
-/** Tiny founder + 9 robot helpers + 1 lobster — "become a 10x founder" */
-function FounderArmyIcon() {
-  /* Mini robot: head square + antenna + two dot eyes, ~6px wide */
-  const bot = (x: number, y: number, key: number) => (
-    <g key={key}>
-      <rect x={x} y={y + 2} width="5" height="5" rx="1" fill="#e89b2d" opacity="0.25" stroke="#e89b2d" strokeWidth="0.8" />
-      <line x1={x + 2.5} y1={y + 2} x2={x + 2.5} y2={y} stroke="#e89b2d" strokeWidth="0.7" />
-      <circle cx={x + 2.5} cy={y} r="0.7" fill="#e89b2d" opacity="0.5" />
-      <circle cx={x + 1.5} cy={y + 4.2} r="0.5" fill="#e89b2d" />
-      <circle cx={x + 3.5} cy={y + 4.2} r="0.5" fill="#e89b2d" />
-    </g>
-  );
+/** Sleek 10x multiplier — person with holographic "10x" */
+function TenXIcon() {
   return (
-    <svg viewBox="0 0 56 32" className={styles.beliefIconWide} aria-hidden="true">
-      {/* The founder — center, slightly taller */}
-      <circle cx="28" cy="6" r="3" fill="none" stroke="#d4603a" strokeWidth="1.5" />
-      <line x1="28" y1="9" x2="28" y2="19" stroke="#d4603a" strokeWidth="1.5" />
-      <line x1="28" y1="12" x2="23" y2="16" stroke="#d4603a" strokeWidth="1.3" />
-      <line x1="28" y1="12" x2="33" y2="16" stroke="#d4603a" strokeWidth="1.3" />
-      <line x1="28" y1="19" x2="25" y2="25" stroke="#d4603a" strokeWidth="1.3" />
-      <line x1="28" y1="19" x2="31" y2="25" stroke="#d4603a" strokeWidth="1.3" />
-      {/* 9 mini robots in two rows flanking the founder */}
-      {bot(2, 14, 0)}
-      {bot(9, 12, 1)}
-      {bot(16, 16, 2)}
-      {bot(36, 16, 3)}
-      {bot(43, 12, 4)}
-      {bot(50, 14, 5)}
-      {bot(5, 23, 6)}
-      {bot(13, 25, 7)}
-      {bot(43, 25, 8)}
-      {/* The lobster! (OpenClaw) — bottom right */}
-      <text x="50" y="30" fontSize="8" textAnchor="middle">&#x1F99E;</text>
+    <svg viewBox="0 0 48 48" className={styles.beliefIcon} aria-hidden="true">
+      {/* Person silhouette */}
+      <circle cx="16" cy="12" r="4.5" fill="none" stroke="#d4603a" strokeWidth="1.5" />
+      <path d="M16 17 L16 30" stroke="#d4603a" strokeWidth="1.5" />
+      <path d="M16 21 L10 26" stroke="#d4603a" strokeWidth="1.3" />
+      <path d="M16 21 L22 26" stroke="#d4603a" strokeWidth="1.3" />
+      <path d="M16 30 L12 38" stroke="#d4603a" strokeWidth="1.3" />
+      <path d="M16 30 L20 38" stroke="#d4603a" strokeWidth="1.3" />
+      {/* 10x holographic text */}
+      <text x="35" y="22" fill="#e89b2d" fontSize="11" fontWeight="900" fontFamily="system-ui, sans-serif" textAnchor="middle" opacity="0.8">10x</text>
+      {/* Glow ring around 10x */}
+      <circle cx="35" cy="18" r="12" fill="none" stroke="#e89b2d" strokeWidth="0.8" opacity="0.2" strokeDasharray="2 2">
+        <animate attributeName="stroke-dashoffset" values="0;12" dur="3s" repeatCount="indefinite" />
+      </circle>
+      {/* Energy connection */}
+      <line x1="22" y1="18" x2="23" y2="18" stroke="#e89b2d" strokeWidth="1" opacity="0.4" strokeDasharray="1 1">
+        <animate attributeName="opacity" values="0.4;0.1;0.4" dur="1.5s" repeatCount="indefinite" />
+      </line>
     </svg>
   );
 }
@@ -194,34 +182,40 @@ function SkyscraperIcon() {
   );
 }
 
-/** Exploding old rulebook — "startups need a new playbook" */
-function NewPlaybookIcon() {
+/** AI-friendly data sharing — brain + data flow */
+function AiDataIcon() {
   return (
     <svg viewBox="0 0 48 48" className={styles.beliefIcon} aria-hidden="true">
-      {/* Old book (crossed out) */}
-      <rect x="12" y="10" width="18" height="24" rx="2" fill="none" stroke="#d4603a" strokeWidth="1.5" opacity="0.4" />
-      <line x1="16" y1="16" x2="26" y2="16" stroke="#d4603a" strokeWidth="1" opacity="0.3" />
-      <line x1="16" y1="20" x2="26" y2="20" stroke="#d4603a" strokeWidth="1" opacity="0.3" />
-      <line x1="16" y1="24" x2="22" y2="24" stroke="#d4603a" strokeWidth="1" opacity="0.3" />
-      {/* Big X over old book */}
-      <line x1="10" y1="8" x2="32" y2="36" stroke="#d4603a" strokeWidth="2" opacity="0.5" />
-      <line x1="32" y1="8" x2="10" y2="36" stroke="#d4603a" strokeWidth="2" opacity="0.5" />
-      {/* Burst rays — new energy */}
-      <line x1="21" y1="4" x2="21" y2="1" stroke="#e89b2d" strokeWidth="1.5" opacity="0.6" />
-      <line x1="34" y1="8" x2="38" y2="4" stroke="#e89b2d" strokeWidth="1.5" opacity="0.5" />
-      <line x1="38" y1="20" x2="43" y2="18" stroke="#e89b2d" strokeWidth="1.5" opacity="0.4" />
-      <line x1="36" y1="32" x2="40" y2="36" stroke="#e89b2d" strokeWidth="1.5" opacity="0.5" />
-      <line x1="8" y1="8" x2="4" y2="4" stroke="#e89b2d" strokeWidth="1.5" opacity="0.4" />
-      <line x1="6" y1="32" x2="2" y2="36" stroke="#e89b2d" strokeWidth="1.5" opacity="0.4" />
-      {/* Spark dots */}
-      <circle cx="40" cy="10" r="1.5" fill="#e89b2d" opacity="0.5">
-        <animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.2s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="6" cy="6" r="1" fill="#e89b2d" opacity="0.4">
-        <animate attributeName="opacity" values="0.1;0.5;0.1" dur="1s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="42" cy="26" r="1" fill="#e89b2d" opacity="0.3">
-        <animate attributeName="opacity" values="0.3;0;0.3" dur="0.8s" repeatCount="indefinite" />
+      {/* AI brain outline */}
+      <path d="M24 8 C14 8 10 16 10 22 C10 28 14 34 24 34 C34 34 38 28 38 22 C38 16 34 8 24 8Z"
+            fill="none" stroke="#d4603a" strokeWidth="1.4" />
+      <path d="M24 8 C14 8 10 16 10 22 C10 28 14 34 24 34 C34 34 38 28 38 22 C38 16 34 8 24 8Z"
+            fill="#d4603a" opacity="0.05" />
+      {/* Neural network inside */}
+      <circle cx="18" cy="18" r="2" fill="#e89b2d" opacity="0.3" />
+      <circle cx="30" cy="18" r="2" fill="#e89b2d" opacity="0.3" />
+      <circle cx="24" cy="26" r="2" fill="#e89b2d" opacity="0.3" />
+      <circle cx="24" cy="14" r="1.5" fill="#e89b2d" opacity="0.3" />
+      {/* Connections */}
+      <line x1="18" y1="18" x2="30" y2="18" stroke="#e89b2d" strokeWidth="0.7" opacity="0.3" />
+      <line x1="18" y1="18" x2="24" y2="26" stroke="#e89b2d" strokeWidth="0.7" opacity="0.3" />
+      <line x1="30" y1="18" x2="24" y2="26" stroke="#e89b2d" strokeWidth="0.7" opacity="0.3" />
+      <line x1="24" y1="14" x2="18" y2="18" stroke="#e89b2d" strokeWidth="0.7" opacity="0.3" />
+      <line x1="24" y1="14" x2="30" y2="18" stroke="#e89b2d" strokeWidth="0.7" opacity="0.3" />
+      {/* Data flow arrows in/out */}
+      <path d="M6 22 L10 22" stroke="#e89b2d" strokeWidth="1" opacity="0.5">
+        <animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.5s" repeatCount="indefinite" />
+      </path>
+      <path d="M38 22 L42 22" stroke="#e89b2d" strokeWidth="1" opacity="0.5">
+        <animate attributeName="opacity" values="0.1;0.5;0.1" dur="1.5s" repeatCount="indefinite" />
+      </path>
+      <path d="M24 34 L24 40" stroke="#e89b2d" strokeWidth="1" opacity="0.4">
+        <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite" />
+      </path>
+      {/* Pulse on nodes */}
+      <circle cx="18" cy="18" r="2" fill="none" stroke="#e89b2d" strokeWidth="0.5" opacity="0.3">
+        <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite" />
       </circle>
     </svg>
   );
@@ -338,9 +332,10 @@ export function CommunityScreen() {
       {/* ── What we believe ── */}
       <section className={styles.beliefs}>
         <div className={styles.inner}>
+          <h2 className={styles.sectionTitle}>Recalibrate for 2035</h2>
           <div className={styles.beliefGrid}>
             <div className={styles.beliefCard}>
-              <FounderArmyIcon />
+              <TenXIcon />
               <h3 className={styles.beliefTitle}>Become a 10x founder</h3>
               <p className={styles.beliefDesc}>
                 AI made everyone a builder. A designer ships code.
@@ -359,13 +354,13 @@ export function CommunityScreen() {
               </p>
             </div>
             <div className={styles.beliefCard}>
-              <NewPlaybookIcon />
-              <h3 className={styles.beliefTitle}>Startups need a new playbook</h3>
+              <AiDataIcon />
+              <h3 className={styles.beliefTitle}>AI-friendly by design</h3>
               <p className={styles.beliefDesc}>
-                Weekend hackathons and 3-month accelerators won&rsquo;t cut it,
-                trust us, we used to run the largest one in the world.
-                We miss <strong>grassroots</strong>. We want the fun and creators back.
-                Not a community for the 0.01%, for everyone.
+                We believe sharing data with AI is key. Sessions are recorded.
+                We won&rsquo;t share your data, but we use it to give you
+                <strong> better intros, better direction, and better matches</strong>.
+                Our community is built for the AI age.
               </p>
             </div>
           </div>
@@ -375,10 +370,11 @@ export function CommunityScreen() {
       {/* ── The 2 Hours ── */}
       <section id="the2hours" className={styles.section}>
         <div className={styles.inner}>
-          <h2 className={styles.sectionTitle}>2h that hit harder than a full weekend hackathon and a TedX combined.</h2>
+          <h2 className={styles.sectionTitle}>2h to make sense of the AI revolution and actually build something.</h2>
           <p className={styles.sectionSub}>
-            Morning caf&eacute; or evening Irish coffee, the curator picks the vibe.
-            An AI runs the show.
+            Stay on top of what&rsquo;s happening. Get inspired. Share with others
+            who get it. Morning caf&eacute; or evening Irish coffee, the curator
+            picks the vibe. An AI runs the show.
           </p>
 
           <div className={styles.welcomeBlock}>
@@ -438,11 +434,11 @@ export function CommunityScreen() {
       <section id="collider" className={styles.section}>
         <div className={styles.inner}>
           <RocketIcon />
-          <p className={styles.ventureTag}>2035.vc, our venture arm</p>
           <h2 className={styles.sectionTitle}>The 7-Day Collider</h2>
           <p className={styles.sectionSub}>
-            A <strong>10x accelerator</strong>. Fully run by AI. From nothing to launch in 7 days
-            with p2p human and AI mentoring. You&rsquo;ll never work this hard in one week.
+            The first AI-driven program for solo founders.
+            10x faster than any accelerator. From <strong>nothing to launch in 7 days</strong> with
+            p2p human and AI mentoring.
           </p>
 
           <div className={styles.colliderSteps}>
@@ -471,6 +467,8 @@ export function CommunityScreen() {
             Our promise: whatever happens, you&rsquo;ll walk out <strong>recalibrated</strong> and
             ready for the world that&rsquo;s coming.
           </p>
+
+          <p className={styles.ventureTag}>Powered by 2035.vc</p>
         </div>
       </section>
 

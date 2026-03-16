@@ -202,7 +202,7 @@ export function SignupScreen() {
 
             {/* LinkedIn */}
             <div className={styles.field}>
-              <label className={styles.label}>LinkedIn {description.trim() ? <span className={styles.optional}>(optional if bio provided)</span> : null}</label>
+              <label className={styles.label}>LinkedIn</label>
               <input
                 type="url"
                 className={styles.input}
@@ -210,6 +210,19 @@ export function SignupScreen() {
                 onChange={(e) => setLinkedin(e.target.value)}
                 placeholder="https://linkedin.com/in/yourprofile"
               />
+            </div>
+
+            {/* Description / Bio — right after LinkedIn */}
+            <div className={styles.field}>
+              <label className={styles.label}>Or your short bio</label>
+              <textarea
+                className={styles.textarea}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="2-3 sentences about you. What do you do? What are you passionate about?"
+                rows={3}
+              />
+              <p className={styles.fieldHint}>Provide your LinkedIn, a short bio, or both.</p>
             </div>
 
             {/* Author name */}
@@ -278,7 +291,7 @@ export function SignupScreen() {
                     onChange={() => setTone('positive')}
                   />
                   <span className={styles.radioIcon}>&#9728;</span>
-                  Positive future
+                  Optimistic future
                 </label>
                 <label className={`${styles.radioLabel} ${tone === 'negative' ? styles.radioActive : ''}`}>
                   <input
@@ -294,17 +307,24 @@ export function SignupScreen() {
               </div>
             </div>
 
-            {/* Description / Bio */}
-            <div className={styles.field}>
-              <label className={styles.label}>Short bio {linkedin.trim() ? <span className={styles.optional}>(optional if LinkedIn provided)</span> : null}</label>
-              <textarea
-                className={styles.textarea}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="In 2-3 sentences, what's your story about?"
-                rows={3}
-              />
-            </div>
+            {/* Story summary preview */}
+            {storyTitle.trim() && (
+              <div className={styles.storySummary}>
+                <p className={styles.storySummaryLabel}>Your story</p>
+                <p className={styles.storySummaryTitle}>
+                  <strong>{storyTitle}</strong>
+                  {authorName.trim() && authorName.trim() !== name.trim() && (
+                    <span className={styles.storySummaryAuthor}> by {authorName}</span>
+                  )}
+                </p>
+                <p className={styles.storySummaryMeta}>
+                  {format === 'slides' ? 'Slides' : 'Video'} &middot; {tone === 'positive' ? 'Optimistic' : 'Dystopian'}
+                </p>
+                {description.trim() && (
+                  <p className={styles.storySummaryBio}>{description}</p>
+                )}
+              </div>
+            )}
 
             {error && <p className={styles.error}>{error}</p>}
 

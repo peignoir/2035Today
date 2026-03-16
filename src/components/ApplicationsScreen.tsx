@@ -66,6 +66,50 @@ export function ApplicationsScreen() {
     }
   }, []);
 
+  const handleDelete = useCallback(async (app: Application) => {
+    const pwd = prompt(`Delete application from ${app.name}? Type admin password to confirm.`);
+    if (!pwd) return;
+    if (pwd !== ADMIN_PASSWORD) {
+      alert('Wrong password');
+      return;
+    }
+    setActionLoading(app.id);
+    try {
+      const { error } = await supabase
+        .from('applications')
+        .delete()
+        .eq('id', app.id);
+      if (error) throw new Error(error.message);
+      setApplications((prev) => prev.filter((a) => a.id !== app.id));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to delete');
+    } finally {
+      setActionLoading(null);
+    }
+  }, []);
+
+  const handleUndoReject = useCallback(async (applicationId: string) => {
+    setActionLoading(applicationId);
+    try {
+      const { error } = await supabase
+        .from('applications')
+        .update({ status: 'pending', reviewed_at: null })
+        .eq('id', applicationId);
+      if (error) throw new Error(error.message);
+      setApplications((prev) =>
+        prev.map((app) =>
+          app.id === applicationId
+            ? { ...app, status: 'pending' as const, reviewed_at: undefined }
+            : app,
+        ),
+      );
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to undo');
+    } finally {
+      setActionLoading(null);
+    }
+  }, []);
+
   const filtered = filter === 'all'
     ? applications
     : applications.filter((a) => a.status === filter);
@@ -162,24 +206,42 @@ export function ApplicationsScreen() {
                   <div className={styles.cardBio}>{app.generated_bio}</div>
                 )}
 
-                {app.status === 'pending' && (
-                  <div className={styles.cardActions}>
+                <div className={styles.cardActions}>
+                  {app.status === 'pending' && (
+                    <>
+                      <button
+                        className={styles.approveButton}
+                        onClick={() => handleAction(app.id, 'approved')}
+                        disabled={actionLoading === app.id}
+                      >
+                        {actionLoading === app.id ? '...' : 'Approve'}
+                      </button>
+                      <button
+                        className={styles.rejectButton}
+                        onClick={() => handleAction(app.id, 'rejected')}
+                        disabled={actionLoading === app.id}
+                      >
+                        Reject
+                      </button>
+                    </>
+                  )}
+                  {app.status === 'rejected' && (
                     <button
                       className={styles.approveButton}
-                      onClick={() => handleAction(app.id, 'approved')}
+                      onClick={() => handleUndoReject(app.id)}
                       disabled={actionLoading === app.id}
                     >
-                      {actionLoading === app.id ? '...' : 'Approve'}
+                      {actionLoading === app.id ? '...' : 'Undo reject'}
                     </button>
-                    <button
-                      className={styles.rejectButton}
-                      onClick={() => handleAction(app.id, 'rejected')}
-                      disabled={actionLoading === app.id}
-                    >
-                      Reject
-                    </button>
-                  </div>
-                )}
+                  )}
+                  <button
+                    className={styles.deleteButton}
+                    onClick={() => handleDelete(app)}
+                    disabled={actionLoading === app.id}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>

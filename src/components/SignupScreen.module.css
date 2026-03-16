@@ -178,6 +178,57 @@
   font-size: 1.1rem;
 }
 
+/* ── Field hint ── */
+.fieldHint {
+  font-size: 0.78rem;
+  color: #666;
+  margin: 2px 0 0;
+}
+
+/* ── Story summary preview ── */
+.storySummary {
+  padding: 20px 24px;
+  border: 1px solid rgba(232, 145, 58, 0.25);
+  border-radius: 12px;
+  background: rgba(232, 145, 58, 0.04);
+}
+
+.storySummaryLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #e8913a;
+  margin: 0 0 10px;
+}
+
+.storySummaryTitle {
+  font-size: 1.05rem;
+  color: #fff;
+  margin: 0 0 6px;
+  line-height: 1.4;
+}
+
+.storySummaryAuthor {
+  font-weight: 400;
+  color: #999;
+}
+
+.storySummaryMeta {
+  font-size: 0.8rem;
+  color: #777;
+  margin: 0 0 8px;
+}
+
+.storySummaryBio {
+  font-size: 0.88rem;
+  color: #aaa;
+  line-height: 1.55;
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 /* ── Error ── */
 .error {
   color: #ef4444;

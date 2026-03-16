@@ -25,7 +25,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 140px 32px 120px;
+  padding: 120px 32px 100px;
 }
 
 .heroGlow {
@@ -47,9 +47,16 @@
 
 .heroContent {
   position: relative;
-  max-width: 640px;
+  max-width: 600px;
   text-align: center;
   z-index: 1;
+}
+
+.heroIcon {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 16px;
+  display: block;
 }
 
 .headline {
@@ -70,7 +77,7 @@
 
 .tagline {
   display: block;
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   font-weight: 600;
   color: var(--w-text-dim);
   margin-top: 8px;
@@ -78,11 +85,22 @@
 }
 
 .heroMission {
-  font-size: 1.15rem;
-  line-height: 1.7;
+  font-size: 1.1rem;
+  line-height: 1.75;
   color: var(--w-text-dim);
-  max-width: 520px;
-  margin: 0 auto 32px;
+  margin: 0 auto 16px;
+}
+
+.accent {
+  color: var(--w-rust);
+}
+
+.heroPills {
+  font-size: 0.88rem;
+  color: var(--w-text-dim);
+  opacity: 0.7;
+  margin-bottom: 28px;
+  letter-spacing: 0.03em;
 }
 
 /* ── CTAs ── */
@@ -192,6 +210,12 @@
   border-color: rgba(212, 96, 58, 0.3);
 }
 
+.beliefEmoji {
+  display: block;
+  font-size: 1.6rem;
+  margin-bottom: 12px;
+}
+
 .beliefTitle {
   font-size: 1.05rem;
   font-weight: 700;
@@ -234,31 +258,39 @@
   border-color: rgba(90, 138, 60, 0.35);
 }
 
+.actHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
 .actNum {
-  display: block;
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 900;
   color: var(--w-rust);
   letter-spacing: -0.02em;
-  margin-bottom: 12px;
-  opacity: 0.6;
+  opacity: 0.5;
+  line-height: 1;
 }
 
 .numAmber { color: var(--w-amber); }
 .numGreen { color: var(--w-green); }
 
-.actName {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--w-text);
-  margin-bottom: 4px;
+.actTime {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--w-text-dim);
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-.actMeta {
-  font-size: 0.8rem;
-  color: var(--w-text-dim);
-  margin-bottom: 12px;
-  font-weight: 500;
+.actName {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--w-text);
+  margin-bottom: 8px;
 }
 
 .actDesc {
@@ -266,6 +298,15 @@
   line-height: 1.6;
   color: var(--w-text-dim);
   margin: 0;
+}
+
+.actFootnote {
+  text-align: center;
+  margin-top: 32px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--w-text-dim);
+  font-style: italic;
 }
 
 /* ── Collider ── */
@@ -563,6 +604,11 @@
     padding: 100px 20px 80px;
   }
 
+  .heroIcon {
+    width: 80px;
+    height: 80px;
+  }
+
   .brandName {
     font-size: 2.8rem;
   }
@@ -572,7 +618,7 @@
   }
 
   .heroMission {
-    font-size: 1.05rem;
+    font-size: 1rem;
   }
 
   .section, .beliefs, .citiesSection, .finalCta {

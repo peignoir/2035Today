@@ -10,6 +10,38 @@ function scrollTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 }
 
+/* ── Coffee Cup SVG ── */
+function CoffeeCupSVG() {
+  return (
+    <svg viewBox="0 0 140 140" className={styles.heroIcon} aria-hidden="true">
+      {/* Steam wisps */}
+      <path d="M40 30 Q44 18, 40 8" fill="none" stroke="#d4603a" strokeWidth="2" opacity="0.5" strokeLinecap="round">
+        <animate attributeName="d" values="M40 30 Q44 18, 40 8;M40 30 Q36 18, 40 6;M40 30 Q44 18, 40 8" dur="3s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.5;0.15;0.5" dur="3s" repeatCount="indefinite" />
+      </path>
+      <path d="M58 28 Q62 14, 58 4" fill="none" stroke="#d4603a" strokeWidth="2" opacity="0.35" strokeLinecap="round">
+        <animate attributeName="d" values="M58 28 Q62 14, 58 4;M58 28 Q54 14, 58 2;M58 28 Q62 14, 58 4" dur="2.6s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.35;0.1;0.35" dur="2.6s" repeatCount="indefinite" />
+      </path>
+      <path d="M76 30 Q80 16, 76 6" fill="none" stroke="#d4603a" strokeWidth="1.5" opacity="0.3" strokeLinecap="round">
+        <animate attributeName="d" values="M76 30 Q80 16, 76 6;M76 30 Q72 16, 76 4;M76 30 Q80 16, 76 6" dur="3.4s" repeatCount="indefinite" />
+      </path>
+      {/* Cup body */}
+      <path d="M20 40 L24 100 Q24 110, 34 112 L82 112 Q92 110, 92 100 L96 40Z" fill="none" stroke="#d4603a" strokeWidth="2.5" />
+      {/* Handle */}
+      <path d="M96 52 C112 52, 114 80, 96 82" fill="none" stroke="#d4603a" strokeWidth="2.5" />
+      {/* Coffee level */}
+      <rect x="28" y="55" width="60" height="50" rx="4" fill="#d4603a" opacity="0.12" />
+      {/* Binary / code steam */}
+      <text x="42" y="24" fill="#d4603a" opacity="0.2" fontSize="6" fontFamily="monospace">01</text>
+      <text x="62" y="18" fill="#d4603a" opacity="0.15" fontSize="5" fontFamily="monospace">10</text>
+      <text x="50" y="12" fill="#d4603a" opacity="0.1" fontSize="5" fontFamily="monospace">AI</text>
+      {/* Saucer */}
+      <ellipse cx="58" cy="118" rx="48" ry="6" fill="none" stroke="#d4603a" strokeWidth="1.5" opacity="0.4" />
+    </svg>
+  );
+}
+
 function formatEventDate(dateStr: string): string {
   try {
     return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
@@ -41,14 +73,18 @@ export function CommunityScreen() {
       <section className={styles.hero}>
         <div className={styles.heroGlow} />
         <div className={styles.heroContent}>
+          <CoffeeCupSVG />
           <h1 className={styles.headline}>
             <span className={styles.brandName}>2035Cafe</span>
             <span className={styles.tagline}>Fear Nothing, Build Anything.</span>
           </h1>
           <p className={styles.heroMission}>
-            A community recalibrating for what&rsquo;s coming.
-            We believe everyone can be a builder now &mdash; and we&rsquo;re here
-            to help you get inspired, meet your people, and start building.
+            Think <strong className={styles.accent}>AI preppers</strong> &mdash; not
+            the bunker kind, the <em>builder</em> kind. We&rsquo;re a community getting
+            ready for 2035 before everyone else.
+          </p>
+          <p className={styles.heroPills}>
+            Get inspired &middot; Meet your people &middot; Start building
           </p>
           <div className={styles.ctaRow}>
             <button onClick={() => scrollTo('cities')} className={styles.ctaPrimary}>
@@ -66,26 +102,28 @@ export function CommunityScreen() {
         <div className={styles.inner}>
           <div className={styles.beliefGrid}>
             <div className={styles.beliefCard}>
+              <span className={styles.beliefEmoji}>&#9889;</span>
               <h3 className={styles.beliefTitle}>Everyone is a builder now</h3>
               <p className={styles.beliefDesc}>
                 AI erased the barriers. A designer ships code. A chef launches a startup.
-                A 16-year-old builds what used to take a funded team. The only thing left is showing up.
+                The only thing left is <strong>showing up</strong>.
               </p>
             </div>
             <div className={styles.beliefCard}>
+              <span className={styles.beliefEmoji}>&#128301;</span>
               <h3 className={styles.beliefTitle}>Recalibrate for 2035</h3>
               <p className={styles.beliefDesc}>
                 The world is changing faster than anyone expected.
-                We&rsquo;re not doomers &mdash; we&rsquo;re builders who believe the future is worth preparing for,
-                before everyone else.
+                We&rsquo;re not doomers &mdash; we just need to <strong>get ready</strong>.
               </p>
             </div>
             <div className={styles.beliefCard}>
+              <span className={styles.beliefEmoji}>&#127881;</span>
               <h3 className={styles.beliefTitle}>More ambitious, more fun</h3>
               <p className={styles.beliefDesc}>
-                We&rsquo;re rethinking the startup community. Less pitch decks,
-                more building. Less gatekeeping, more shipping.
-                And way more fun.
+                Less pitch decks, more building.
+                Less gatekeeping, more shipping.
+                <strong> Way more fun.</strong>
               </p>
             </div>
           </div>
@@ -103,45 +141,56 @@ export function CommunityScreen() {
 
           <div className={styles.actGrid}>
             <div className={styles.actCard}>
-              <span className={styles.actNum}>01</span>
+              <div className={styles.actHeader}>
+                <span className={styles.actNum}>01</span>
+                <span className={styles.actTime}>15 min</span>
+              </div>
               <h3 className={styles.actName}>White Mirror</h3>
-              <p className={styles.actMeta}>15 min &middot; Get inspired</p>
               <p className={styles.actDesc}>
-                Sci-fi stories about 2035 &mdash; like Black Mirror, but things go right.
-                20 auto-advancing slides or a 5-min AI film. Raw, vivid, hopeful.
+                Sci-fi stories about 2035 &mdash; like Black Mirror,
+                but things go <em className={styles.accent}>right</em>.
+                20 auto-advancing slides or a 5-min AI film.
               </p>
             </div>
             <div className={`${styles.actCard} ${styles.actAmber}`}>
-              <span className={`${styles.actNum} ${styles.numAmber}`}>02</span>
+              <div className={styles.actHeader}>
+                <span className={`${styles.actNum} ${styles.numAmber}`}>02</span>
+                <span className={styles.actTime}>60 min</span>
+              </div>
               <h3 className={styles.actName}>Startup Microdosing</h3>
-              <p className={styles.actMeta}>60 min &middot; Build something</p>
               <p className={styles.actDesc}>
                 Idea to launch, live. Build with AI mentoring.
-                First-timers ship their first thing. Veterans compete to ship fastest.
+                First-timers ship their first thing.
+                Veterans compete to ship fastest.
               </p>
             </div>
             <div className={`${styles.actCard} ${styles.actGreen}`}>
-              <span className={`${styles.actNum} ${styles.numGreen}`}>03</span>
+              <div className={styles.actHeader}>
+                <span className={`${styles.actNum} ${styles.numGreen}`}>03</span>
+                <span className={styles.actTime}>45 min</span>
+              </div>
               <h3 className={styles.actName}>Builder Circle</h3>
-              <p className={styles.actMeta}>45 min &middot; Find your crew</p>
               <p className={styles.actDesc}>
-                Form your tribe &mdash; 5-6 people who get it.
-                Meet monthly, share wins, cover blind spots. Your long-lasting builder network.
+                Form your crew &mdash; 5-6 people who get it.
+                Meet monthly, share wins, cover blind spots.
               </p>
             </div>
           </div>
+
+          <p className={styles.actFootnote}>
+            That&rsquo;s it. 2 hours. Then go build the future.
+          </p>
         </div>
       </section>
 
       {/* ── The Collider ── */}
       <section id="collider" className={styles.section}>
         <div className={styles.inner}>
-          <p className={styles.ventureTag}>2035.vc &mdash; our venture arm</p>
+          <p className={styles.ventureTag}>&#128640; 2035.vc &mdash; our venture arm</p>
           <h2 className={styles.sectionTitle}>The 7-Day Collider</h2>
           <p className={styles.sectionSub}>
             The fastest startup program ever built.
-            From nothing to launch in 7 days with p2p human and AI mentoring.
-            The best solo founders get <strong className={styles.investAmount}>$25K</strong>.
+            From <strong>nothing to launch in 7 days</strong> with p2p human and AI mentoring.
           </p>
 
           <div className={styles.colliderSteps}>
@@ -155,14 +204,13 @@ export function CommunityScreen() {
             </div>
             <div className={styles.colliderStep}>
               <span className={styles.stepNum}>3</span>
-              <p>One week, all in. Build with your peers and AI. Best founders get <strong>funded</strong>.</p>
+              <p>One week, all in. Best founders get <strong className={styles.investAmount}>$25K</strong> to keep going.</p>
             </div>
           </div>
 
           <p className={styles.colliderVision}>
             VC is a tool. At some point money won&rsquo;t matter &mdash; but while it does,
-            we invest in the best solo founders out there. Our mission: rethink the startup
-            community for 2035 and make it a lot more ambitious and fun.
+            we invest in the best solo founders out there.
           </p>
         </div>
       </section>
@@ -270,7 +318,7 @@ export function CommunityScreen() {
 
       {/* ── Footer ── */}
       <footer className={styles.footer}>
-        <span className={styles.footerBrand}>☕ 2035Cafe</span>
+        <span className={styles.footerBrand}>&#9749; 2035Cafe</span>
         <span className={styles.footerMotto}>Fear Nothing, Build Anything.</span>
         <Link to="/admin" className={styles.footerLink}>Login</Link>
       </footer>

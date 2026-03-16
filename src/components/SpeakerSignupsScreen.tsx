@@ -214,7 +214,12 @@ export function SpeakerSignupsScreen() {
   }, []);
 
   const handleDelete = useCallback(async (row: SignupRow) => {
-    if (!confirm(`Delete signup from ${row.signup.name}? This cannot be undone.`)) return;
+    const pwd = prompt(`Delete signup from ${row.signup.name}? Type admin password to confirm.`);
+    if (!pwd) return;
+    if (pwd !== import.meta.env.VITE_ADMIN_PASSWORD) {
+      alert('Wrong password');
+      return;
+    }
     setActionLoading(row.signup.id);
     try {
       const signups = await loadSignups(row.slug);

@@ -10,23 +10,24 @@ function scrollTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 }
 
-/* ── Rotating hero phrases ── */
-const HERO_PHRASES = [
-  { text: 'Sci-fi writers', color: '#e89b2d' },
-  { text: 'Teachers rethinking education', color: '#5a8a3c' },
-  { text: 'Solo founders obsessed with product', color: '#d4603a' },
-  { text: 'Designers who ship code', color: '#e89b2d' },
-  { text: 'Chefs launching startups', color: '#5a8a3c' },
-  { text: 'Dreamers building for 2035', color: '#d4603a' },
+/* ── Rotating welcome phrases ── */
+const WELCOME_PHRASES = [
+  { text: 'A teacher reinventing education', color: '#5a8a3c' },
+  { text: 'A sci-fi writer imagining 2035', color: '#e89b2d' },
+  { text: 'A solo founder obsessed with product', color: '#d4603a' },
+  { text: 'A designer who ships code', color: '#e89b2d' },
+  { text: 'A chef launching a startup', color: '#5a8a3c' },
+  { text: 'A dreamer ready to build', color: '#d4603a' },
+  { text: 'A creator who won\'t wait', color: '#e89b2d' },
 ];
 
-function RotatingWho() {
+function RotatingWelcome() {
   const [idx, setIdx] = useState(0);
   const [visible, setVisible] = useState(true);
   const advance = useCallback(() => {
     setVisible(false);
     setTimeout(() => {
-      setIdx((i) => (i + 1) % HERO_PHRASES.length);
+      setIdx((i) => (i + 1) % WELCOME_PHRASES.length);
       setVisible(true);
     }, 400);
   }, []);
@@ -34,20 +35,99 @@ function RotatingWho() {
     const id = setInterval(advance, 2800);
     return () => clearInterval(id);
   }, [advance]);
-  const phrase = HERO_PHRASES[idx];
+  const phrase = WELCOME_PHRASES[idx];
   return (
-    <p className={styles.heroWho}>
+    <div className={styles.welcomeRotator}>
       <span
         className={`${styles.rotatingText} ${visible ? styles.rotatingIn : styles.rotatingOut}`}
         style={{ color: phrase.color }}
       >
         {phrase.text}
       </span>
-      <br />
-      <span className={styles.heroWhoSub}>
-        If you care more about <em>what</em> you build than <em>how</em>, you belong here.
-      </span>
-    </p>
+    </div>
+  );
+}
+
+/** Crystal ball / portal — White Mirror */
+function WhiteMirrorIcon() {
+  return (
+    <svg viewBox="0 0 40 40" className={styles.actIcon} aria-hidden="true">
+      {/* Crystal ball */}
+      <circle cx="20" cy="17" r="12" fill="none" stroke="#d4603a" strokeWidth="1.5" />
+      <circle cx="20" cy="17" r="12" fill="#d4603a" opacity="0.06" />
+      {/* Inner glow / vision */}
+      <circle cx="20" cy="15" r="5" fill="#d4603a" opacity="0.1">
+        <animate attributeName="r" values="5;7;5" dur="3s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.1;0.2;0.1" dur="3s" repeatCount="indefinite" />
+      </circle>
+      {/* Stars inside */}
+      <circle cx="16" cy="13" r="0.8" fill="#e89b2d" opacity="0.6">
+        <animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.5s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="23" cy="11" r="0.6" fill="#e89b2d" opacity="0.4">
+        <animate attributeName="opacity" values="0.1;0.6;0.1" dur="2s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="20" cy="18" r="0.7" fill="#e89b2d" opacity="0.5">
+        <animate attributeName="opacity" values="0.5;0;0.5" dur="1.2s" repeatCount="indefinite" />
+      </circle>
+      {/* Base */}
+      <path d="M13 29 Q16 26 20 26 Q24 26 27 29" fill="none" stroke="#d4603a" strokeWidth="1.3" />
+      <line x1="11" y1="30" x2="29" y2="30" stroke="#d4603a" strokeWidth="1.3" />
+    </svg>
+  );
+}
+
+/** Lightning launch — Startup Microdosing */
+function MicrodosingIcon() {
+  return (
+    <svg viewBox="0 0 40 40" className={styles.actIcon} aria-hidden="true">
+      {/* Laptop base */}
+      <rect x="8" y="14" width="24" height="16" rx="2" fill="none" stroke="#e89b2d" strokeWidth="1.3" />
+      <rect x="8" y="14" width="24" height="16" rx="2" fill="#e89b2d" opacity="0.05" />
+      {/* Screen content — code lines */}
+      <line x1="12" y1="19" x2="20" y2="19" stroke="#e89b2d" strokeWidth="0.8" opacity="0.4" />
+      <line x1="12" y1="22" x2="18" y2="22" stroke="#e89b2d" strokeWidth="0.8" opacity="0.3" />
+      <line x1="12" y1="25" x2="22" y2="25" stroke="#e89b2d" strokeWidth="0.8" opacity="0.3" />
+      {/* Lightning bolt shooting out */}
+      <polygon points="28,8 24,18 27,18 23,28 30,16 27,16" fill="#e89b2d" opacity="0.5" stroke="#e89b2d" strokeWidth="0.8" strokeLinejoin="round" />
+      {/* Sparks */}
+      <circle cx="34" cy="10" r="1" fill="#e89b2d" opacity="0.4">
+        <animate attributeName="opacity" values="0.4;0;0.4" dur="0.8s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="30" cy="6" r="0.8" fill="#d4603a" opacity="0.3">
+        <animate attributeName="opacity" values="0;0.5;0" dur="1.1s" repeatCount="indefinite" />
+      </circle>
+      {/* Keyboard base */}
+      <path d="M6 30 L34 30" stroke="#e89b2d" strokeWidth="1.3" />
+    </svg>
+  );
+}
+
+/** Circle of people — Builder Circle */
+function BuilderCircleIcon() {
+  return (
+    <svg viewBox="0 0 40 40" className={styles.actIcon} aria-hidden="true">
+      {/* Circle path */}
+      <circle cx="20" cy="20" r="13" fill="none" stroke="#5a8a3c" strokeWidth="0.8" opacity="0.3" strokeDasharray="3 3" />
+      {/* 5 people around the circle */}
+      {[0, 72, 144, 216, 288].map((angle, i) => {
+        const rad = (angle - 90) * Math.PI / 180;
+        const cx = 20 + 13 * Math.cos(rad);
+        const cy = 20 + 13 * Math.sin(rad);
+        return (
+          <g key={i}>
+            <circle cx={cx} cy={cy} r="3" fill="#5a8a3c" opacity="0.15" stroke="#5a8a3c" strokeWidth="0.8" />
+            <circle cx={cx} cy={cy - 1} r="1.2" fill="none" stroke="#5a8a3c" strokeWidth="0.7" />
+            <line x1={cx} y1={cy + 0.5} x2={cx} y2={cy + 2} stroke="#5a8a3c" strokeWidth="0.7" />
+          </g>
+        );
+      })}
+      {/* Connection lines */}
+      <circle cx="20" cy="20" r="3" fill="#5a8a3c" opacity="0.08">
+        <animate attributeName="r" values="3;6;3" dur="3s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.08;0.15;0.08" dur="3s" repeatCount="indefinite" />
+      </circle>
+    </svg>
   );
 }
 
@@ -244,7 +324,6 @@ export function CommunityScreen() {
             the bunker kind, the <em>builder</em> kind. A community getting
             ready for 2035 before everyone else.
           </p>
-          <RotatingWho />
           <div className={styles.ctaRow}>
             <button onClick={() => scrollTo('cities')} className={styles.ctaPrimary}>
               Find an event
@@ -296,16 +375,25 @@ export function CommunityScreen() {
       {/* ── The 2 Hours ── */}
       <section id="the2hours" className={styles.section}>
         <div className={styles.inner}>
-          <h2 className={styles.sectionTitle}>2 hours. 3 acts. No fluff.</h2>
+          <h2 className={styles.sectionTitle}>2h that hit harder than a full weekend hackathon and a TedX combined.</h2>
           <p className={styles.sectionSub}>
             Morning caf&eacute; or evening Irish coffee, the curator picks the vibe.
             An AI runs the show.
           </p>
 
+          <div className={styles.welcomeBlock}>
+            <p className={styles.welcomeLabel}>We welcome</p>
+            <RotatingWelcome />
+            <p className={styles.welcomeSub}>
+              If you have passion, we want to support you.
+              Being a solo founder is lonely. You&rsquo;re not alone anymore.
+            </p>
+          </div>
+
           <div className={styles.actGrid}>
             <div className={styles.actCard}>
               <div className={styles.actHeader}>
-                <span className={styles.actNum}>01</span>
+                <WhiteMirrorIcon />
                 <span className={styles.actTime}>15 min</span>
               </div>
               <h3 className={styles.actName}>White Mirror</h3>
@@ -317,7 +405,7 @@ export function CommunityScreen() {
             </div>
             <div className={`${styles.actCard} ${styles.actAmber}`}>
               <div className={styles.actHeader}>
-                <span className={`${styles.actNum} ${styles.numAmber}`}>02</span>
+                <MicrodosingIcon />
                 <span className={styles.actTime}>60 min</span>
               </div>
               <h3 className={styles.actName}>Startup Microdosing</h3>
@@ -329,7 +417,7 @@ export function CommunityScreen() {
             </div>
             <div className={`${styles.actCard} ${styles.actGreen}`}>
               <div className={styles.actHeader}>
-                <span className={`${styles.actNum} ${styles.numGreen}`}>03</span>
+                <BuilderCircleIcon />
                 <span className={styles.actTime}>45 min</span>
               </div>
               <h3 className={styles.actName}>Builder Circle</h3>
@@ -353,8 +441,8 @@ export function CommunityScreen() {
           <p className={styles.ventureTag}>2035.vc, our venture arm</p>
           <h2 className={styles.sectionTitle}>The 7-Day Collider</h2>
           <p className={styles.sectionSub}>
-            The fastest startup program ever built.
-            From <strong>nothing to launch in 7 days</strong> with p2p human and AI mentoring.
+            A <strong>10x accelerator</strong>. Fully run by AI. From nothing to launch in 7 days
+            with p2p human and AI mentoring. You&rsquo;ll never work this hard in one week.
           </p>
 
           <div className={styles.colliderSteps}>
@@ -364,11 +452,11 @@ export function CommunityScreen() {
             </div>
             <div className={styles.colliderStep}>
               <span className={styles.stepNum}>2</span>
-              <p>Fresh cohorts <strong>every month</strong>. Apply, get accepted, show up.</p>
+              <p>Fresh cohorts <strong>every month</strong>. It&rsquo;s online, but if you can, rent an Airbnb with your peers and kick ass together.</p>
             </div>
             <div className={styles.colliderStep}>
               <span className={styles.stepNum}>3</span>
-              <p>One week, all in. Best founders get <strong className={styles.investAmount}>$25K</strong> to keep going.</p>
+              <p>Think Hunger Games for solo founders. Best ones get <strong className={styles.investAmount}>$25K</strong> to keep going.</p>
             </div>
           </div>
 
@@ -377,6 +465,11 @@ export function CommunityScreen() {
             <strong> all of you</strong> through our platform.
             Think a positive AI prepper mafia: once you&rsquo;ve been through the
             experience, you&rsquo;re a member for life.
+          </p>
+
+          <p className={styles.colliderPromise}>
+            Our promise: whatever happens, you&rsquo;ll walk out <strong>recalibrated</strong> and
+            ready for the world that&rsquo;s coming.
           </p>
         </div>
       </section>

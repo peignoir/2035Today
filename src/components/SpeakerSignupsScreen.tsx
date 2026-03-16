@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { ShareableEvent, SpeakerSignup } from '../types';
-import { listEvents, loadSignups, loadEvent, saveEvent } from '../lib/storage';
+import { listEvents, loadSignups, loadEvent, saveEvent, saveSignups } from '../lib/storage';
 import { supabase, EVENTS_BUCKET } from '../lib/supabase';
 import styles from './ApplicationsScreen.module.css';
 
@@ -101,6 +101,81 @@ export function SpeakerSignupsScreen() {
     }
   }, []);
 
+  const handleReject = useCallback(async (row: SignupRow) => {
+    setActionLoading(row.signup.id);
+    try {
+      const signups = await loadSignups(row.slug);
+      const updated = signups.map((s) =>
+        s.id === row.signup.id ? { ...s, status: 'rejected' as const } : s,
+      );
+      await saveSignups(row.slug, updated);
+
+      setRows((prev) =>
+        prev.map((r) =>
+          r.signup.id === row.signup.id
+            ? { ...r, signup: { ...r.signup, status: 'rejected' } }
+            : r,
+        ),
+      );
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to reject');
+    } finally {
+      setActionLoading(null);
+    }
+  }, []);
+
+  const handleUnreject = useCallback(async (row: SignupRow) => {
+    setActionLoading(row.signup.id);
+    try {
+      const signups = await loadSignups(row.slug);
+      const updated = signups.map((s) => {
+        if (s.id === row.signup.id) {
+          const { status: _, ...rest } = s;
+          return rest;
+        }
+        return s;
+      });
+      await saveSignups(row.slug, updated);
+
+      setRows((prev) =>
+        prev.map((r) =>
+          r.signup.id === row.signup.id
+            ? { ...r, signup: { ...r.signup, status: undefined } }
+            : r,
+        ),
+      );
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to undo rejection');
+    } finally {
+      setActionLoading(null);
+    }
+  }, []);
+
+  const handleRemoveFromEvent = useCallback(async (row: SignupRow) => {
+    if (!row.event) return;
+    setActionLoading(row.signup.id);
+    try {
+      const event = await loadEvent(row.slug);
+      if (!event) throw new Error('Event not found');
+
+      event.presentations = event.presentations.filter(
+        (p) => !(p.speakerName === row.signup.name && p.storyName === row.signup.storyTitle),
+      );
+
+      await saveEvent(row.slug, event);
+
+      setRows((prev) =>
+        prev.map((r) =>
+          r.signup.id === row.signup.id ? { ...r, approved: false, event } : r,
+        ),
+      );
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to remove from event');
+    } finally {
+      setActionLoading(null);
+    }
+  }, []);
+
   const formatEventLabel = (row: SignupRow) => {
     if (row.isOpen) {
       const city = row.slug.replace('open/', '').replace(/-/g, ' ');
@@ -140,11 +215,14 @@ export function SpeakerSignupsScreen() {
                 <div className={styles.cardNameRow}>
                   <span className={styles.cardName}>{row.signup.name}</span>
                   <span className={
+                    row.signup.status === 'rejected' ? styles.statusRejected :
                     row.isOpen ? styles.statusPending :
                     row.approved ? styles.statusApproved :
                     styles.statusPending
                   }>
-                    {row.isOpen ? 'open' : row.approved ? 'added' : 'pending'}
+                    {row.signup.status === 'rejected' ? 'rejected' :
+                     row.isOpen ? 'open' :
+                     row.approved ? 'added' : 'pending'}
                   </span>
                 </div>
                 <span className={styles.cardDate}>
@@ -183,7 +261,27 @@ export function SpeakerSignupsScreen() {
                 <div className={styles.cardBio}>{row.signup.description}</div>
               )}
 
-              {!row.approved && !row.isOpen && (
+              {row.signup.status === 'rejected' ? (
+                <div className={styles.cardActions}>
+                  <button
+                    className={styles.approveButton}
+                    onClick={() => handleUnreject(row)}
+                    disabled={actionLoading === row.signup.id}
+                  >
+                    {actionLoading === row.signup.id ? '...' : 'Undo reject'}
+                  </button>
+                </div>
+              ) : row.approved ? (
+                <div className={styles.cardActions}>
+                  <button
+                    className={styles.rejectButton}
+                    onClick={() => handleRemoveFromEvent(row)}
+                    disabled={actionLoading === row.signup.id}
+                  >
+                    {actionLoading === row.signup.id ? '...' : 'Remove from event'}
+                  </button>
+                </div>
+              ) : !row.isOpen ? (
                 <div className={styles.cardActions}>
                   <button
                     className={styles.approveButton}
@@ -192,8 +290,15 @@ export function SpeakerSignupsScreen() {
                   >
                     {actionLoading === row.signup.id ? '...' : 'Approve & add to event'}
                   </button>
+                  <button
+                    className={styles.rejectButton}
+                    onClick={() => handleReject(row)}
+                    disabled={actionLoading === row.signup.id}
+                  >
+                    {actionLoading === row.signup.id ? '...' : 'Reject'}
+                  </button>
                 </div>
-              )}
+              ) : null}
             </div>
           ))}
         </div>

@@ -350,6 +350,12 @@ export async function addSignup(slug: string, signup: SpeakerSignup): Promise<vo
   await upload(`${slug}-signups.json`, json, 'application/json');
 }
 
+/** Save the full signups array for an event (e.g. after updating status). */
+export async function saveSignups(slug: string, signups: SpeakerSignup[]): Promise<void> {
+  const json = JSON.stringify(signups, null, 2);
+  await upload(`${slug}-signups.json`, json, 'application/json');
+}
+
 /** List upcoming public events (date >= today). */
 export async function listUpcomingPublicEvents(): Promise<{ slug: string; event: ShareableEvent }[]> {
   const all = await listPublicEvents();

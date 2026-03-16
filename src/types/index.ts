@@ -53,6 +53,7 @@ export interface SpeakerSignup {
   authorName: string;
   tone: 'positive' | 'negative';
   description: string;
+  status?: 'rejected'; // undefined = pending/active
 }
 
 // Presentation runtime types (in-memory only)

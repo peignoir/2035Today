@@ -97,11 +97,7 @@ export function PrepareScreen() {
   }, []);
 
   return (
-    <div className={styles.page}>
-      <nav className={styles.topNav}>
-        <a href="#/" className={styles.navBrand}>Cafe2035</a>
-      </nav>
-
+    <>
       <div className={styles.container}>
         {/* Welcome */}
         <header className={styles.hero}>
@@ -330,6 +326,6 @@ export function PrepareScreen() {
           <a href="#/" className={styles.footerBrand}>Cafe2035</a>
         </footer>
       </div>
-    </div>
+    </>
   );
 }

@@ -73,6 +73,7 @@ export function AdminGuard() {
           <Link to="/prepare" className={navStyles.navLink}>Tell a story</Link>
           <Link to="/admin" className={isAdminHome ? navStyles.navCta : navStyles.navLink}>Admin</Link>
           <button onClick={handleLogout} className={navStyles.navLink}>Logout</button>
+          <Link to="/apply" className={navStyles.navCta}>Organize one</Link>
         </div>
       </nav>
       <Outlet />

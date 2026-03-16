@@ -56,27 +56,15 @@ export function CityScreen() {
 
   if (events.length === 0) {
     return (
-      <div className={styles.page}>
-        <nav className={styles.topNav}>
-          <Link to="/" className={styles.navBrand}>Cafe2035</Link>
-        </nav>
-        <div className={styles.empty}>
+      <div className={styles.empty}>
           <h1>No events found in {titleCase(city || '')}</h1>
           <Link to="/" className={styles.backLink}>&larr; Back to home</Link>
         </div>
-      </div>
     );
   }
 
   return (
-    <div className={styles.page}>
-      <nav className={styles.topNav}>
-        <Link to="/" className={styles.navBrand}>Cafe2035</Link>
-        <div className={styles.navRight}>
-          <Link to="/apply" className={styles.navLink}>Organize</Link>
-        </div>
-      </nav>
-
+    <>
       <header className={styles.hero}>
         <h1 className={styles.cityName}>{cityName}</h1>
         <p className={styles.citySub}>{events.length} gathering{events.length !== 1 ? 's' : ''}</p>
@@ -148,6 +136,6 @@ export function CityScreen() {
         <Link to="/" className={styles.footerBrand}>Cafe2035</Link>
         <span className={styles.footerTagline}>Fear Nothing, Build Anything.</span>
       </footer>
-    </div>
+    </>
   );
 }

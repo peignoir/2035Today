@@ -111,12 +111,7 @@ export function ApplyScreen() {
   }, [editedBio, bio, applicationId]);
 
   return (
-    <div className={styles.page}>
-      {/* Nav */}
-      <nav className={styles.topNav}>
-        <Link to="/" className={styles.navBrand}>Cafe2035</Link>
-      </nav>
-
+    <>
       {phase === 'form' || phase === 'error' ? (
         <>
           {/* Hero */}
@@ -305,6 +300,6 @@ export function ApplyScreen() {
         <span className={styles.footerBrand}>Cafe2035</span>
         <span className={styles.footerTagline}>See the future. Sleep better.</span>
       </footer>
-    </div>
+    </>
   );
 }

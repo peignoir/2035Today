@@ -1,5 +1,6 @@
 import { HashRouter, Routes, Route, useParams } from 'react-router-dom';
 import { AdminGuard } from './components/AdminGuard';
+import { Layout } from './components/Layout';
 import { EventsListScreen } from './components/EventsListScreen';
 import { EventSetupScreen } from './components/EventSetupScreen';
 import { EventRunScreen } from './components/EventRunScreen';
@@ -39,25 +40,17 @@ function App() {
   return (
     <HashRouter>
       <Routes>
-        {/* Public: organizer application */}
-        <Route path="/apply" element={<ApplyScreen />} />
+        {/* Public routes with shared navbar */}
+        <Route element={<Layout />}>
+          <Route path="/apply" element={<ApplyScreen />} />
+          <Route path="/microdose" element={<MicrodoseScreen />} />
+          <Route path="/prepare" element={<PrepareScreen />} />
+          <Route path="/signup" element={<SignupScreen />} />
+          <Route path="/:city/:date" element={<EventLandingPage />} />
+          <Route path="/:city" element={<CityScreen />} />
+        </Route>
 
-        {/* Public: microdose process */}
-        <Route path="/microdose" element={<MicrodoseScreen />} />
-
-        {/* Public: speaker prep page (not linked from LP) */}
-        <Route path="/prepare" element={<PrepareScreen />} />
-
-        {/* Public: speaker signup */}
-        <Route path="/signup" element={<SignupScreen />} />
-
-        {/* Public event landing page */}
-        <Route path="/:city/:date" element={<EventLandingPage />} />
-
-        {/* Public city page — all events in a city */}
-        <Route path="/:city" element={<CityScreen />} />
-
-        {/* Admin routes (password-gated) */}
+        {/* Admin routes (password-gated, own navbar) */}
         <Route path="/admin" element={<AdminGuard />}>
           <Route index element={<EventsListScreen />} />
           <Route path="events/*" element={<EventRouter />} />
@@ -65,7 +58,7 @@ function App() {
           <Route path="signups" element={<SpeakerSignupsScreen />} />
         </Route>
 
-        {/* Community homepage */}
+        {/* Community homepage (has its own full navbar with scroll buttons) */}
         <Route path="/" element={<CommunityScreen />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -96,11 +96,7 @@ export function SignupScreen() {
 
   if (submitted) {
     return (
-      <div className={styles.page}>
-        <nav className={styles.topNav}>
-          <a href="#/" className={styles.navBrand}>Cafe2035</a>
-        </nav>
-        <div className={styles.container}>
+      <div className={styles.container}>
           <div className={styles.success}>
             <p className={styles.successEmoji}>&#10003;</p>
             <h1 className={styles.successTitle}>You're in!</h1>
@@ -112,16 +108,11 @@ export function SignupScreen() {
             </p>
           </div>
         </div>
-      </div>
     );
   }
 
   return (
-    <div className={styles.page}>
-      <nav className={styles.topNav}>
-        <a href="#/" className={styles.navBrand}>Cafe2035</a>
-      </nav>
-
+    <>
       <div className={styles.container}>
         <header className={styles.hero}>
           <p className={styles.heroEmoji}>&#9749;</p>
@@ -321,6 +312,6 @@ export function SignupScreen() {
           <a href="#/" className={styles.footerBrand}>Cafe2035</a>
         </footer>
       </div>
-    </div>
+    </>
   );
 }

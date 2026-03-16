@@ -56,24 +56,7 @@ export function EventLandingScreen({ event, citySlug, currentDate }: EventLandin
   }, [event.link]);
 
   return (
-    <div className={styles.page}>
-      {/* Top nav */}
-      <nav className={styles.topNav}>
-        <div className={styles.navLeft}>
-          <a href="#/" className={styles.navBrand}>Cafe2035</a>
-        </div>
-        <div className={styles.navRight}>
-          <a href="#/" className={styles.navLink} onClick={(e) => { e.preventDefault(); window.location.hash = '/'; setTimeout(() => document.getElementById('cities')?.scrollIntoView({ behavior: 'smooth' }), 100); }}>All Events</a>
-          <button className={styles.navLink} onClick={() => document.getElementById('what')?.scrollIntoView({ behavior: 'smooth' })}>What is this</button>
-          <button className={styles.navLink} onClick={() => document.getElementById('speakers')?.scrollIntoView({ behavior: 'smooth' })}>Stories</button>
-          {event.link && (
-            <a href={event.link} target="_blank" rel="noopener noreferrer" className={styles.navCta}>
-              I'm in
-            </a>
-          )}
-        </div>
-      </nav>
-
+    <>
       {/* Hero */}
       <section className={styles.hero}>
         <div className={styles.heroContent}>
@@ -292,7 +275,7 @@ export function EventLandingScreen({ event, citySlug, currentDate }: EventLandin
           </button>
         </div>
       )}
-    </div>
+    </>
   );
 }
 

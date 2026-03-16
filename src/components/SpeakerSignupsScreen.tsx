@@ -2,13 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { ShareableEvent, SpeakerSignup } from '../types';
 import { listEvents, loadSignups, loadEvent, saveEvent } from '../lib/storage';
+import { supabase, EVENTS_BUCKET } from '../lib/supabase';
 import styles from './ApplicationsScreen.module.css';
 
 interface SignupRow {
   signup: SpeakerSignup;
   slug: string;
-  event: ShareableEvent;
+  event: ShareableEvent | null;
   approved: boolean;
+  isOpen: boolean; // open application (no specific event)
 }
 
 export function SpeakerSignupsScreen() {
@@ -18,19 +20,42 @@ export function SpeakerSignupsScreen() {
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const events = await listEvents();
     const allRows: SignupRow[] = [];
 
+    // 1. Load signups for real events
+    const events = await listEvents();
     for (const { slug, event } of events) {
       const signups = await loadSignups(slug);
       for (const signup of signups) {
-        // Check if already added to presentations
         const approved = event.presentations.some(
           (p) => p.speakerName === signup.name && p.storyName === signup.storyTitle,
         );
-        allRows.push({ signup, slug, event, approved });
+        allRows.push({ signup, slug, event, approved, isOpen: false });
       }
     }
+
+    // 2. Load open applications (stored under open/{city}-signups.json)
+    try {
+      const { data: files } = await supabase.storage
+        .from(EVENTS_BUCKET)
+        .list('open', { limit: 200 });
+      if (files) {
+        for (const file of files) {
+          if (!file.name.endsWith('-signups.json')) continue;
+          const citySlug = file.name.replace(/-signups\.json$/, '');
+          const signups = await loadSignups(`open/${citySlug}`);
+          for (const signup of signups) {
+            allRows.push({
+              signup,
+              slug: `open/${citySlug}`,
+              event: null,
+              approved: false,
+              isOpen: true,
+            });
+          }
+        }
+      }
+    } catch { /* open folder may not exist yet */ }
 
     // Sort newest first
     allRows.sort((a, b) => b.signup.created_at.localeCompare(a.signup.created_at));
@@ -43,6 +68,10 @@ export function SpeakerSignupsScreen() {
   }, [loadAll]);
 
   const handleApprove = useCallback(async (row: SignupRow) => {
+    if (!row.event || row.isOpen) {
+      alert('Open applications must be assigned to an event first.');
+      return;
+    }
     setActionLoading(row.signup.id);
     try {
       // Re-load event to get latest data
@@ -73,8 +102,12 @@ export function SpeakerSignupsScreen() {
   }, []);
 
   const formatEventLabel = (row: SignupRow) => {
-    const city = row.event.city || row.slug.split('/')[0];
-    const d = new Date(row.event.date + 'T12:00:00');
+    if (row.isOpen) {
+      const city = row.slug.replace('open/', '').replace(/-/g, ' ');
+      return `Open — ${city}`;
+    }
+    const city = row.event?.city || row.slug.split('/')[0];
+    const d = new Date((row.event?.date || '') + 'T12:00:00');
     const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     return `${city} — ${dateStr}`;
   };
@@ -106,8 +139,12 @@ export function SpeakerSignupsScreen() {
               <div className={styles.cardHeader}>
                 <div className={styles.cardNameRow}>
                   <span className={styles.cardName}>{row.signup.name}</span>
-                  <span className={row.approved ? styles.statusApproved : styles.statusPending}>
-                    {row.approved ? 'added' : 'pending'}
+                  <span className={
+                    row.isOpen ? styles.statusPending :
+                    row.approved ? styles.statusApproved :
+                    styles.statusPending
+                  }>
+                    {row.isOpen ? 'open' : row.approved ? 'added' : 'pending'}
                   </span>
                 </div>
                 <span className={styles.cardDate}>
@@ -146,7 +183,7 @@ export function SpeakerSignupsScreen() {
                 <div className={styles.cardBio}>{row.signup.description}</div>
               )}
 
-              {!row.approved && (
+              {!row.approved && !row.isOpen && (
                 <div className={styles.cardActions}>
                   <button
                     className={styles.approveButton}

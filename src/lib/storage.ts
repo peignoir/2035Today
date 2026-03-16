@@ -40,6 +40,8 @@ export async function listEvents(): Promise<{ slug: string; event: ShareableEven
 
     for (const file of files) {
       if (!file.name.endsWith('.json')) continue;
+      // Skip signups files — they aren't event JSON
+      if (file.name.includes('-signups')) continue;
       const path = `${folder.name}/${file.name}`;
       try {
         const { data: blob, error: dlErr } = await supabase.storage

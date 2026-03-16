@@ -55,7 +55,7 @@ export function EventsListScreen() {
     e.stopPropagation();
     const pw = prompt(`Type admin password to delete "${name || 'Untitled Gathering'}":`);
     if (!pw) return;
-    if (pw !== 'pofpof') { alert('Wrong password'); return; }
+    if (pw !== import.meta.env.VITE_ADMIN_PASSWORD) { alert('Wrong password'); return; }
     try {
       await deleteEvent(slug);
       loadEvents();

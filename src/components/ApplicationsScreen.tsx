@@ -6,7 +6,7 @@ import styles from './ApplicationsScreen.module.css';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const ADMIN_PASSWORD = 'pofpof';
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD;
 
 type FilterStatus = 'all' | 'pending' | 'approved' | 'rejected';
 

@@ -5,7 +5,7 @@ import styles from '../App.module.css';
 import navStyles from './CommunityScreen.module.css';
 
 const ADMIN_EMAIL = 'franck@recorp.co';
-const ADMIN_PASSWORD = 'pofpof';
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD;
 const ADMIN_SESSION_KEY = 'admin_unlocked';
 
 export function AdminGuard() {

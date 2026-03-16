@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import type { ShareableEvent, ShareablePresentation, StoryTone } from '../types';
 import { loadEvent, saveEvent, uploadLogo, uploadRecording, deleteRecording, uploadPdf, deletePdf, listCities, moveEvent } from '../lib/storage';
+import { compressImage } from '../lib/compressImage';
 import { loadAndRenderPdf, PdfValidationError } from '../lib/pdfRenderer';
 import { generateLogo } from '../lib/generateLogo';
 import styles from './EventSetupScreen.module.css';
@@ -148,14 +149,14 @@ export function EventSetupScreen() {
     }
   }, [event, slug, navigate]);
 
-  // Logo upload — immediately to Supabase
+  // Logo upload — compress then upload to Supabase
   const onLogoDrop = useCallback(async (files: File[]) => {
     if (files.length === 0 || !slug || !event) return;
     const file = files[0];
     setUploadingLogo(true);
     try {
-      const ext = file.name.split('.').pop() || 'png';
-      const cdnUrl = await uploadLogo(slug, file, ext);
+      const { blob: compressed, ext } = await compressImage(file);
+      const cdnUrl = await uploadLogo(slug, compressed, ext);
       setEvent((prev) => {
         if (!prev) return prev;
         const updated = { ...prev, logo: cdnUrl };

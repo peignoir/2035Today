@@ -9,6 +9,7 @@ import { ApplicationsScreen } from './components/ApplicationsScreen';
 import { CommunityScreen } from './components/CommunityScreen';
 import { CityScreen } from './components/CityScreen';
 import { MicrodoseScreen } from './components/MicrodoseScreen';
+import { PrepareScreen } from './components/PrepareScreen';
 import styles from './App.module.css';
 
 function NotFound() {
@@ -41,6 +42,9 @@ function App() {
 
         {/* Public: microdose process */}
         <Route path="/microdose" element={<MicrodoseScreen />} />
+
+        {/* Public: speaker prep page (not linked from LP) */}
+        <Route path="/prepare/:city/:date" element={<PrepareScreen />} />
 
         {/* Public event landing page */}
         <Route path="/:city/:date" element={<EventLandingPage />} />

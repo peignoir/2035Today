@@ -316,7 +316,7 @@ export function CommunityScreen() {
           <CoffeeCupSVG />
           <h1 className={styles.headline}>
             <span className={styles.brandName}>2035Cafe</span>
-            <span className={styles.tagline}>What was impossible <span className={styles.flicker}>is now a side project.</span></span>
+            <span className={styles.tagline}>What was impossible is now a <span className={styles.flicker}>side project.</span></span>
           </h1>
           <p className={styles.heroMission}>
             An AI prepper community.

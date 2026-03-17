@@ -84,6 +84,21 @@
   letter-spacing: 0.02em;
 }
 
+/* Defective-light flicker — soft yellow blink every ~4s */
+.flicker {
+  color: var(--w-text-dim);
+  animation: defectiveLight 4.5s ease-in-out infinite;
+}
+
+@keyframes defectiveLight {
+  0%, 100% { color: var(--w-text-dim); text-shadow: none; }
+  82% { color: var(--w-text-dim); text-shadow: none; }
+  84% { color: #f5e6a3; text-shadow: 0 0 6px rgba(245, 230, 163, 0.3); }
+  86% { color: var(--w-text-dim); text-shadow: none; }
+  88% { color: #f5e6a3; text-shadow: 0 0 8px rgba(245, 230, 163, 0.25); }
+  91% { color: var(--w-text-dim); text-shadow: none; }
+}
+
 .heroMission {
   font-size: 1.1rem;
   line-height: 1.75;

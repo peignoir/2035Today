@@ -441,38 +441,60 @@ export function CommunityScreen() {
         <div className={styles.inner}>
           <RocketIcon />
           <h2 className={styles.sectionTitle}>The 7-Day Collider</h2>
+          <p className={styles.colliderTagline}>From 0 to Viral in 7 days.</p>
           <p className={styles.sectionSub}>
-            Not about MVPs, traction, or product-market fit.
-            This is a <strong>competition for the craziest, most ambitious ideas</strong> powered
-            by future tech. AI, robotics, hardware, software, anything goes.
-            The wilder the vision, the higher you score.
+            Friday to Friday. <strong>Fully AI-ran</strong>, with strong peer-to-peer mentoring
+            and a lot of fun. We don&rsquo;t care about MVPs, market size, or traction.
+            We care about <strong>talent and crazy ideas that were impossible yesterday</strong>.
           </p>
+
           <p className={styles.sectionSub}>
-            What took a year is now a week. What was impossible is now a side project.
-            If you have a crazy idea and can prove you&rsquo;re a 10x founder
-            who can build it, we want to go where no founder has gone before. With you.
+            Powered by AI, but more importantly <strong>powered by the community</strong>.
+            This is open-source energy applied to startups. Dates TBD &mdash; but when it drops, it drops hard.
           </p>
 
           <div className={styles.colliderSteps}>
             <div className={styles.colliderStep}>
-              <span className={styles.stepNum}>1</span>
-              <p>Do a <strong>Startup Microdosing</strong> session first, that&rsquo;s your entry ticket.</p>
+              <span className={styles.stepNum}>&#x1f91d;</span>
+              <div>
+                <p><strong>Pledge #1 &mdash; Share your data.</strong></p>
+                <p>
+                  The AI needs it to track your progress. The community needs it to help you.
+                  This is an <strong>open community</strong> &mdash; all AI tools used are open-source.
+                  Radical transparency is a feature, not a bug.
+                </p>
+              </div>
             </div>
             <div className={styles.colliderStep}>
-              <span className={styles.stepNum}>2</span>
-              <p>Fresh cohorts <strong>every month</strong>. Fully online, fully AI-driven. But if you can, rent an Airbnb with your peers and kick ass together.</p>
+              <span className={styles.stepNum}>&#x1f525;</span>
+              <div>
+                <p><strong>Pledge #2 &mdash; Whoever wins, you support them.</strong></p>
+                <p>
+                  Push them, hype them, make noise.
+                  If one project goes viral, <strong>we invest so they can drop everything and focus</strong>.
+                </p>
+              </div>
             </div>
             <div className={styles.colliderStep}>
-              <span className={styles.stepNum}>3</span>
-              <p>7 days, all in. Everyone is welcome to meet, get inspired, and be challenged every day. The best 10x founders get <strong className={styles.investAmount}>$25K</strong> to keep going.</p>
+              <span className={styles.stepNum}>&#x1f680;</span>
+              <div>
+                <p><strong>The Deal</strong></p>
+                <p>
+                  <strong className={styles.investAmount}>$25K</strong> for 1-2% (based on our AI assessment).
+                  We don&rsquo;t care if you&rsquo;re venture-backable or not.
+                  We want the craziest projects to take off &mdash; think <strong>OpenClaw</strong>,{' '}
+                  <strong>AutoResearch</strong>, or <strong>saving your dog from cancer</strong>.
+                  We&rsquo;d love to invest more later, but that&rsquo;s for later.
+                  First, let&rsquo;s test a bunch of things.
+                </p>
+              </div>
             </div>
           </div>
 
           <p className={styles.colliderVision}>
-            We&rsquo;ll invest in the top founders, but we support
-            <strong> all of you</strong> through our platform.
-            Once you&rsquo;ve been through the experience, you&rsquo;re part of
-            the crew for life.
+            Even if we believe by 2035 money won&rsquo;t matter much &mdash;
+            <strong> it does now</strong>. So let&rsquo;s use it to support the
+            boldest builders on the planet.
           </p>
 
           <p className={styles.colliderPromise}>
@@ -589,6 +611,7 @@ export function CommunityScreen() {
       <footer className={styles.footer}>
         <span className={styles.footerBrand}>&#9749; 2035Cafe</span>
         <span className={styles.footerMotto}>Fear Nothing, Build Anything.</span>
+        <span className={styles.footerVibe}>Vibe coded by Franck Nouyrigat</span>
         <Link to="/admin" className={styles.footerLink}>Login</Link>
       </footer>
     </div>

@@ -87,35 +87,34 @@
 /* Neon sign effect — layered glow, ramp 2s, flicker, off 5s */
 .flicker {
   font-weight: 700;
-  color: #d4c9a8;
-  animation: neonSign 10s ease-in-out infinite;
+  color: #e89b2d;
+  text-shadow:
+    0 0 7px #e89b2d,
+    0 0 20px #e89b2d,
+    0 0 40px #d4603a;
+  animation: neonSign 10s ease-in-out -9s infinite;
 }
 
 @keyframes neonSign {
-  /* ── Off for ~5s (0–50%) ── */
+  /* ── Ramp up glow immediately (0–20%) ── */
   0%   {
     color: #d4c9a8;
     text-shadow: none;
   }
-  50%  {
-    color: #d4c9a8;
-    text-shadow: none;
-  }
-  /* ── Ramp up glow over ~2s (50–70%) ── */
-  55%  {
+  5%  {
     color: #e8a44a;
     text-shadow:
       0 0 4px #e89b2d,
       0 0 11px #e89b2d;
   }
-  62%  {
+  12%  {
     color: #e89b2d;
     text-shadow:
       0 0 7px #e89b2d,
       0 0 20px #e89b2d,
       0 0 40px #d4603a;
   }
-  70%  {
+  20%  {
     color: #f5d78e;
     text-shadow:
       0 0 7px #e89b2d,
@@ -124,11 +123,11 @@
       0 0 80px #d4603a;
   }
   /* ── Flicker — quick off/on ── */
-  73%  {
+  23%  {
     color: #d4c9a8;
     text-shadow: none;
   }
-  75%  {
+  25%  {
     color: #f5d78e;
     text-shadow:
       0 0 7px #e89b2d,
@@ -136,12 +135,12 @@
       0 0 60px #d4603a,
       0 0 90px #d4603a;
   }
-  77%  {
+  27%  {
     color: #c4842a;
     text-shadow:
       0 0 4px #e89b2d;
   }
-  79%  {
+  29%  {
     color: #f5d78e;
     text-shadow:
       0 0 7px #e89b2d,
@@ -150,7 +149,7 @@
       0 0 80px #d4603a;
   }
   /* ── Hold full glow ── */
-  85%  {
+  35%  {
     color: #f5d78e;
     text-shadow:
       0 0 7px #e89b2d,
@@ -159,16 +158,17 @@
       0 0 80px #d4603a;
   }
   /* ── Fade out ── */
-  92%  {
+  42%  {
     color: #e8a44a;
     text-shadow:
       0 0 4px #e89b2d,
       0 0 11px #e89b2d;
   }
-  96%  {
+  46%  {
     color: #d4c9a8;
     text-shadow: none;
   }
+  /* ── Off for ~5s (46–100%) ── */
   100% {
     color: #d4c9a8;
     text-shadow: none;
@@ -486,10 +486,19 @@
   font-weight: 700;
 }
 
+.colliderTagline {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--w-amber);
+  text-align: center;
+  margin: -8px 0 24px;
+  letter-spacing: -0.02em;
+}
+
 .colliderSteps {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   max-width: 560px;
   margin: 0 auto 40px;
 }
@@ -509,16 +518,12 @@
 
 .stepNum {
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: var(--w-rust);
-  color: white;
-  font-size: 0.8rem;
-  font-weight: 800;
+  font-size: 1.4rem;
   margin-top: 2px;
 }
 
@@ -757,6 +762,13 @@
   font-weight: 700;
   color: var(--w-rust);
   font-style: italic;
+}
+
+.footerVibe {
+  font-size: 0.75rem;
+  color: var(--w-text-dim);
+  opacity: 0.5;
+  margin-top: 8px;
 }
 
 .footerLink {

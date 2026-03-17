@@ -134,7 +134,7 @@ export function CityScreen() {
 
       <footer className={styles.footer}>
         <Link to="/" className={styles.footerBrand}>Cafe2035</Link>
-        <span className={styles.footerTagline}>Fear Nothing, Build Anything.</span>
+        <span className={styles.footerTagline}>What was impossible is now a side project.</span>
       </footer>
     </>
   );

@@ -7,10 +7,11 @@ import navStyles from './CommunityScreen.module.css';
 const ADMIN_SESSION_KEY = 'admin_unlocked';
 
 async function verifyPassword(email: string, password: string): Promise<boolean> {
-  // In dev, fall back to env var; in prod, call the Cloudflare Pages Function
+  // In dev, fall back to env vars; in prod, call the Cloudflare Pages Function
   const devPassword = import.meta.env.VITE_ADMIN_PASSWORD;
   if (devPassword) {
-    return email === 'franck@recorp.co' && password === devPassword;
+    const devEmail = import.meta.env.VITE_ADMIN_EMAIL || 'franck@recorp.co';
+    return email === devEmail && password === devPassword;
   }
   try {
     const res = await fetch('/api/verify-password', {

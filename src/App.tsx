@@ -45,7 +45,7 @@ function App() {
           <Route path="/apply" element={<ApplyScreen />} />
           <Route path="/microdose" element={<MicrodoseScreen />} />
           <Route path="/prepare" element={<PrepareScreen />} />
-          <Route path="/signup" element={<SignupScreen />} />
+          <Route path="/storyteller" element={<SignupScreen />} />
           <Route path="/:city/:date" element={<EventLandingPage />} />
           <Route path="/:city" element={<CityScreen />} />
         </Route>

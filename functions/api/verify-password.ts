@@ -1,10 +1,13 @@
 /**
- * Cloudflare Pages Function — verifies admin password server-side.
- * The secret ADMIN_PASSWORD must be set in Cloudflare Pages > Settings > Environment variables (Secret type).
+ * Cloudflare Pages Function — verifies admin credentials server-side.
+ * Required secrets in Cloudflare Pages > Settings > Environment variables:
+ *   ADMIN_PASSWORD — the admin password
+ *   ADMIN_EMAIL    — the admin email (defaults to franck@recorp.co if not set)
  */
 
 interface Env {
   ADMIN_PASSWORD: string;
+  ADMIN_EMAIL?: string;
 }
 
 const CORS_HEADERS = {
@@ -20,16 +23,17 @@ export const onRequestOptions: PagesFunction<Env> = async () => {
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
     const body = (await context.request.json()) as { email?: string; password?: string };
-    const expected = context.env.ADMIN_PASSWORD;
+    const expectedPassword = context.env.ADMIN_PASSWORD;
+    const expectedEmail = context.env.ADMIN_EMAIL || 'franck@recorp.co';
 
-    if (!expected) {
+    if (!expectedPassword) {
       return new Response(
         JSON.stringify({ ok: false, error: 'Server misconfigured — ADMIN_PASSWORD not set.' }),
         { status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
       );
     }
 
-    const ok = body.email === 'franck@recorp.co' && body.password === expected;
+    const ok = body.email === expectedEmail && body.password === expectedPassword;
 
     return new Response(
       JSON.stringify({ ok }),

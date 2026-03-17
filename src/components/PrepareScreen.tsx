@@ -156,7 +156,7 @@ export function PrepareScreen() {
 
           <p className={styles.heroBody}>
             You've been invited to speak &mdash; or you're curious and want to{' '}
-            <a href="#/signup" className={styles.inlineLink}>apply</a> &mdash;
+            <a href="#/storyteller" className={styles.inlineLink}>apply</a> &mdash;
             either way, welcome.
             The world is moving so fast we're basically hunter-gatherers staring at the horizon,
             trying to imagine what "agriculture" will bring.
@@ -437,7 +437,7 @@ export function PrepareScreen() {
 
         <section className={styles.signupCta}>
           <h2 className={styles.ctaTitle}>Ready?</h2>
-          <a href="#/signup" className={styles.ctaButton}>Submit your story</a>
+          <a href="#/storyteller" className={styles.ctaButton}>Submit your story</a>
         </section>
 
         <footer className={styles.footer}>

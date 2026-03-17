@@ -437,7 +437,7 @@ export function PrepareScreen() {
 
         <section className={styles.signupCta}>
           <h2 className={styles.ctaTitle}>Ready?</h2>
-          <a href="#/storyteller" className={styles.ctaButton}>Submit your story</a>
+          <a href="#/storyteller" className={styles.ctaButton}>Apply to be a storyteller</a>
         </section>
 
         <footer className={styles.footer}>

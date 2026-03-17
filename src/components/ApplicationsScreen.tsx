@@ -6,7 +6,6 @@ import styles from './ApplicationsScreen.module.css';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD;
 
 type FilterStatus = 'all' | 'pending' | 'approved' | 'rejected';
 
@@ -35,6 +34,8 @@ export function ApplicationsScreen() {
   }, [loadApplications]);
 
   const handleAction = useCallback(async (applicationId: string, action: 'approved' | 'rejected') => {
+    const pwd = prompt(`Type admin password to ${action === 'approved' ? 'approve' : 'reject'}:`);
+    if (!pwd) return;
     setActionLoading(applicationId);
     try {
       const res = await fetch(`${SUPABASE_URL}/functions/v1/review-application`, {
@@ -43,7 +44,7 @@ export function ApplicationsScreen() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
         },
-        body: JSON.stringify({ applicationId, action, adminPassword: ADMIN_PASSWORD }),
+        body: JSON.stringify({ applicationId, action, adminPassword: pwd }),
       });
 
       if (!res.ok) {
@@ -67,12 +68,7 @@ export function ApplicationsScreen() {
   }, []);
 
   const handleDelete = useCallback(async (app: Application) => {
-    const pwd = prompt(`Delete application from ${app.name}? Type admin password to confirm.`);
-    if (!pwd) return;
-    if (pwd !== ADMIN_PASSWORD) {
-      alert('Wrong password');
-      return;
-    }
+    if (!confirm(`Delete application from ${app.name}? This cannot be undone.`)) return;
     setActionLoading(app.id);
     try {
       const { error } = await supabase

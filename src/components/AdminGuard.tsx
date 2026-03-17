@@ -4,9 +4,26 @@ import { Navbar } from './Navbar';
 import styles from '../App.module.css';
 import navStyles from './CommunityScreen.module.css';
 
-const ADMIN_EMAIL = 'franck@recorp.co';
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD;
 const ADMIN_SESSION_KEY = 'admin_unlocked';
+
+async function verifyPassword(email: string, password: string): Promise<boolean> {
+  // In dev, fall back to env var; in prod, call the Cloudflare Pages Function
+  const devPassword = import.meta.env.VITE_ADMIN_PASSWORD;
+  if (devPassword) {
+    return email === 'franck@recorp.co' && password === devPassword;
+  }
+  try {
+    const res = await fetch('/api/verify-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    return data.ok === true;
+  } catch {
+    return false;
+  }
+}
 
 export function AdminGuard() {
   const [adminUnlocked, setAdminUnlocked] = useState(
@@ -15,10 +32,14 @@ export function AdminGuard() {
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState(false);
+  const [checking, setChecking] = useState(false);
 
-  const handlePasswordSubmit = useCallback((e: React.FormEvent) => {
+  const handlePasswordSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (emailInput === ADMIN_EMAIL && passwordInput === ADMIN_PASSWORD) {
+    setChecking(true);
+    const ok = await verifyPassword(emailInput, passwordInput);
+    setChecking(false);
+    if (ok) {
       setAdminUnlocked(true);
       sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
       setEmailInput('');
@@ -56,7 +77,9 @@ export function AdminGuard() {
               onChange={(e) => { setPasswordInput(e.target.value); setLoginError(false); }}
               placeholder="Password"
             />
-            <button className={styles.passwordButton} type="submit">Enter</button>
+            <button className={styles.passwordButton} type="submit" disabled={checking}>
+              {checking ? 'Checking...' : 'Enter'}
+            </button>
           </form>
         </div>
       </div>

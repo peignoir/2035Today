@@ -53,9 +53,7 @@ export function EventsListScreen() {
 
   const handleDelete = useCallback(async (e: React.MouseEvent, slug: string, name: string) => {
     e.stopPropagation();
-    const pw = prompt(`Type admin password to delete "${name || 'Untitled Gathering'}":`);
-    if (!pw) return;
-    if (pw !== import.meta.env.VITE_ADMIN_PASSWORD) { alert('Wrong password'); return; }
+    if (!confirm(`Delete "${name || 'Untitled Gathering'}"? This cannot be undone.`)) return;
     try {
       await deleteEvent(slug);
       loadEvents();

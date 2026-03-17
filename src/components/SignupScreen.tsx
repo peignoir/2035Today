@@ -119,7 +119,7 @@ export function SignupScreen() {
         <header className={styles.hero}>
           <p className={styles.heroEmoji}>&#9749;</p>
           <h1 className={styles.heroTitle}>
-            Submit your <span className={styles.accent}>story</span>
+            Apply to be a <span className={styles.accent}>storyteller</span>
           </h1>
           <p className={styles.heroLead}>
             Pick your event, tell us about your story.
@@ -212,9 +212,9 @@ export function SignupScreen() {
               />
             </div>
 
-            {/* Description / Bio — right after LinkedIn */}
+            {/* Description / Bio — right under LinkedIn */}
             <div className={styles.field}>
-              <label className={styles.label}>Or your short bio</label>
+              <label className={styles.label}>Or your bio</label>
               <textarea
                 className={styles.textarea}
                 value={description}
@@ -333,7 +333,7 @@ export function SignupScreen() {
               className={styles.submitButton}
               disabled={submitting}
             >
-              {submitting ? 'Submitting...' : 'Submit your story'}
+              {submitting ? 'Submitting...' : 'Apply to be a storyteller'}
             </button>
 
             <p className={styles.prepLink}>

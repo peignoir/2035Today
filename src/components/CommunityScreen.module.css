@@ -84,31 +84,95 @@
   letter-spacing: 0.02em;
 }
 
-/* Neon sign effect — ramp up glow 2s, flicker, then off 5s */
+/* Neon sign effect — layered glow, ramp 2s, flicker, off 5s */
 .flicker {
   font-weight: 700;
   color: #d4c9a8;
-  animation: neonSign 9s ease-in-out infinite;
+  animation: neonSign 10s ease-in-out infinite;
 }
 
 @keyframes neonSign {
-  /* Off for ~5s (0–56%) */
-  0%   { color: #d4c9a8; text-shadow: none; }
-  56%  { color: #d4c9a8; text-shadow: none; }
-  /* Ramp up glow over ~2s (56–78%) */
-  62%  { color: #e8a44a; text-shadow: 0 0 4px rgba(232, 155, 45, 0.15); }
-  68%  { color: #e89b2d; text-shadow: 0 0 8px rgba(232, 155, 45, 0.3); }
-  74%  { color: #e89b2d; text-shadow: 0 0 14px rgba(232, 155, 45, 0.45); }
-  78%  { color: #e89b2d; text-shadow: 0 0 18px rgba(232, 155, 45, 0.5); }
-  /* Flicker — quick off/on */
-  80%  { color: #d4c9a8; text-shadow: none; }
-  82%  { color: #e89b2d; text-shadow: 0 0 20px rgba(232, 155, 45, 0.55); }
-  84%  { color: #c4842a; text-shadow: 0 0 6px rgba(232, 155, 45, 0.2); }
-  86%  { color: #e89b2d; text-shadow: 0 0 18px rgba(232, 155, 45, 0.5); }
-  /* Hold briefly then off */
-  89%  { color: #e89b2d; text-shadow: 0 0 14px rgba(232, 155, 45, 0.4); }
-  94%  { color: #d4c9a8; text-shadow: none; }
-  100% { color: #d4c9a8; text-shadow: none; }
+  /* ── Off for ~5s (0–50%) ── */
+  0%   {
+    color: #d4c9a8;
+    text-shadow: none;
+  }
+  50%  {
+    color: #d4c9a8;
+    text-shadow: none;
+  }
+  /* ── Ramp up glow over ~2s (50–70%) ── */
+  55%  {
+    color: #e8a44a;
+    text-shadow:
+      0 0 4px #e89b2d,
+      0 0 11px #e89b2d;
+  }
+  62%  {
+    color: #e89b2d;
+    text-shadow:
+      0 0 7px #e89b2d,
+      0 0 20px #e89b2d,
+      0 0 40px #d4603a;
+  }
+  70%  {
+    color: #f5d78e;
+    text-shadow:
+      0 0 7px #e89b2d,
+      0 0 25px #e89b2d,
+      0 0 50px #d4603a,
+      0 0 80px #d4603a;
+  }
+  /* ── Flicker — quick off/on ── */
+  73%  {
+    color: #d4c9a8;
+    text-shadow: none;
+  }
+  75%  {
+    color: #f5d78e;
+    text-shadow:
+      0 0 7px #e89b2d,
+      0 0 30px #e89b2d,
+      0 0 60px #d4603a,
+      0 0 90px #d4603a;
+  }
+  77%  {
+    color: #c4842a;
+    text-shadow:
+      0 0 4px #e89b2d;
+  }
+  79%  {
+    color: #f5d78e;
+    text-shadow:
+      0 0 7px #e89b2d,
+      0 0 25px #e89b2d,
+      0 0 50px #d4603a,
+      0 0 80px #d4603a;
+  }
+  /* ── Hold full glow ── */
+  85%  {
+    color: #f5d78e;
+    text-shadow:
+      0 0 7px #e89b2d,
+      0 0 25px #e89b2d,
+      0 0 50px #d4603a,
+      0 0 80px #d4603a;
+  }
+  /* ── Fade out ── */
+  92%  {
+    color: #e8a44a;
+    text-shadow:
+      0 0 4px #e89b2d,
+      0 0 11px #e89b2d;
+  }
+  96%  {
+    color: #d4c9a8;
+    text-shadow: none;
+  }
+  100% {
+    color: #d4c9a8;
+    text-shadow: none;
+  }
 }
 
 .heroMission {

@@ -316,7 +316,7 @@ export function CommunityScreen() {
           <CoffeeCupSVG />
           <h1 className={styles.headline}>
             <span className={styles.brandName}>2035Cafe</span>
-            <span className={styles.tagline}>Fear Nothing, Build Anything.</span>
+            <span className={styles.tagline}>What was impossible is now a side project.</span>
           </h1>
           <p className={styles.heroMission}>
             An <strong className={styles.accent}>AI prepper community</strong>.
@@ -337,7 +337,7 @@ export function CommunityScreen() {
       {/* ── What we believe ── */}
       <section className={styles.beliefs}>
         <div className={styles.inner}>
-          <h2 className={styles.sectionTitle}>Recalibrate for 2035</h2>
+          <h2 className={styles.sectionTitle}>Fear nothing! Recalibrate for 2035</h2>
           <div className={styles.beliefGrid}>
             <div className={styles.beliefCard}>
               <TenXIcon />

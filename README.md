@@ -1,73 +1,59 @@
-# React + TypeScript + Vite
+# 2035VC
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Community platform for founders — storytelling events, applications, and AI-powered matching.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Frontend:** React 19 + TypeScript + Vite
+- **Backend:** Supabase Edge Functions (Deno)
+- **Database:** Supabase (Postgres)
+- **Hosting:** Cloudflare Pages
+- **APIs:** OpenAI, Exa, GitHub
 
-## React Compiler
+## Local dev
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev        # http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Environment variables
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Create a `.env` file:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+VITE_SUPABASE_URL=<your supabase url>
+VITE_SUPABASE_ANON_KEY=<your anon key>
+VITE_ADMIN_PASSWORD=<admin password for local dev>
+VITE_ADMIN_EMAIL=<admin email for local dev>
+```
+
+Supabase Edge Functions need these secrets (set via `supabase secrets set`):
+
+```
+OPENAI_API_KEY
+EXA_API_KEY
+GITHUB_TOKEN
+ADMIN_PASSWORD
+SUPABASE_URL
+SUPABASE_SERVICE_ROLE_KEY
+```
+
+## Deploy
+
+```bash
+npm run build      # outputs to dist/
+```
+
+Cloudflare Pages auto-deploys from `main`.
+
+## Key routes
+
+| Route | Description |
+|---|---|
+| `/` | Community landing page |
+| `/apply` | Organizer application (LinkedIn / AI profile / both) |
+| `/storyteller` | Speaker signup |
+| `/admin` | Admin dashboard (password-gated) |
+| `/admin/applications` | Review organizer applications |
+| `/:city/:date` | Event landing page |

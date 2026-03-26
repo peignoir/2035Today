@@ -235,7 +235,7 @@ async function generateBio(context: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-5.4",
+        model: "gpt-5.4-mini",
         max_completion_tokens: 300,
         messages: [
           { role: "system", content: systemPrompt },
@@ -293,15 +293,28 @@ Deno.serve(async (req) => {
     let resolvedAiProfile = ai_profile;
     if (ai_profile && /^https?:\/\//i.test(ai_profile.trim())) {
       try {
-        const pageRes = await fetch(ai_profile.trim());
-        if (pageRes.ok) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+        const pageRes = await fetch(ai_profile.trim(), {
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+        const contentType = pageRes.headers.get("content-type") ?? "";
+        if (
+          pageRes.ok &&
+          (contentType.includes("text/html") ||
+            contentType.includes("text/plain"))
+        ) {
           const html = await pageRes.text();
           // Strip HTML tags to get plain text
-          const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+          const text = html
+            .replace(/<[^>]*>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
           if (text.length > 50) resolvedAiProfile = text.slice(0, 10000);
         }
       } catch {
-        // Keep the original URL as fallback
+        // Timeout or network error — keep the original URL as fallback
       }
     }
 
@@ -313,7 +326,7 @@ Deno.serve(async (req) => {
       searchExa(name, company, city, linkedin_url),
     ]);
 
-    // 2. Generate bio with Claude
+    // 2. Generate bio with OpenAI
     const bio = await generateBio({
       name,
       email,

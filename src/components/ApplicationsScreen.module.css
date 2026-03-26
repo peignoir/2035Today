@@ -215,6 +215,29 @@
   margin-bottom: 12px;
 }
 
+.cardAiProfile {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.6;
+  cursor: pointer;
+}
+
+.cardAiProfile summary {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--color-accent);
+  margin-bottom: 8px;
+}
+
+.cardAiProfile p {
+  margin: 0;
+  padding: 12px;
+  background: rgba(99, 102, 241, 0.04);
+  border-radius: var(--radius-sm);
+  white-space: pre-wrap;
+}
+
 .cardActions {
   display: flex;
   gap: 8px;

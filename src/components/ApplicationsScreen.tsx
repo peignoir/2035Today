@@ -202,6 +202,13 @@ export function ApplicationsScreen() {
                   <div className={styles.cardBio}>{app.generated_bio}</div>
                 )}
 
+                {app.ai_profile && (
+                  <details className={styles.cardAiProfile}>
+                    <summary>AI-generated profile</summary>
+                    <p>{app.ai_profile}</p>
+                  </details>
+                )}
+
                 <div className={styles.cardActions}>
                   {app.status === 'pending' && (
                     <>

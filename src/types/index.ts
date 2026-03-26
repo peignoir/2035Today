@@ -34,6 +34,7 @@ export interface Application {
   company?: string;
   github_url?: string;
   linkedin_url?: string;
+  ai_profile?: string;
   comment?: string;
   search_data?: Record<string, unknown>;
   generated_bio?: string;

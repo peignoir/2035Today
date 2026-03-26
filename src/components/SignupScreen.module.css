@@ -185,6 +185,24 @@
   margin: 2px 0 0;
 }
 
+.promptCopyButton {
+  display: inline;
+  background: none;
+  border: none;
+  color: #e8913a;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  transition: opacity 0.15s;
+}
+
+.promptCopyButton:hover {
+  opacity: 0.8;
+}
+
 /* ── Story summary preview ── */
 .storySummary {
   padding: 20px 24px;

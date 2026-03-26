@@ -173,6 +173,7 @@ async function generateBio(context: {
   city: string;
   company?: string;
   comment?: string;
+  aiProfile?: string;
   githubProfile: GitHubProfile | null;
   topRepos: GitHubRepo[];
   exaResults: ExaResult[];
@@ -211,6 +212,10 @@ async function generateBio(context: {
       .map((r) => `  - ${r.title} (${r.url})\n    ${r.text ?? ""}`)
       .join("\n");
     sections.push(`Web search results about this person:\n${webList}`);
+  }
+
+  if (context.aiProfile) {
+    sections.push(`AI-generated profile (provided by applicant via ChatGPT/Claude):\n${context.aiProfile}`);
   }
 
   const userMessage = sections.join("\n\n");
@@ -270,7 +275,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { name, email, city, company, github_url, linkedin_url, comment } =
+    const { name, email, city, company, github_url, linkedin_url, ai_profile, comment } =
       body;
 
     // Validate required fields
@@ -299,6 +304,7 @@ Deno.serve(async (req) => {
       city,
       company,
       comment,
+      aiProfile: ai_profile,
       githubProfile: githubData.profile,
       topRepos: githubData.topRepos,
       exaResults,
@@ -319,6 +325,7 @@ Deno.serve(async (req) => {
         company: company || null,
         github_url: github_url || null,
         linkedin_url: linkedin_url || null,
+        ai_profile: ai_profile || null,
         comment: comment || null,
         search_data: {
           github: githubData.profile

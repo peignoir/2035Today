@@ -10,6 +10,29 @@ interface EventOption {
 
 const OPEN_APPLICATION = '__open__';
 
+const AI_BIO_PROMPT = `Using everything you know about me — including LinkedIn, past resumes, prior conversations, and any other available context — generate the strongest fact-based executive profile you can, as if building my resume from scratch.
+
+Include:
+
+- My full name, city, and current role/company
+- A detailed professional background covering what I've built, launched, led, or created, and the real-world impact
+- Prior ventures, leadership roles, companies founded or co-founded, capital raised, exits, notable investors, revenue if known, and any major scale metrics
+- Major institutions, communities, or movements I helped build, and their downstream impact
+- Any top companies I've worked at, major brands or institutions I've been associated with, top schools I attended, and any awards, press, articles, public recognition, or notable speaking roles
+- My top skills and deepest areas of expertise
+- My most meaningful achievements or projects, and why they mattered
+- What I'm genuinely exceptional at — what people consistently come to me for
+- The kind of work that makes me lose track of time
+- One story from my life or career that feels uniquely mine and could not describe someone else
+
+Be specific. Use real details only. No fluff, no generic founder language, no invented facts.
+
+If something important appears to be missing, do not skip it silently. Instead, add a final section called "What seems missing or unverified" and list exactly which facts, roles, companies, dates, metrics, raises, exits, employers, schools, awards, press mentions, or impact claims would make the profile materially stronger.
+
+Also: if I am a founder, be precise about whether I have previously founded, scaled, raised capital, exited, worked at major companies, attended top schools, won awards, or built a major community with meaningful economic or institutional impact. Prioritize the strongest credible signals.
+
+At the end, rank the top 5 strongest signals in my background by importance and explain briefly why each one matters.`;
+
 export function SignupScreen() {
   const [events, setEvents] = useState<EventOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,6 +53,7 @@ export function SignupScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [promptCopied, setPromptCopied] = useState(false);
 
   useEffect(() => {
     listEvents().then((list) => {
@@ -222,7 +246,20 @@ export function SignupScreen() {
                 placeholder="2-3 sentences about you. What do you do? What are you passionate about?"
                 rows={3}
               />
-              <p className={styles.fieldHint}>Provide your LinkedIn, a short bio, or both.</p>
+              <p className={styles.fieldHint}>
+                Provide your LinkedIn, a short bio, or both.{' '}
+                <button
+                  type="button"
+                  className={styles.promptCopyButton}
+                  onClick={() => {
+                    navigator.clipboard.writeText(AI_BIO_PROMPT).catch(() => {});
+                    setPromptCopied(true);
+                    setTimeout(() => setPromptCopied(false), 2000);
+                  }}
+                >
+                  {promptCopied ? 'Copied!' : 'Need help? Copy our AI prompt'}
+                </button>
+              </p>
             </div>
 
             {/* Author name */}

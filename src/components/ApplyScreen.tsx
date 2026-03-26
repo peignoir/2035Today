@@ -14,6 +14,7 @@ interface FormData {
   company: string;
   github_url: string;
   linkedin_url: string;
+  ai_profile: string;
   comment: string;
 }
 
@@ -24,8 +25,32 @@ const EMPTY_FORM: FormData = {
   company: '',
   github_url: '',
   linkedin_url: '',
+  ai_profile: '',
   comment: '',
 };
+
+const AI_PROFILE_PROMPT = `Using everything you know about me — including LinkedIn, past resumes, prior conversations, and any other available context — generate the strongest fact-based executive profile you can, as if building my resume from scratch.
+
+Include:
+
+- My full name, city, and current role/company
+- A detailed professional background covering what I've built, launched, led, or created, and the real-world impact
+- Prior ventures, leadership roles, companies founded or co-founded, capital raised, exits, notable investors, revenue if known, and any major scale metrics
+- Major institutions, communities, or movements I helped build, and their downstream impact
+- Any top companies I've worked at, major brands or institutions I've been associated with, top schools I attended, and any awards, press, articles, public recognition, or notable speaking roles
+- My top skills and deepest areas of expertise
+- My most meaningful achievements or projects, and why they mattered
+- What I'm genuinely exceptional at — what people consistently come to me for
+- The kind of work that makes me lose track of time
+- One story from my life or career that feels uniquely mine and could not describe someone else
+
+Be specific. Use real details only. No fluff, no generic founder language, no invented facts.
+
+If something important appears to be missing, do not skip it silently. Instead, add a final section called "What seems missing or unverified" and list exactly which facts, roles, companies, dates, metrics, raises, exits, employers, schools, awards, press mentions, or impact claims would make the profile materially stronger.
+
+Also: if I am a founder, be precise about whether I have previously founded, scaled, raised capital, exited, worked at major companies, attended top schools, won awards, or built a major community with meaningful economic or institutional impact. Prioritize the strongest credible signals.
+
+At the end, rank the top 5 strongest signals in my background by importance and explain briefly why each one matters.`;
 
 export function ApplyScreen() {
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
@@ -34,6 +59,7 @@ export function ApplyScreen() {
   const [editedBio, setEditedBio] = useState('');
   const [applicationId, setApplicationId] = useState('');
   const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const update = useCallback((field: keyof FormData, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -62,6 +88,7 @@ export function ApplyScreen() {
           company: form.company.trim() || undefined,
           github_url: form.github_url.trim() || undefined,
           linkedin_url: form.linkedin_url.trim() || undefined,
+          ai_profile: form.ai_profile.trim() || undefined,
           comment: form.comment.trim() || undefined,
         }),
       });
@@ -178,23 +205,30 @@ export function ApplyScreen() {
                 </div>
               </div>
 
-              <div className={styles.row}>
-                <div className={styles.fieldGroup}>
-                  <label className={styles.label}>
-                    GitHub <span className={styles.labelHint}>(optional)</span>
-                  </label>
-                  <input
-                    className={styles.input}
-                    type="url"
-                    value={form.github_url}
-                    onChange={(e) => update('github_url', e.target.value)}
-                    placeholder="https://github.com/you"
-                  />
-                </div>
-                <div className={styles.fieldGroup}>
-                  <label className={styles.label}>
-                    LinkedIn <span className={styles.labelHint}>(optional)</span>
-                  </label>
+              <div className={styles.fieldGroup}>
+                <label className={styles.label}>
+                  GitHub <span className={styles.labelHint}>(optional)</span>
+                </label>
+                <input
+                  className={styles.input}
+                  type="url"
+                  value={form.github_url}
+                  onChange={(e) => update('github_url', e.target.value)}
+                  placeholder="https://github.com/you"
+                />
+              </div>
+
+              {/* Profile section: LinkedIn + AI profile */}
+              <div className={styles.profileSection}>
+                <label className={styles.label}>
+                  Help us learn about you <span className={styles.labelHint}>(optional but recommended)</span>
+                </label>
+                <p className={styles.profileHint}>
+                  Share your LinkedIn URL, paste an AI-generated profile, or both for the strongest match.
+                </p>
+
+                <div className={styles.profileOption}>
+                  <span className={styles.optionLabel}>Option 1 — LinkedIn URL</span>
                   <input
                     className={styles.input}
                     type="url"
@@ -203,6 +237,38 @@ export function ApplyScreen() {
                     placeholder="https://linkedin.com/in/you"
                   />
                 </div>
+
+                <div className={styles.profileOption}>
+                  <span className={styles.optionLabel}>Option 2 — AI-generated profile</span>
+                  <p className={styles.optionHint}>
+                    Copy the prompt below into ChatGPT or Claude, then paste the result here.
+                  </p>
+                  <div className={styles.promptBlock}>
+                    <button
+                      type="button"
+                      className={styles.copyButton}
+                      onClick={() => {
+                        navigator.clipboard.writeText(AI_PROFILE_PROMPT).catch(() => {});
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                    >
+                      {copied ? 'Copied!' : 'Copy prompt'}
+                    </button>
+                    <pre className={styles.promptText}>{AI_PROFILE_PROMPT}</pre>
+                  </div>
+                  <textarea
+                    className={styles.aiProfileTextarea}
+                    value={form.ai_profile}
+                    onChange={(e) => update('ai_profile', e.target.value)}
+                    placeholder="Paste the AI-generated profile here..."
+                    rows={8}
+                  />
+                </div>
+
+                <p className={styles.profileFootnote}>
+                  Providing both gives us the strongest signal to match you.
+                </p>
               </div>
 
               <div className={styles.fieldGroup}>

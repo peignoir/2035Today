@@ -289,6 +289,22 @@ Deno.serve(async (req) => {
       );
     }
 
+    // 0. If ai_profile looks like a URL, fetch its content
+    let resolvedAiProfile = ai_profile;
+    if (ai_profile && /^https?:\/\//i.test(ai_profile.trim())) {
+      try {
+        const pageRes = await fetch(ai_profile.trim());
+        if (pageRes.ok) {
+          const html = await pageRes.text();
+          // Strip HTML tags to get plain text
+          const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+          if (text.length > 50) resolvedAiProfile = text.slice(0, 10000);
+        }
+      } catch {
+        // Keep the original URL as fallback
+      }
+    }
+
     // 1. Fetch GitHub data (parallel with Exa)
     const [githubData, exaResults] = await Promise.all([
       github_url
@@ -304,7 +320,7 @@ Deno.serve(async (req) => {
       city,
       company,
       comment,
-      aiProfile: ai_profile,
+      aiProfile: resolvedAiProfile,
       githubProfile: githubData.profile,
       topRepos: githubData.topRepos,
       exaResults,
@@ -325,7 +341,7 @@ Deno.serve(async (req) => {
         company: company || null,
         github_url: github_url || null,
         linkedin_url: linkedin_url || null,
-        ai_profile: ai_profile || null,
+        ai_profile: resolvedAiProfile || null,
         comment: comment || null,
         search_data: {
           github: githubData.profile

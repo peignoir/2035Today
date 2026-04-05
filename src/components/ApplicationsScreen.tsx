@@ -209,6 +209,12 @@ export function ApplicationsScreen() {
                   </details>
                 )}
 
+                {(app.search_data as any)?.openai_usage && (
+                  <span className={styles.tokenBadge}>
+                    {(app.search_data as any).openai_usage.total_tokens} tokens
+                  </span>
+                )}
+
                 <div className={styles.cardActions}>
                   {app.status === 'pending' && (
                     <>

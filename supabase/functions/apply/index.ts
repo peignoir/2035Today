@@ -167,6 +167,11 @@ async function searchExa(
 /*  OpenAI bio generation                                              */
 /* ------------------------------------------------------------------ */
 
+interface BioResult {
+  bio: string;
+  usage: { prompt_tokens: number; completion_tokens: number; total_tokens: number } | null;
+}
+
 async function generateBio(context: {
   name: string;
   email: string;
@@ -177,9 +182,9 @@ async function generateBio(context: {
   githubProfile: GitHubProfile | null;
   topRepos: GitHubRepo[];
   exaResults: ExaResult[];
-}): Promise<string> {
+}): Promise<BioResult> {
   const key = Deno.env.get("OPENAI_API_KEY");
-  if (!key) return fallbackBio(context.name, context.city);
+  if (!key) return { bio: fallbackBio(context.name, context.city), usage: null };
 
   const sections: string[] = [];
 
@@ -244,11 +249,18 @@ async function generateBio(context: {
       }),
     });
 
-    if (!res.ok) return fallbackBio(context.name, context.city);
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => "");
+      console.error(`OpenAI error ${res.status}: ${errBody}`);
+      return { bio: fallbackBio(context.name, context.city), usage: null };
+    }
     const data = await res.json();
-    return data.choices?.[0]?.message?.content ?? fallbackBio(context.name, context.city);
-  } catch {
-    return fallbackBio(context.name, context.city);
+    const bio = data.choices?.[0]?.message?.content ?? fallbackBio(context.name, context.city);
+    const usage = data.usage ?? null;
+    return { bio, usage };
+  } catch (err) {
+    console.error("OpenAI call failed:", err);
+    return { bio: fallbackBio(context.name, context.city), usage: null };
   }
 }
 
@@ -327,7 +339,7 @@ Deno.serve(async (req) => {
     ]);
 
     // 2. Generate bio with OpenAI
-    const bio = await generateBio({
+    const { bio, usage: openaiUsage } = await generateBio({
       name,
       email,
       city,
@@ -364,6 +376,7 @@ Deno.serve(async (req) => {
               }
             : null,
           exa: exaResults,
+          openai_usage: openaiUsage,
         },
         generated_bio: bio,
       })

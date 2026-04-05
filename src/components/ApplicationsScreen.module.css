@@ -238,6 +238,16 @@
   white-space: pre-wrap;
 }
 
+.tokenBadge {
+  display: inline-block;
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+  background: rgba(99, 102, 241, 0.08);
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-bottom: 8px;
+}
+
 .cardActions {
   display: flex;
   gap: 8px;

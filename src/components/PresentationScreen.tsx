@@ -40,6 +40,7 @@ export function PresentationScreen({
   const { isFullscreen, requestFullscreen, exitFullscreen } = useFullscreen();
   const recorder = useMediaRecorder();
   const recorderStartedRef = useRef(false);
+  const activeElapsedRef = useRef(0);
   const [waiting, setWaiting] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -49,7 +50,7 @@ export function PresentationScreen({
     recorderStartedRef.current = false;
     setSaving(true);
     try {
-      const blob = await recorder.stopRecording();
+      const blob = await recorder.stopRecording(activeElapsedRef.current);
       setSaving(false);
       if (blob && blob.size > 0 && onRecordingComplete) {
         onRecordingComplete(blob);
@@ -86,6 +87,10 @@ export function PresentationScreen({
     togglePause,
     resume,
   } = usePresentationTimer(handleFinish, !waiting);
+
+  useEffect(() => {
+    activeElapsedRef.current = timerState.totalElapsed;
+  }, [timerState.totalElapsed]);
 
   // Request fullscreen on mount (only for standalone mode)
   useEffect(() => {

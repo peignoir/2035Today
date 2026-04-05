@@ -30,7 +30,7 @@ export type { OverlayInfo } from '../lib/recordingOverlay';
 
 export interface MediaRecorderHandle {
   startRecording: (slides: SlideImage[], preAcquiredAudio?: MediaStream | null) => Promise<void>;
-  stopRecording: () => Promise<Blob | null>;
+  stopRecording: (finalActiveDurationMs?: number) => Promise<Blob | null>;
   drawSlide: (_slide: SlideImage, overlay?: OverlayInfo) => void;
   updateOverlay: (overlay: OverlayInfo) => void;
   setPaused: (paused: boolean) => void;
@@ -235,7 +235,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
     setIsRecording(true);
   }, [cleanup]);
 
-  const stopRecording = useCallback(async (): Promise<Blob | null> => {
+  const stopRecording = useCallback(async (finalActiveDurationMs?: number): Promise<Blob | null> => {
     if (startedAtRef.current === 0) {
       cleanup();
       return null;
@@ -256,9 +256,21 @@ export function useMediaRecorder(): MediaRecorderHandle {
       0,
     );
     const maxDurationMs = slidesRef.current.length * SLIDE_DURATION_MS;
-    const activeDurationMs = Math.max(
+    const computedActiveDurationMs = Math.max(
       0,
       Math.min(maxDurationMs, wallDurationMs - totalPausedMs),
+    );
+    const activeDurationMs = Math.max(
+      0,
+      Math.min(
+        maxDurationMs,
+        finalActiveDurationMs ?? computedActiveDurationMs,
+      ),
+    );
+
+    console.log(
+      `[Recording] finalize wall=${Math.round(wallDurationMs)}ms paused=${Math.round(totalPausedMs)}ms ` +
+      `computed=${Math.round(computedActiveDurationMs)}ms final=${Math.round(activeDurationMs)}ms`,
     );
 
     setIsRecording(false);

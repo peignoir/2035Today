@@ -242,15 +242,25 @@ export function useMediaRecorder(): MediaRecorderHandle {
       return;
     }
 
+    // Attach canvas to DOM (hidden off-screen) — Safari only emits capture
+    // frames from canvases that are actually painted. A fully detached
+    // canvas produces a frozen/single-frame video track.
+    canvas.style.position = 'fixed';
+    canvas.style.left = '-99999px';
+    canvas.style.top = '0';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.opacity = '0';
+    document.body.appendChild(canvas);
+
     canvasRef.current = canvas;
     ctxRef.current = ctx;
 
-    // Capture canvas stream at 30fps. We don't rely on automatic capture —
-    // we drive an RAF loop that calls requestFrame() at ~30fps, which keeps
-    // the stream's frame timestamps aligned with wall-clock time. This
-    // prevents the muxer from under-reporting video duration (the
-    // "video cut short" bug that happens with low-fps captureStream).
-    const canvasStream = canvas.captureStream(30);
+    // Use captureStream(0) so frames are emitted ONLY when we call
+    // requestFrame(). Our RAF loop calls requestFrame() at ~30fps, so
+    // the stream gets steady real-time frame timestamps. Mixing auto-
+    // capture (captureStream(30)) with manual requestFrame() has
+    // undefined behavior in some browsers.
+    const canvasStream = canvas.captureStream(0);
     canvasStreamRef.current = canvasStream;
 
     // Use pre-acquired audio stream, or request mic if not provided
@@ -311,12 +321,21 @@ export function useMediaRecorder(): MediaRecorderHandle {
     // actual recording time.
     const FRAME_INTERVAL_MS = 1000 / 30;
     let lastFrameTime = performance.now();
+    let frameCount = 0;
+    let lastLogTime = performance.now();
     const frameLoop = () => {
       if (!canvasStreamRef.current) return; // stopped
       const now = performance.now();
       if (!pausedRef.current && now - lastFrameTime >= FRAME_INTERVAL_MS) {
         pushFrame();
+        frameCount++;
         lastFrameTime = now;
+      }
+      // Log frame throughput every 10s
+      if (now - lastLogTime >= 10_000) {
+        console.log(`[MediaRecorder] frames pushed: ${frameCount} (last 10s), total elapsed: ${((now - lastLogTime) / 1000).toFixed(1)}s`);
+        frameCount = 0;
+        lastLogTime = now;
       }
       frameLoopIdRef.current = requestAnimationFrame(frameLoop);
     };
@@ -428,6 +447,11 @@ export function useMediaRecorder(): MediaRecorderHandle {
     // Stop canvas stream tracks
     canvasStreamRef.current?.getTracks().forEach((t) => t.stop());
     canvasStreamRef.current = null;
+
+    // Remove canvas from DOM
+    if (canvasRef.current && canvasRef.current.parentNode) {
+      canvasRef.current.parentNode.removeChild(canvasRef.current);
+    }
 
     canvasRef.current = null;
     ctxRef.current = null;

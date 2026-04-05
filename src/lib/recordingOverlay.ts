@@ -2,6 +2,7 @@ import type { SlideImage } from '../types';
 
 export const SLIDE_DURATION_MS = 15_000;
 export const TOTAL_SLIDES = 20;
+export const RECORDING_EXPORT_VERSION = 'rec-v2026-04-05b';
 const MAX_RECORDING_WIDTH = 1280;
 const MAX_RECORDING_HEIGHT = 720;
 
@@ -103,6 +104,14 @@ export function drawOverlayOnCanvas(
     ctx.fillStyle = '#b0b0b0';
     ctx.fillText(speakerName, padX, y);
   }
+
+  const versionFontSize = Math.max(10, Math.round(height * 0.017));
+  ctx.font = `600 ${versionFontSize}px monospace`;
+  ctx.textBaseline = 'top';
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(255,255,255,0.78)';
+  ctx.fillText(RECORDING_EXPORT_VERSION, width - padX, padY);
+  ctx.textAlign = 'left';
 
   ctx.restore();
 

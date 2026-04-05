@@ -4,6 +4,7 @@ import {
   buildOverlayForElapsed,
   drawOverlayOnCanvas,
   getRecordingCanvasSize,
+  RECORDING_EXPORT_VERSION,
   type OverlayInfo,
 } from './recordingOverlay';
 
@@ -261,6 +262,10 @@ function buildEncodeArgs(options: {
   }
 
   args.push(
+    '-metadata',
+    `comment=recording-export=${RECORDING_EXPORT_VERSION}`,
+    '-metadata',
+    `description=recording-export=${RECORDING_EXPORT_VERSION}`,
     '-vf',
     `fps=${OUTPUT_FPS},format=yuv420p`,
     '-r',

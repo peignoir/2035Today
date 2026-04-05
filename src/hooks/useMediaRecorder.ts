@@ -13,25 +13,28 @@ const AUDIO_BITRATE = 128_000;
 const FRAME_PUMP_FPS = 5;
 const FRAME_PUMP_INTERVAL_MS = Math.round(1000 / FRAME_PUMP_FPS);
 
-type CanvasTrackWithRequestFrame = MediaStreamTrack & {
-  requestFrame?: () => void;
-};
-
 function pickVideoMimeType(): string {
   if (typeof MediaRecorder === 'undefined' || typeof MediaRecorder.isTypeSupported !== 'function') {
     return '';
   }
 
+  const canPlay = (mime: string): boolean => {
+    const video = document.createElement('video');
+    return video.canPlayType(mime) !== '';
+  };
+
   const candidates = [
-    'video/webm;codecs=vp9,opus',
     'video/webm;codecs=vp8,opus',
-    'video/webm;codecs=vp9',
     'video/webm;codecs=vp8',
     'video/webm',
     'video/mp4;codecs=avc1,mp4a.40.2',
     'video/mp4;codecs=avc1',
     'video/mp4',
   ];
+
+  for (const mime of candidates) {
+    if (MediaRecorder.isTypeSupported(mime) && canPlay(mime)) return mime;
+  }
 
   for (const mime of candidates) {
     if (MediaRecorder.isTypeSupported(mime)) return mime;
@@ -140,7 +143,6 @@ export function useMediaRecorder(): MediaRecorderHandle {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const canvasStreamRef = useRef<MediaStream | null>(null);
-  const canvasTrackRef = useRef<CanvasTrackWithRequestFrame | null>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -149,7 +151,6 @@ export function useMediaRecorder(): MediaRecorderHandle {
   const overlayRef = useRef<OverlayInfo | null>(null);
   const lastImageRef = useRef<HTMLImageElement | null>(null);
   const drawTokenRef = useRef(0);
-  const manualFrameModeRef = useRef(false);
   const framePumpIdRef = useRef<number>(0);
   const framePumpPhaseRef = useRef(0);
 
@@ -164,7 +165,6 @@ export function useMediaRecorder(): MediaRecorderHandle {
 
     canvasStreamRef.current?.getTracks().forEach((track) => track.stop());
     canvasStreamRef.current = null;
-    canvasTrackRef.current = null;
 
     if (canvasRef.current?.parentNode) {
       canvasRef.current.parentNode.removeChild(canvasRef.current);
@@ -178,7 +178,6 @@ export function useMediaRecorder(): MediaRecorderHandle {
     overlayRef.current = null;
     lastImageRef.current = null;
     drawTokenRef.current = 0;
-    manualFrameModeRef.current = false;
     if (framePumpIdRef.current) {
       window.clearInterval(framePumpIdRef.current);
       framePumpIdRef.current = 0;
@@ -191,17 +190,6 @@ export function useMediaRecorder(): MediaRecorderHandle {
     setProcessingProgress(null);
   }, []);
 
-  const requestVideoFrame = useCallback(() => {
-    if (!manualFrameModeRef.current) return;
-    const track = canvasTrackRef.current;
-    if (!track || typeof track.requestFrame !== 'function') return;
-    try {
-      track.requestFrame();
-    } catch (error) {
-      console.warn('[MediaRecorder] requestFrame failed:', error);
-    }
-  }, []);
-
   const tickFramePump = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
@@ -210,8 +198,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
     framePumpPhaseRef.current = framePumpPhaseRef.current === 0 ? 1 : 0;
     ctx.fillStyle = framePumpPhaseRef.current === 0 ? 'rgba(0,0,0,0.015)' : 'rgba(255,255,255,0.015)';
     ctx.fillRect(canvas.width - 1, canvas.height - 1, 1, 1);
-    requestVideoFrame();
-  }, [requestVideoFrame]);
+  }, []);
 
   const paintCurrentFrame = useCallback((): boolean => {
     const canvas = canvasRef.current;
@@ -246,23 +233,19 @@ export function useMediaRecorder(): MediaRecorderHandle {
     image.onload = () => {
       if (token !== drawTokenRef.current) return;
       lastImageRef.current = image;
-      if (paintCurrentFrame()) {
-        requestVideoFrame();
-      }
+      paintCurrentFrame();
     };
     image.onerror = () => {
       if (token !== drawTokenRef.current) return;
       console.error(`[MediaRecorder] Failed to load slide image: ${slide.objectUrl}`);
     };
     image.src = slide.objectUrl;
-  }, [paintCurrentFrame, rememberOverlay, requestVideoFrame]);
+  }, [paintCurrentFrame, rememberOverlay]);
 
   const updateOverlay = useCallback((overlay: OverlayInfo) => {
     rememberOverlay(overlay);
-    if (paintCurrentFrame()) {
-      requestVideoFrame();
-    }
-  }, [paintCurrentFrame, rememberOverlay, requestVideoFrame]);
+    paintCurrentFrame();
+  }, [paintCurrentFrame, rememberOverlay]);
 
   const startRecording = useCallback(async (slides: SlideImage[], preAcquiredAudio?: MediaStream | null) => {
     cleanup();
@@ -308,26 +291,14 @@ export function useMediaRecorder(): MediaRecorderHandle {
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const manualStream = canvas.captureStream(0);
-    const manualTrack = manualStream.getVideoTracks()[0] as CanvasTrackWithRequestFrame | undefined;
-    manualFrameModeRef.current = typeof manualTrack?.requestFrame === 'function';
-
-    const canvasStream = manualFrameModeRef.current
-      ? manualStream
-      : canvas.captureStream(FRAME_PUMP_FPS);
-
-    if (!manualFrameModeRef.current) {
-      manualStream.getTracks().forEach((track) => track.stop());
-    }
-
-    const canvasTrack = canvasStream.getVideoTracks()[0] as CanvasTrackWithRequestFrame | undefined;
+    const canvasStream = canvas.captureStream(FRAME_PUMP_FPS);
+    const canvasTrack = canvasStream.getVideoTracks()[0];
     if (!canvasTrack) {
       cleanup();
       throw new Error('Failed to create a video track for recording.');
     }
 
     canvasStreamRef.current = canvasStream;
-    canvasTrackRef.current = canvasTrack;
 
     let audioStream: MediaStream | null = preAcquiredAudio ?? null;
     if (!audioStream) {
@@ -384,7 +355,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
     setIsRecording(true);
     console.log(
       `[MediaRecorder] Recording started (${size.width}x${size.height}, ${mimeType}, ` +
-      `mode=${manualFrameModeRef.current ? `${FRAME_PUMP_FPS}fps-manual` : `${FRAME_PUMP_FPS}fps-auto`}, audio: ${!!audioStream})`,
+      `mode=${FRAME_PUMP_FPS}fps-auto, audio: ${!!audioStream})`,
     );
 
     drawSlide(slides[0], overlayRef.current ?? undefined);
@@ -410,7 +381,6 @@ export function useMediaRecorder(): MediaRecorderHandle {
     setProcessingProgress(null);
 
     if (paintCurrentFrame()) {
-      requestVideoFrame();
       await wait(FINAL_FRAME_SETTLE_MS);
     }
 
@@ -425,7 +395,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
       cleanup();
       throw error instanceof Error ? error : new Error('Recording finalization failed.');
     }
-  }, [cleanup, paintCurrentFrame, requestVideoFrame]);
+  }, [cleanup, paintCurrentFrame]);
 
   const setPaused = useCallback((_paused: boolean) => {
     void _paused;

@@ -159,6 +159,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
   const visibilityHandlerRef = useRef<(() => void) | null>(null);
   const userPausedRef = useRef(false);
   const heartbeatIdRef = useRef<number>(0);
+  const dirtyLoopIdRef = useRef<number>(0);
 
   const drawSlide = useCallback((slide: SlideImage, overlay?: OverlayInfo) => {
     const ctx = ctxRef.current;
@@ -337,7 +338,25 @@ export function useMediaRecorder(): MediaRecorderHandle {
     document.addEventListener('visibilitychange', visibilityHandler);
     visibilityHandlerRef.current = visibilityHandler;
 
-    // Diagnostic heartbeat every 5s: surface the state of the tracks +
+    // Safari's captureStream(30) only samples on canvas damage — despite
+    // the spec saying it should sample on a timer. With mostly-static
+    // slides (change every 15s, overlay update 1Hz), damage events are
+    // too sparse and the video track truncates mid-recording. Solution:
+    // force constant canvas damage at 30fps by drawing a 1x1 nearly-
+    // invisible pixel in the bottom-right corner. This guarantees Safari
+    // samples a fresh frame every ~33ms for the entire recording.
+    let dirtyPhase = 0;
+    const dirtyLoop = () => {
+      const c = ctxRef.current;
+      const cv = canvasRef.current;
+      if (!c || !cv) return;
+      // Toggle pixel color every frame so there's always real damage
+      dirtyPhase = (dirtyPhase + 1) % 2;
+      c.fillStyle = dirtyPhase ? 'rgba(0,0,0,0.01)' : 'rgba(255,255,255,0.01)';
+      c.fillRect(cv.width - 1, cv.height - 1, 1, 1);
+      dirtyLoopIdRef.current = requestAnimationFrame(dirtyLoop);
+    };
+    dirtyLoopIdRef.current = requestAnimationFrame(dirtyLoop); surface the state of the tracks +
     // recorder so we can see WHERE the video track dies during a run.
     heartbeatIdRef.current = window.setInterval(() => {
       const rec = recorderRef.current;
@@ -449,6 +468,11 @@ export function useMediaRecorder(): MediaRecorderHandle {
     if (heartbeatIdRef.current) {
       clearInterval(heartbeatIdRef.current);
       heartbeatIdRef.current = 0;
+    }
+
+    if (dirtyLoopIdRef.current) {
+      cancelAnimationFrame(dirtyLoopIdRef.current);
+      dirtyLoopIdRef.current = 0;
     }
 
     // Remove tab-visibility listener

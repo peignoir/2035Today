@@ -43,12 +43,15 @@ export function PresentationScreen({
   const recorder = useMediaRecorder();
   const recorderStartedRef = useRef(false);
   const [waiting, setWaiting] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   // Stop recording helper — returns blob or signals failure
   const finalizeRecording = useCallback(async () => {
     if (!recorderStartedRef.current) return;
     recorderStartedRef.current = false;
+    setSaving(true);
     const blob = await recorder.stopRecording();
+    setSaving(false);
     if (blob && blob.size > 0 && onRecordingComplete) {
       onRecordingComplete(blob);
     } else if (recordingEnabled && onRecordingFailed) {
@@ -211,6 +214,14 @@ export function PresentationScreen({
         <div className={styles.endOverlay}>
           <h2 className={styles.endTitle}>Talk Complete</h2>
           <p className={styles.endSubtitle}>5:00</p>
+          {saving && (
+            <div className={styles.savingBox}>
+              <p className={styles.savingLabel}>Saving recording…</p>
+              <div className={styles.savingBar}>
+                <div className={styles.savingBarFill} />
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <>

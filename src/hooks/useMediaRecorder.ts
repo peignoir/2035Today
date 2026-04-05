@@ -2,13 +2,14 @@ import { useRef, useState, useCallback } from 'react';
 import type { SlideImage } from '../types';
 
 function pickMimeType(): string {
-  // Keep strings plain — some Safari versions reject fully-qualified codec
-  // strings (e.g. 'video/mp4;codecs=avc1,mp4a.40.2') even when the underlying
-  // codec is supported. Plain MIME + browser default codec is the most robust.
+  // Prefer fully-qualified codec strings first. Safari's plain "video/mp4"
+  // path can produce empty encoder output on some versions; specifying
+  // codecs explicitly forces the known-good H.264/AAC pipeline.
   const candidates = [
-    'video/mp4',                    // Safari 14.1+, Chrome 126+
-    'video/webm;codecs=vp8,opus',   // Chrome/Firefox
-    'video/webm',                   // Chrome/Firefox fallback
+    'video/mp4;codecs=avc1,mp4a.40.2', // Safari: forces H.264 + AAC
+    'video/mp4',                        // fallback
+    'video/webm;codecs=vp8,opus',       // Chrome/Firefox
+    'video/webm',                       // Chrome/Firefox fallback
   ];
   for (const mime of candidates) {
     if (MediaRecorder.isTypeSupported(mime)) return mime;
@@ -447,17 +448,14 @@ export function useMediaRecorder(): MediaRecorderHandle {
       // if we call stop() immediately, the trailing frames in its pipeline
       // are discarded and the video freezes N seconds before the end.
       // We: (1) halt frame pushing, (2) wait for the pipeline to drain,
-      // (3) force an emission with requestData(), (4) then stop.
+      // (3) then call stop() which naturally emits the buffered data.
+      //
+      // NOTE: we intentionally do NOT call requestData() here. On Safari's
+      // no-timeslice MP4 path, requestData() can emit the buffer in a bad
+      // state and leave stop() with zero bytes to emit.
       pausedRef.current = true; // halts pushFrame() in the RAF loop
       const FLUSH_DELAY_MS = 3000;
       setTimeout(() => {
-        try {
-          if (recorder.state === 'recording') {
-            recorder.requestData();
-          }
-        } catch {
-          // requestData may throw if the state just changed; safe to ignore
-        }
         try {
           recorder.stop();
         } catch (e) {

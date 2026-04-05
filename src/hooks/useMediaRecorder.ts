@@ -336,28 +336,46 @@ export function useMediaRecorder(): MediaRecorderHandle {
       const elapsed = Date.now() - startTimeRef.current;
       console.log(`[MediaRecorder] Stopping recording after ${(elapsed / 1000).toFixed(1)}s, chunks so far: ${chunksRef.current.length}`);
 
-      recorder.onstop = () => {
+      // With no timeslice, exactly one dataavailable event fires during stop().
+      // We must wait for BOTH ondataavailable AND onstop before building the
+      // blob — the event order isn't guaranteed across browsers, and if we
+      // build the blob in onstop alone, Safari sometimes reports empty chunks.
+      let dataSeen = false;
+      let stopSeen = false;
+      let resolved = false;
+      const tryFinalize = () => {
+        if (resolved || !dataSeen || !stopSeen) return;
+        resolved = true;
         const blob = new Blob(chunksRef.current, { type: mimeRef.current });
         console.log(`[MediaRecorder] Final blob: ${(blob.size / 1024 / 1024).toFixed(2)}MB (${chunksRef.current.length} chunks)`);
         chunksRef.current = [];
         cleanup();
-        // Always return the blob, even if small — partial recordings are still
-        // useful. The caller decides whether to offer upload or show an error.
         resolve(blob);
       };
 
-      // Flush any buffered data before stopping so partial recordings
-      // (shorter than the 10s timeslice) still produce chunks.
-      // Resume first if paused — requestData only works in 'recording' state.
+      // Replace the ondataavailable handler to also fire tryFinalize.
+      // (The original handler pushes to chunksRef, same behavior.)
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+        console.log(`[MediaRecorder] dataavailable fired, size=${e.data?.size ?? 0}, total chunks=${chunksRef.current.length}`);
+        dataSeen = true;
+        tryFinalize();
+      };
+      recorder.onstop = () => {
+        console.log('[MediaRecorder] onstop fired');
+        stopSeen = true;
+        tryFinalize();
+      };
+
+      // Resume first if paused — stop only flushes from 'recording' state cleanly.
       try {
         if (recorder.state === 'paused') {
           recorder.resume();
         }
-        if (recorder.state === 'recording') {
-          recorder.requestData();
-        }
       } catch {
-        // requestData may throw if state just changed; safe to ignore
+        // safe to ignore
       }
 
       try {
@@ -365,8 +383,21 @@ export function useMediaRecorder(): MediaRecorderHandle {
       } catch (e) {
         console.error('[MediaRecorder] recorder.stop() threw:', e);
         cleanup();
+        resolved = true;
         resolve(null);
+        return;
       }
+
+      // Safety timeout: if neither event fires within 5s, resolve with whatever we have.
+      setTimeout(() => {
+        if (resolved) return;
+        console.warn(`[MediaRecorder] stop timeout reached — dataSeen=${dataSeen}, stopSeen=${stopSeen}, chunks=${chunksRef.current.length}`);
+        resolved = true;
+        const blob = new Blob(chunksRef.current, { type: mimeRef.current });
+        chunksRef.current = [];
+        cleanup();
+        resolve(blob);
+      }, 5000);
     });
   }, []);
 

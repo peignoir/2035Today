@@ -4,12 +4,10 @@ import type { OverlayInfo } from '../hooks/useMediaRecorder';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { usePresentationTimer } from '../hooks/usePresentationTimer';
 import { useMediaRecorder } from '../hooks/useMediaRecorder';
+import { SLIDE_DURATION_MS, TOTAL_SLIDES } from '../lib/recordingOverlay';
 import { SlideCanvas } from './SlideCanvas';
 import { ControlsOverlay } from './ControlsOverlay';
 import styles from './PresentationScreen.module.css';
-
-const SLIDE_DURATION_MS = 15_000;
-const TOTAL_SLIDES = 20;
 
 interface PresentationScreenProps {
   deck: LoadedDeck;
@@ -21,7 +19,7 @@ interface PresentationScreenProps {
   manageFullscreen?: boolean;
   recordingEnabled?: boolean;
   onRecordingComplete?: (blob: Blob) => void;
-  onRecordingFailed?: () => void;
+  onRecordingFailed?: (message?: string) => void;
   audioStream?: MediaStream | null;
 }
 
@@ -50,13 +48,21 @@ export function PresentationScreen({
     if (!recorderStartedRef.current) return;
     recorderStartedRef.current = false;
     setSaving(true);
-    const blob = await recorder.stopRecording();
-    setSaving(false);
-    if (blob && blob.size > 0 && onRecordingComplete) {
-      onRecordingComplete(blob);
-    } else if (recordingEnabled && onRecordingFailed) {
-      // Recording was enabled but produced no data — let the parent show an error
-      onRecordingFailed();
+    try {
+      const blob = await recorder.stopRecording();
+      setSaving(false);
+      if (blob && blob.size > 0 && onRecordingComplete) {
+        onRecordingComplete(blob);
+      } else if (recordingEnabled && onRecordingFailed) {
+        onRecordingFailed('Recording finished without generating a video file.');
+      }
+    } catch (error) {
+      setSaving(false);
+      if (recordingEnabled && onRecordingFailed) {
+        onRecordingFailed(
+          error instanceof Error ? error.message : 'Recording export failed.',
+        );
+      }
     }
   }, [recorder, onRecordingComplete, onRecordingFailed, recordingEnabled]);
 
@@ -96,26 +102,6 @@ export function PresentationScreen({
     }
   }, [isFullscreen, requestFullscreen, exitFullscreen]);
 
-  const handleStart = useCallback(() => {
-    setWaiting(false);
-    resume();
-    // Start recording when the talk begins
-    if (recordingEnabled && !recorderStartedRef.current) {
-      recorderStartedRef.current = true;
-      recorder.startRecording(deck.slides, audioStream).catch((err) => {
-        console.error('[Recording] startRecording failed:', err);
-        recorderStartedRef.current = false;
-      });
-    }
-  }, [resume, recordingEnabled, recorder, deck.slides, audioStream]);
-
-  const handleStartFullscreen = useCallback(() => {
-    if (containerRef.current) {
-      requestFullscreen(containerRef.current);
-    }
-    handleStart();
-  }, [requestFullscreen, handleStart]);
-
   // Build current overlay info for the recorder
   const makeOverlay = useCallback((): OverlayInfo => ({
     eventTitle: eventName,
@@ -125,6 +111,28 @@ export function PresentationScreen({
     totalSlides: TOTAL_SLIDES,
     slideSecondsLeft: Math.ceil((SLIDE_DURATION_MS - timerState.slideElapsed) / 1000),
   }), [eventName, storyName, speakerName, timerState.currentSlide, timerState.slideElapsed]);
+
+  const handleStart = useCallback(() => {
+    setWaiting(false);
+    resume();
+    // Start recording when the talk begins
+    if (recordingEnabled && !recorderStartedRef.current) {
+      recorderStartedRef.current = true;
+      recorder.startRecording(deck.slides, audioStream).catch((err) => {
+        console.error('[Recording] startRecording failed:', err);
+        recorderStartedRef.current = false;
+        onRecordingFailed?.(err instanceof Error ? err.message : 'Failed to start recording.');
+      });
+      recorder.updateOverlay(makeOverlay());
+    }
+  }, [resume, recordingEnabled, recorder, deck.slides, audioStream, makeOverlay, onRecordingFailed]);
+
+  const handleStartFullscreen = useCallback(() => {
+    if (containerRef.current) {
+      requestFullscreen(containerRef.current);
+    }
+    handleStart();
+  }, [requestFullscreen, handleStart]);
 
   // Draw slide to recording canvas on slide change
   useEffect(() => {
@@ -218,9 +226,12 @@ export function PresentationScreen({
           {timerState.isFinished && <p className={styles.endSubtitle}>5:00</p>}
           {saving && (
             <div className={styles.savingBox}>
-              <p className={styles.savingLabel}>Saving recording…</p>
+              <p className={styles.savingLabel}>{recorder.processingLabel || 'Saving recording…'}</p>
               <div className={styles.savingBar}>
-                <div className={styles.savingBarFill} />
+                <div
+                  className={`${styles.savingBarFill} ${recorder.processingProgress !== null ? styles.savingBarFillDeterminate : ''}`}
+                  style={recorder.processingProgress !== null ? { width: `${Math.round(recorder.processingProgress * 100)}%` } : undefined}
+                />
               </div>
             </div>
           )}

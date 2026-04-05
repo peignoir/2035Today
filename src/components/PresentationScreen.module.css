@@ -220,6 +220,12 @@
   animation: savingSlide 1.2s ease-in-out infinite;
 }
 
+.savingBarFillDeterminate {
+  left: 0;
+  width: 0;
+  animation: none;
+}
+
 @keyframes savingSlide {
   0%   { left: -30%; }
   100% { left: 100%; }

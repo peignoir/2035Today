@@ -4,6 +4,7 @@ import type { ShareableEvent, LoadedDeck } from '../types';
 import { loadEvent, saveEvent, uploadRecording, deleteRecording, downloadPdf } from '../lib/storage';
 import { renderPdfFromBlob } from '../lib/pdfRenderer';
 import { generateLogo } from '../lib/generateLogo';
+import { preloadPresentationExporter } from '../lib/presentationExport';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { PresentationScreen } from './PresentationScreen';
 import { LogoSplash } from './LogoSplash';
@@ -109,6 +110,9 @@ export function EventRunScreen() {
     try {
       let micStream: MediaStream | null = null;
       if (event.recordEnabled) {
+        void preloadPresentationExporter().catch((error) => {
+          console.error('[Recording] failed to preload exporter:', error);
+        });
         try {
           micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         } catch { /* video-only */ }
@@ -143,16 +147,12 @@ export function EventRunScreen() {
     setUploadState({ presIndex, blob, status: 'uploading', progress: 10 });
 
     try {
-      const progressTimer = setInterval(() => {
+      const cdnUrl = await uploadRecording(slug, presIndex, blob, (progress) => {
         setUploadState((prev) => {
           if (!prev || prev.status !== 'uploading') return prev;
-          return { ...prev, progress: Math.min(prev.progress + 8, 90) };
+          return { ...prev, progress: Math.max(prev.progress, progress) };
         });
-      }, 500);
-
-      const cdnUrl = await uploadRecording(slug, presIndex, blob);
-
-      clearInterval(progressTimer);
+      });
       setUploadState((prev) => prev ? { ...prev, status: 'done', progress: 100 } : null);
 
       setEvent((prev) => {
@@ -177,8 +177,8 @@ export function EventRunScreen() {
     }
   }, [currentPresIndex, slug]);
 
-  const handleRecordingFailed = useCallback(() => {
-    setRunError('Recording failed — no audio/video data was captured. Please try again.');
+  const handleRecordingFailed = useCallback((message?: string) => {
+    setRunError(message ?? 'Recording failed — no audio/video data was captured. Please try again.');
   }, []);
 
   const handleRetryUpload = useCallback(async () => {
@@ -187,16 +187,12 @@ export function EventRunScreen() {
     setUploadState((prev) => prev ? { ...prev, status: 'uploading', progress: 10 } : null);
 
     try {
-      const progressTimer = setInterval(() => {
+      const cdnUrl = await uploadRecording(slug, presIndex, blob, (progress) => {
         setUploadState((prev) => {
           if (!prev || prev.status !== 'uploading') return prev;
-          return { ...prev, progress: Math.min(prev.progress + 8, 90) };
+          return { ...prev, progress: Math.max(prev.progress, progress) };
         });
-      }, 500);
-
-      const cdnUrl = await uploadRecording(slug, presIndex, blob);
-
-      clearInterval(progressTimer);
+      });
       setUploadState((prev) => prev ? { ...prev, status: 'done', progress: 100 } : null);
 
       setEvent((prev) => {

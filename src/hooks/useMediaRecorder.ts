@@ -449,7 +449,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
       // We: (1) halt frame pushing, (2) wait for the pipeline to drain,
       // (3) force an emission with requestData(), (4) then stop.
       pausedRef.current = true; // halts pushFrame() in the RAF loop
-      const FLUSH_DELAY_MS = 1000;
+      const FLUSH_DELAY_MS = 3000;
       setTimeout(() => {
         try {
           if (recorder.state === 'recording') {
@@ -468,7 +468,8 @@ export function useMediaRecorder(): MediaRecorderHandle {
         }
       }, FLUSH_DELAY_MS);
 
-      // Safety timeout: if neither event fires within 5s, resolve with whatever we have.
+      // Safety timeout: if neither event fires within 10s (3s flush + 7s slack),
+      // resolve with whatever we have.
       setTimeout(() => {
         if (resolved) return;
         console.warn(`[MediaRecorder] stop timeout reached — dataSeen=${dataSeen}, stopSeen=${stopSeen}, chunks=${chunksRef.current.length}`);
@@ -477,7 +478,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
         chunksRef.current = [];
         cleanup();
         resolve(blob);
-      }, 5000);
+      }, 10000);
     });
   }, []);
 

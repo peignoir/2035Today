@@ -210,10 +210,12 @@ export function PresentationScreen({
             </button>
           </div>
         </div>
-      ) : timerState.isFinished ? (
+      ) : timerState.isFinished || saving ? (
         <div className={styles.endOverlay}>
-          <h2 className={styles.endTitle}>Talk Complete</h2>
-          <p className={styles.endSubtitle}>5:00</p>
+          <h2 className={styles.endTitle}>
+            {timerState.isFinished ? 'Talk Complete' : 'Wrapping Up'}
+          </h2>
+          {timerState.isFinished && <p className={styles.endSubtitle}>5:00</p>}
           {saving && (
             <div className={styles.savingBox}>
               <p className={styles.savingLabel}>Saving recording…</p>

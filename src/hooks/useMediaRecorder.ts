@@ -355,11 +355,12 @@ export function useMediaRecorder(): MediaRecorderHandle {
     // Draw first slide (overlay will be added by PresentationScreen interval)
     drawSlide(firstSlide);
 
-    // Drive the canvas stream at ~30fps so the muxer's frame timestamps
-    // track wall-clock time. Without this, low-frequency requestFrame()
-    // calls cause the final video to report a duration shorter than the
-    // actual recording time.
-    const FRAME_INTERVAL_MS = 1000 / 30;
+    // Drive the canvas stream at ~15fps. Slides change once every 15s and
+    // the countdown overlay updates once per second, so 15fps is plenty and
+    // halves the encoder load vs 30fps. At 30fps with 1280x720, Safari's
+    // software H.264 encoder falls behind and drops the last several seconds
+    // of frames when stop() is called.
+    const FRAME_INTERVAL_MS = 1000 / 15;
     let lastFrameTime = performance.now();
     let frameCount = 0;
     let lastLogTime = performance.now();
@@ -443,15 +444,23 @@ export function useMediaRecorder(): MediaRecorderHandle {
         // safe to ignore
       }
 
-      try {
-        recorder.stop();
-      } catch (e) {
-        console.error('[MediaRecorder] recorder.stop() threw:', e);
-        cleanup();
-        resolved = true;
-        resolve(null);
-        return;
-      }
+      // Stop pushing new frames into the canvas stream so the H.264 encoder
+      // can catch up with its queue before we call recorder.stop(). Safari's
+      // software encoder runs asynchronously and falls behind on 720p content;
+      // if we call stop() while its input queue is full, the trailing frames
+      // are discarded and the video freezes several seconds before the end.
+      pausedRef.current = true; // halts pushFrame() in the RAF loop
+      const FLUSH_DELAY_MS = 800;
+      setTimeout(() => {
+        try {
+          recorder.stop();
+        } catch (e) {
+          console.error('[MediaRecorder] recorder.stop() threw:', e);
+          cleanup();
+          resolved = true;
+          resolve(null);
+        }
+      }, FLUSH_DELAY_MS);
 
       // Safety timeout: if neither event fires within 5s, resolve with whatever we have.
       setTimeout(() => {

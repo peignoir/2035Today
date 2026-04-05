@@ -327,23 +327,12 @@ export function useMediaRecorder(): MediaRecorderHandle {
     // Draw first slide now that capture is live
     drawSlide(firstSlide);
 
-    // Pause recording when tab is backgrounded — captureStream's auto-
-    // sampler throttles on hidden tabs, which would desync video from
-    // audio. Resume when visible again, unless user manually paused.
+    // Just log visibility changes for diagnostics — do NOT auto-pause.
+    // Pausing + resuming MediaRecorder mid-stream corrupts Safari's MP4
+    // output. If the tab is briefly hidden, we'd rather have slightly-
+    // desynced frames than a broken file.
     const visibilityHandler = () => {
-      const rec = recorderRef.current;
-      if (!rec || rec.state === 'inactive') return;
-      if (document.hidden) {
-        if (rec.state === 'recording') {
-          console.log('[MediaRecorder] tab hidden — pausing');
-          try { rec.pause(); } catch { /* ignore */ }
-        }
-      } else {
-        if (rec.state === 'paused' && !userPausedRef.current) {
-          console.log('[MediaRecorder] tab visible — resuming');
-          try { rec.resume(); } catch { /* ignore */ }
-        }
-      }
+      console.log(`[MediaRecorder] visibility change: hidden=${document.hidden}`);
     };
     document.addEventListener('visibilitychange', visibilityHandler);
     visibilityHandlerRef.current = visibilityHandler;

@@ -158,6 +158,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
   const lastImageRef = useRef<HTMLImageElement | null>(null);
   const visibilityHandlerRef = useRef<(() => void) | null>(null);
   const userPausedRef = useRef(false);
+  const heartbeatIdRef = useRef<number>(0);
 
   const drawSlide = useCallback((slide: SlideImage, overlay?: OverlayInfo) => {
     const ctx = ctxRef.current;
@@ -211,10 +212,10 @@ export function useMediaRecorder(): MediaRecorderHandle {
       return;
     }
 
-    // Recording canvas at 1280x720 max. Intrinsic bitmap size — CSS size
-    // below is just for DOM layout.
-    const MAX_W = 1280;
-    const MAX_H = 720;
+    // Recording canvas at 960x540 max. Keeps encoder bandwidth low so
+    // Safari's H.264 doesn't fall behind and drop frames mid-recording.
+    const MAX_W = 960;
+    const MAX_H = 540;
     const aspect = firstSlide.width / firstSlide.height;
     let recW = firstSlide.width;
     let recH = firstSlide.height;
@@ -300,8 +301,13 @@ export function useMediaRecorder(): MediaRecorderHandle {
     // emit each timeslice chunk as a self-contained MP4 file, so
     // concatenating them would only play back the first chunk. A single
     // stop-time emission produces one valid, complete file.
+    // Explicit conservative bitrates keep the encoder from falling behind.
     chunksRef.current = [];
-    const recorder = new MediaRecorder(combinedStream, { mimeType: mime });
+    const recorder = new MediaRecorder(combinedStream, {
+      mimeType: mime,
+      videoBitsPerSecond: 1_500_000, // 1.5 Mbps — plenty for static slides
+      audioBitsPerSecond: 128_000,
+    });
     recorder.ondataavailable = (e) => {
       if (e.data.size > 0) {
         chunksRef.current.push(e.data);
@@ -341,6 +347,21 @@ export function useMediaRecorder(): MediaRecorderHandle {
     };
     document.addEventListener('visibilitychange', visibilityHandler);
     visibilityHandlerRef.current = visibilityHandler;
+
+    // Diagnostic heartbeat every 5s: surface the state of the tracks +
+    // recorder so we can see WHERE the video track dies during a run.
+    heartbeatIdRef.current = window.setInterval(() => {
+      const rec = recorderRef.current;
+      const vStream = canvasStreamRef.current;
+      const vTrack = vStream?.getVideoTracks()[0];
+      const aTrack = audioStreamRef.current?.getAudioTracks()[0];
+      const elapsed = ((Date.now() - startTimeRef.current) / 1000).toFixed(1);
+      console.log(
+        `[MediaRecorder] HB t=${elapsed}s | rec=${rec?.state ?? 'none'} | ` +
+        `video=${vTrack?.readyState ?? 'none'}/${vTrack?.muted ? 'muted' : 'live'}/${vTrack?.enabled ? 'en' : 'dis'} | ` +
+        `audio=${aTrack?.readyState ?? 'none'}/${aTrack?.muted ? 'muted' : 'live'}/${aTrack?.enabled ? 'en' : 'dis'}`
+      );
+    }, 5000);
   }, [drawSlide]);
 
   const stopRecording = useCallback((): Promise<Blob | null> => {
@@ -435,6 +456,11 @@ export function useMediaRecorder(): MediaRecorderHandle {
 
   function cleanup() {
     userPausedRef.current = false;
+
+    if (heartbeatIdRef.current) {
+      clearInterval(heartbeatIdRef.current);
+      heartbeatIdRef.current = 0;
+    }
 
     // Remove tab-visibility listener
     if (visibilityHandlerRef.current) {

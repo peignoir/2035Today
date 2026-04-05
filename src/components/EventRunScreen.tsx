@@ -223,6 +223,19 @@ export function EventRunScreen() {
     setUploadState(null);
   }, []);
 
+  const handleDownloadBlob = useCallback(() => {
+    if (!uploadState) return;
+    const url = URL.createObjectURL(uploadState.blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${slug}-${uploadState.presIndex}-${Date.now()}.mp4`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    // Revoke after the download initiates
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }, [uploadState, slug]);
+
   const handleDeleteRecording = useCallback(async (presIndex: number) => {
     if (!event) return;
     try { await deleteRecording(slug, presIndex); } catch { /* ignore */ }
@@ -377,9 +390,15 @@ export function EventRunScreen() {
                 <p className={styles.confirmText} style={{ color: '#ef4444' }}>
                   Upload failed: {uploadState.error}
                 </p>
+                <p style={{ color: '#999', fontSize: '12px', marginTop: '4px' }}>
+                  Download the recording locally so it isn't lost — then retry upload.
+                </p>
                 <div className={styles.confirmButtons}>
                   <button className={styles.confirmCancel} onClick={handleSkipUpload}>
                     Dismiss
+                  </button>
+                  <button className={styles.confirmCancel} onClick={handleDownloadBlob}>
+                    Download
                   </button>
                   <button className={styles.confirmProceed} onClick={handleRetryUpload}>
                     Retry

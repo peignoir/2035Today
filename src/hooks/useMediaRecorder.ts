@@ -12,6 +12,13 @@ const VIDEO_BITRATE = 2_500_000;
 const AUDIO_BITRATE = 128_000;
 const FRAME_PUMP_FPS = 5;
 const FRAME_PUMP_INTERVAL_MS = Math.round(1000 / FRAME_PUMP_FPS);
+const RECORDER_TIMESLICE_MS = 1_000;
+
+function isProbablySafari(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  return /Safari\//.test(ua) && !/(Chrome|Chromium|Edg|OPR|Firefox|CriOS|FxiOS|EdgiOS|OPiOS)/.test(ua);
+}
 
 function pickVideoMimeType(): string {
   if (typeof MediaRecorder === 'undefined' || typeof MediaRecorder.isTypeSupported !== 'function') {
@@ -23,14 +30,19 @@ function pickVideoMimeType(): string {
     return video.canPlayType(mime) !== '';
   };
 
-  const candidates = [
+  const webmCandidates = [
     'video/webm;codecs=vp8,opus',
     'video/webm;codecs=vp8',
     'video/webm',
+  ];
+  const mp4Candidates = [
     'video/mp4;codecs=avc1,mp4a.40.2',
     'video/mp4;codecs=avc1',
     'video/mp4',
   ];
+  const candidates = isProbablySafari()
+    ? [...mp4Candidates, ...webmCandidates]
+    : [...webmCandidates, ...mp4Candidates];
 
   for (const mime of candidates) {
     if (MediaRecorder.isTypeSupported(mime) && canPlay(mime)) return mime;
@@ -257,9 +269,9 @@ export function useMediaRecorder(): MediaRecorderHandle {
       throw new Error('This browser does not support recording.');
     }
 
-    const mimeType = pickVideoMimeType();
-    if (!mimeType) {
-      throw new Error('This browser does not support MP4 recording.');
+    const requestedMimeType = pickVideoMimeType();
+    if (!requestedMimeType) {
+      throw new Error('This browser does not support a recording format we can use.');
     }
 
     const probeCanvas = document.createElement('canvas');
@@ -325,19 +337,21 @@ export function useMediaRecorder(): MediaRecorderHandle {
     audioStream?.getAudioTracks().forEach((track) => combinedStream.addTrack(track));
 
     chunksRef.current = [];
-    mimeRef.current = mimeType;
+    mimeRef.current = requestedMimeType;
 
     let recorder: MediaRecorder;
     try {
       recorder = new MediaRecorder(combinedStream, {
-        mimeType,
+        mimeType: requestedMimeType,
         videoBitsPerSecond: VIDEO_BITRATE,
         audioBitsPerSecond: audioStream?.getAudioTracks().length ? AUDIO_BITRATE : undefined,
       });
     } catch (error) {
       cleanup();
-      throw error instanceof Error ? error : new Error('Failed to start MP4 recording.');
+      throw error instanceof Error ? error : new Error('Failed to start recording.');
     }
+    const actualMimeType = recorder.mimeType || requestedMimeType;
+    mimeRef.current = actualMimeType;
 
     recorder.ondataavailable = (event) => {
       if (event.data && event.data.size > 0) {
@@ -350,11 +364,13 @@ export function useMediaRecorder(): MediaRecorderHandle {
 
     recorderRef.current = recorder;
     startedAtRef.current = Date.now();
-    recorder.start();
+    recorder.start(RECORDER_TIMESLICE_MS);
 
     setIsRecording(true);
+    console.log(`[MediaRecorder] Requested MIME type: ${requestedMimeType}`);
+    console.log(`[MediaRecorder] Recorder MIME type: ${actualMimeType}`);
     console.log(
-      `[MediaRecorder] Recording started (${size.width}x${size.height}, ${mimeType}, ` +
+      `[MediaRecorder] Recording started (${size.width}x${size.height}, ${actualMimeType}, ` +
       `mode=${FRAME_PUMP_FPS}fps-auto, audio: ${!!audioStream})`,
     );
 

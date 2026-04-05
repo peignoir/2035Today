@@ -291,7 +291,12 @@ export function useMediaRecorder(): MediaRecorderHandle {
       cleanup();
     };
     recorderRef.current = recorder;
-    recorder.start(10_000); // collect chunks every 10s (30 chunks over 5 min vs 300)
+    // IMPORTANT: no timeslice. Safari (and Chrome with MP4) emit each
+    // timeslice chunk as a self-contained MP4 file rather than a
+    // concatenable fragment. If we pass a timeslice, the resulting blob
+    // only plays back the first chunk. A single stop-time emission
+    // produces one valid, complete MP4/WebM file.
+    recorder.start();
     startTimeRef.current = Date.now();
     pausedRef.current = false;
     setIsRecording(true);

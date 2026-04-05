@@ -219,16 +219,28 @@ export async function uploadRecording(
   signal?: AbortSignal,
 ): Promise<string> {
   const path = `${slug}-${index}.mp4`;
-  const sizeMB = (blob.size / 1024 / 1024).toFixed(1);
-  console.log(`[Storage] Uploading recording ${index} (${sizeMB}MB)`);
+  const sizeMB = (blob.size / 1024 / 1024).toFixed(2);
+  const startedAt = Date.now();
+  console.log(`[Storage] Uploading recording ${index} (${sizeMB}MB, ${blob.size} bytes, type=${blob.type || 'unknown'}) path=${path}`);
+  console.log(`[Storage] Network online=${navigator.onLine}`);
 
   // Delete existing file first to avoid upsert issues with large files
-  await supabase.storage.from(EVENTS_BUCKET).remove([path]);
+  try {
+    const { error: rmErr } = await supabase.storage.from(EVENTS_BUCKET).remove([path]);
+    if (rmErr) {
+      console.warn(`[Storage] Pre-upload delete returned error (non-fatal):`, rmErr);
+    } else {
+      console.log(`[Storage] Pre-upload delete ok`);
+    }
+  } catch (e) {
+    console.warn(`[Storage] Pre-upload delete threw (non-fatal):`, e);
+  }
 
   // Upload via XHR for real progress tracking
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
   const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
   const url = `${supabaseUrl}/storage/v1/object/${EVENTS_BUCKET}/${path}`;
+  console.log(`[Storage] POST ${url}`);
 
   await new Promise<void>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -240,31 +252,64 @@ export async function uploadRecording(
 
     if (signal) {
       signal.addEventListener('abort', () => {
+        console.warn(`[Storage] Upload aborted by signal`);
         xhr.abort();
         reject(new Error('Upload cancelled'));
       });
     }
 
+    let lastLoggedPct = -1;
+    let lastProgressAt = Date.now();
     xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable && onProgress) {
-        // Cap at 99% — 100% only after server confirms
-        onProgress(Math.min(99, Math.round((e.loaded / e.total) * 100)));
+      if (e.lengthComputable) {
+        const pct = Math.round((e.loaded / e.total) * 100);
+        // Log every 10% progress milestone
+        if (pct >= lastLoggedPct + 10) {
+          lastLoggedPct = pct;
+          const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
+          const kbps = e.loaded > 0 ? (((e.loaded * 8) / 1000) / ((Date.now() - startedAt) / 1000)).toFixed(0) : '0';
+          console.log(`[Storage] Upload progress ${pct}% (${(e.loaded / 1024 / 1024).toFixed(2)}/${(e.total / 1024 / 1024).toFixed(2)} MB, t=${elapsed}s, ~${kbps} kbps)`);
+        }
+        lastProgressAt = Date.now();
+        if (onProgress) onProgress(Math.min(99, pct));
       }
     };
+    xhr.upload.onloadstart = () => {
+      console.log(`[Storage] Upload loadstart — connection opened`);
+    };
+    xhr.upload.onloadend = () => {
+      const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
+      console.log(`[Storage] Upload loadend t=${elapsed}s (xhr.status=${xhr.status}, readyState=${xhr.readyState})`);
+    };
+    xhr.onreadystatechange = () => {
+      console.log(`[Storage] xhr readyState=${xhr.readyState} status=${xhr.status}`);
+    };
     xhr.onload = () => {
+      const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
       if (xhr.status >= 200 && xhr.status < 300) {
+        console.log(`[Storage] Upload succeeded (${xhr.status}) in ${elapsed}s`);
         resolve();
       } else {
+        console.error(`[Storage] Upload failed status=${xhr.status} body=${xhr.responseText}`);
         reject(new Error(`Upload failed (${xhr.status}): ${xhr.responseText}`));
       }
     };
-    xhr.onerror = () => reject(new Error('Network error during upload'));
-    xhr.ontimeout = () => reject(new Error('Upload timed out'));
+    xhr.onerror = () => {
+      const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
+      const stalled = ((Date.now() - lastProgressAt) / 1000).toFixed(1);
+      console.error(`[Storage] Upload xhr.onerror after t=${elapsed}s, stalled ${stalled}s, lastPct=${lastLoggedPct}%, online=${navigator.onLine}`);
+      reject(new Error('Network error during upload'));
+    };
+    xhr.ontimeout = () => {
+      console.error(`[Storage] Upload timed out after ${xhr.timeout / 1000}s`);
+      reject(new Error('Upload timed out'));
+    };
     xhr.timeout = 600_000; // 10 min for large files
     xhr.send(blob);
   });
 
-  console.log(`[Storage] Recording ${index} uploaded`);
+  const totalElapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
+  console.log(`[Storage] Recording ${index} uploaded in ${totalElapsed}s`);
   return publicUrl(path);
 }
 

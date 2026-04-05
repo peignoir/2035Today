@@ -355,12 +355,10 @@ export function useMediaRecorder(): MediaRecorderHandle {
     // Draw first slide (overlay will be added by PresentationScreen interval)
     drawSlide(firstSlide);
 
-    // Drive the canvas stream at ~15fps. Slides change once every 15s and
-    // the countdown overlay updates once per second, so 15fps is plenty and
-    // halves the encoder load vs 30fps. At 30fps with 1280x720, Safari's
-    // software H.264 encoder falls behind and drops the last several seconds
-    // of frames when stop() is called.
-    const FRAME_INTERVAL_MS = 1000 / 15;
+    // Drive the canvas stream at ~30fps so the muxer's frame timestamps
+    // track wall-clock time smoothly. The trailing-frames-dropped issue at
+    // stop() is handled separately by a flush delay in stopRecording().
+    const FRAME_INTERVAL_MS = 1000 / 30;
     let lastFrameTime = performance.now();
     let frameCount = 0;
     let lastLogTime = performance.now();
@@ -444,14 +442,22 @@ export function useMediaRecorder(): MediaRecorderHandle {
         // safe to ignore
       }
 
-      // Stop pushing new frames into the canvas stream so the H.264 encoder
-      // can catch up with its queue before we call recorder.stop(). Safari's
-      // software encoder runs asynchronously and falls behind on 720p content;
-      // if we call stop() while its input queue is full, the trailing frames
-      // are discarded and the video freezes several seconds before the end.
+      // Give the encoder pipeline time to drain before stop(). The H.264
+      // encoder buffers several frames internally (GOP + re-order buffer);
+      // if we call stop() immediately, the trailing frames in its pipeline
+      // are discarded and the video freezes N seconds before the end.
+      // We: (1) halt frame pushing, (2) wait for the pipeline to drain,
+      // (3) force an emission with requestData(), (4) then stop.
       pausedRef.current = true; // halts pushFrame() in the RAF loop
-      const FLUSH_DELAY_MS = 800;
+      const FLUSH_DELAY_MS = 1000;
       setTimeout(() => {
+        try {
+          if (recorder.state === 'recording') {
+            recorder.requestData();
+          }
+        } catch {
+          // requestData may throw if the state just changed; safe to ignore
+        }
         try {
           recorder.stop();
         } catch (e) {

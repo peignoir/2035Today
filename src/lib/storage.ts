@@ -355,10 +355,3 @@ export async function saveSignups(slug: string, signups: SpeakerSignup[]): Promi
   const json = JSON.stringify(signups, null, 2);
   await upload(`${slug}-signups.json`, json, 'application/json');
 }
-
-/** List upcoming public events (date >= today). */
-export async function listUpcomingPublicEvents(): Promise<{ slug: string; event: ShareableEvent }[]> {
-  const all = await listPublicEvents();
-  const today = new Date().toISOString().split('T')[0];
-  return all.filter((e) => e.event.date >= today);
-}

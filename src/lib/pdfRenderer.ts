@@ -42,9 +42,16 @@ async function renderFromArrayBuffer(
 
     await page.render({ canvas, canvasContext: ctx, viewport }).promise;
 
+    // canvas.toBlob can silently never fire on Safari under memory pressure,
+    // so race it against a 10s timeout to surface the hang.
     const blob = await new Promise<Blob>((resolve, reject) => {
+      const timer = setTimeout(
+        () => reject(new Error(`canvas.toBlob timed out on slide ${i}`)),
+        10_000,
+      );
       canvas.toBlob(
         (b) => {
+          clearTimeout(timer);
           if (b) resolve(b);
           else reject(new Error(`Failed to render slide ${i}`));
         },
@@ -88,9 +95,3 @@ export async function renderPdfFromBlob(
   return renderFromArrayBuffer(arrayBuffer, fileName, onProgress);
 }
 
-/** Get page count without rendering (for validation UI) */
-export async function getPdfPageCount(blob: Blob): Promise<number> {
-  const arrayBuffer = await blob.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  return pdf.numPages;
-}

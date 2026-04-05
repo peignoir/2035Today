@@ -31,9 +31,16 @@ export async function compressImage(file: Blob): Promise<{ blob: Blob; ext: stri
   ctx.drawImage(bitmap, 0, 0, targetW, targetH);
   bitmap.close();
 
+  // canvas.toBlob can silently never fire on Safari under memory pressure,
+  // so race it against a 10s timeout to surface the hang.
   const blob = await new Promise<Blob>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('canvas.toBlob timed out')), 10_000);
     canvas.toBlob(
-      (b) => (b ? resolve(b) : reject(new Error('Compression failed'))),
+      (b) => {
+        clearTimeout(timer);
+        if (b) resolve(b);
+        else reject(new Error('Compression failed'));
+      },
       'image/jpeg',
       JPEG_QUALITY,
     );

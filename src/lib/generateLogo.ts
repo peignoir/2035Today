@@ -48,9 +48,16 @@ export async function generateLogo(
   ctx.textBaseline = 'bottom';
   ctx.fillText('THE FUTURE IS IN THIS ROOM.', LOGO_W / 2, LOGO_H * 0.94);
 
+  // canvas.toBlob can silently never fire on Safari under memory pressure,
+  // so race it against a 10s timeout to surface the hang.
   return new Promise<Blob>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('canvas.toBlob timed out')), 10_000);
     canvas.toBlob(
-      (b) => (b ? resolve(b) : reject(new Error('Failed to generate logo'))),
+      (b) => {
+        clearTimeout(timer);
+        if (b) resolve(b);
+        else reject(new Error('Failed to generate logo'));
+      },
       'image/png',
     );
   });

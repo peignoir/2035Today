@@ -2,14 +2,13 @@ import { useRef, useState, useCallback } from 'react';
 import type { SlideImage } from '../types';
 
 function pickMimeType(): string {
+  // Keep strings plain — some Safari versions reject fully-qualified codec
+  // strings (e.g. 'video/mp4;codecs=avc1,mp4a.40.2') even when the underlying
+  // codec is supported. Plain MIME + browser default codec is the most robust.
   const candidates = [
-    // MP4 first — Safari records natively in MP4 (H.264+AAC), plays in <video>
-    'video/mp4;codecs=avc1,mp4a.40.2',
-    'video/mp4',
-    // WebM fallback — Chrome/Firefox
-    'video/webm;codecs=vp8,opus',
-    'video/webm;codecs=vp8',
-    'video/webm',
+    'video/mp4',                    // Safari 14.1+, Chrome 126+
+    'video/webm;codecs=vp8,opus',   // Chrome/Firefox
+    'video/webm',                   // Chrome/Firefox fallback
   ];
   for (const mime of candidates) {
     if (MediaRecorder.isTypeSupported(mime)) return mime;
@@ -158,6 +157,8 @@ export function useMediaRecorder(): MediaRecorderHandle {
   const lastImageRef = useRef<HTMLImageElement | null>(null);
   const frameLoopIdRef = useRef<number>(0);
   const pausedRef = useRef(false);
+  const userPausedRef = useRef(false); // paused by the user via setPaused
+  const visibilityHandlerRef = useRef<(() => void) | null>(null);
 
   const pushFrame = useCallback(() => {
     const stream = canvasStreamRef.current;
@@ -277,6 +278,19 @@ export function useMediaRecorder(): MediaRecorderHandle {
     }
     audioStreamRef.current = audioStream;
 
+    // Detect unexpected audio-track termination (phone call, system audio
+    // interrupt, headset unplugged). Log + surface via micDenied so the
+    // parent can display feedback. Don't auto-stop — the partial recording
+    // is still valuable.
+    if (audioStream) {
+      audioStream.getAudioTracks().forEach((track) => {
+        track.onended = () => {
+          console.warn('[MediaRecorder] audio track ended unexpectedly');
+          setMicDenied(true);
+        };
+      });
+    }
+
     // Combine streams
     const combinedStream = new MediaStream();
     for (const track of canvasStream.getTracks()) {
@@ -309,8 +323,34 @@ export function useMediaRecorder(): MediaRecorderHandle {
     recorder.start();
     startTimeRef.current = Date.now();
     pausedRef.current = false;
+    userPausedRef.current = false;
     setIsRecording(true);
     console.log(`[MediaRecorder] Recording started (${recW}x${recH}, ${mime}, audio: ${!!audioStream})`);
+
+    // Pause recording + RAF frame loop when the tab is backgrounded — the
+    // browser throttles requestAnimationFrame to ~1Hz on hidden tabs, which
+    // would desync video timestamps from audio. Resume when visible again,
+    // unless the user has paused manually.
+    const visibilityHandler = () => {
+      const rec = recorderRef.current;
+      if (!rec || rec.state === 'inactive') return;
+      if (document.hidden) {
+        if (rec.state === 'recording') {
+          console.log('[MediaRecorder] tab hidden — pausing');
+          pausedRef.current = true;
+          try { rec.pause(); } catch { /* ignore */ }
+        }
+      } else {
+        // Only auto-resume if the user hasn't manually paused.
+        if (rec.state === 'paused' && !userPausedRef.current) {
+          console.log('[MediaRecorder] tab visible — resuming');
+          pausedRef.current = false;
+          try { rec.resume(); } catch { /* ignore */ }
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', visibilityHandler);
+    visibilityHandlerRef.current = visibilityHandler;
 
     // Draw first slide (overlay will be added by PresentationScreen interval)
     drawSlide(firstSlide);
@@ -367,6 +407,12 @@ export function useMediaRecorder(): MediaRecorderHandle {
         resolved = true;
         const blob = new Blob(chunksRef.current, { type: mimeRef.current });
         console.log(`[MediaRecorder] Final blob: ${(blob.size / 1024 / 1024).toFixed(2)}MB (${chunksRef.current.length} chunks)`);
+        // Sanity check: if we recorded >30s but got <100KB, the encoder likely
+        // produced a malformed/partial file. Log for diagnostics — the parent
+        // still decides via onRecordingComplete/onRecordingFailed.
+        if (elapsed > 30_000 && blob.size < 100_000) {
+          console.warn(`[MediaRecorder] suspiciously small blob: ${blob.size} bytes for ${(elapsed / 1000).toFixed(1)}s recording — output may be corrupt`);
+        }
         chunksRef.current = [];
         cleanup();
         resolve(blob);
@@ -422,6 +468,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
 
   const setPaused = useCallback((paused: boolean) => {
     pausedRef.current = paused;
+    userPausedRef.current = paused;
     const recorder = recorderRef.current;
     if (!recorder || recorder.state === 'inactive') return;
 
@@ -439,6 +486,18 @@ export function useMediaRecorder(): MediaRecorderHandle {
       frameLoopIdRef.current = 0;
     }
     pausedRef.current = false;
+    userPausedRef.current = false;
+
+    // Remove tab-visibility listener
+    if (visibilityHandlerRef.current) {
+      document.removeEventListener('visibilitychange', visibilityHandlerRef.current);
+      visibilityHandlerRef.current = null;
+    }
+
+    // Clear audio-track onended handlers
+    audioStreamRef.current?.getAudioTracks().forEach((track) => {
+      track.onended = null;
+    });
 
     // Stop all audio tracks
     audioStreamRef.current?.getTracks().forEach((t) => t.stop());

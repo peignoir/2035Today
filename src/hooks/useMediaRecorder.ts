@@ -156,6 +156,8 @@ export function useMediaRecorder(): MediaRecorderHandle {
   const mimeRef = useRef('');
   const startTimeRef = useRef(0);
   const lastImageRef = useRef<HTMLImageElement | null>(null);
+  const frameLoopIdRef = useRef<number>(0);
+  const pausedRef = useRef(false);
 
   const pushFrame = useCallback(() => {
     const stream = canvasStreamRef.current;
@@ -243,8 +245,12 @@ export function useMediaRecorder(): MediaRecorderHandle {
     canvasRef.current = canvas;
     ctxRef.current = ctx;
 
-    // Capture canvas stream at 1fps for proper frame timing + manual pushes on slide change
-    const canvasStream = canvas.captureStream(1);
+    // Capture canvas stream at 30fps. We don't rely on automatic capture —
+    // we drive an RAF loop that calls requestFrame() at ~30fps, which keeps
+    // the stream's frame timestamps aligned with wall-clock time. This
+    // prevents the muxer from under-reporting video duration (the
+    // "video cut short" bug that happens with low-fps captureStream).
+    const canvasStream = canvas.captureStream(30);
     canvasStreamRef.current = canvasStream;
 
     // Use pre-acquired audio stream, or request mic if not provided
@@ -287,12 +293,30 @@ export function useMediaRecorder(): MediaRecorderHandle {
     recorderRef.current = recorder;
     recorder.start(10_000); // collect chunks every 10s (30 chunks over 5 min vs 300)
     startTimeRef.current = Date.now();
+    pausedRef.current = false;
     setIsRecording(true);
     console.log(`[MediaRecorder] Recording started (${recW}x${recH}, ${mime}, audio: ${!!audioStream})`);
 
     // Draw first slide (overlay will be added by PresentationScreen interval)
     drawSlide(firstSlide);
-  }, [drawSlide]);
+
+    // Drive the canvas stream at ~30fps so the muxer's frame timestamps
+    // track wall-clock time. Without this, low-frequency requestFrame()
+    // calls cause the final video to report a duration shorter than the
+    // actual recording time.
+    const FRAME_INTERVAL_MS = 1000 / 30;
+    let lastFrameTime = performance.now();
+    const frameLoop = () => {
+      if (!canvasStreamRef.current) return; // stopped
+      const now = performance.now();
+      if (!pausedRef.current && now - lastFrameTime >= FRAME_INTERVAL_MS) {
+        pushFrame();
+        lastFrameTime = now;
+      }
+      frameLoopIdRef.current = requestAnimationFrame(frameLoop);
+    };
+    frameLoopIdRef.current = requestAnimationFrame(frameLoop);
+  }, [drawSlide, pushFrame]);
 
   const stopRecording = useCallback((): Promise<Blob | null> => {
     return new Promise((resolve) => {
@@ -342,6 +366,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
   }, []);
 
   const setPaused = useCallback((paused: boolean) => {
+    pausedRef.current = paused;
     const recorder = recorderRef.current;
     if (!recorder || recorder.state === 'inactive') return;
 
@@ -353,6 +378,13 @@ export function useMediaRecorder(): MediaRecorderHandle {
   }, []);
 
   function cleanup() {
+    // Stop the frame-push RAF loop
+    if (frameLoopIdRef.current) {
+      cancelAnimationFrame(frameLoopIdRef.current);
+      frameLoopIdRef.current = 0;
+    }
+    pausedRef.current = false;
+
     // Stop all audio tracks
     audioStreamRef.current?.getTracks().forEach((t) => t.stop());
     audioStreamRef.current = null;

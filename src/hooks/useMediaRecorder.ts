@@ -454,7 +454,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
       // no-timeslice MP4 path, requestData() can emit the buffer in a bad
       // state and leave stop() with zero bytes to emit.
       pausedRef.current = true; // halts pushFrame() in the RAF loop
-      const FLUSH_DELAY_MS = 3000;
+      const FLUSH_DELAY_MS = 5000;
       setTimeout(() => {
         try {
           recorder.stop();
@@ -466,7 +466,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
         }
       }, FLUSH_DELAY_MS);
 
-      // Safety timeout: if neither event fires within 10s (3s flush + 7s slack),
+      // Safety timeout: if neither event fires within 12s (5s flush + 7s slack),
       // resolve with whatever we have.
       setTimeout(() => {
         if (resolved) return;
@@ -476,7 +476,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
         chunksRef.current = [];
         cleanup();
         resolve(blob);
-      }, 10000);
+      }, 12000);
     });
   }, []);
 

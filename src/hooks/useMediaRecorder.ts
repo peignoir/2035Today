@@ -1,22 +1,30 @@
 import { useCallback, useRef, useState, type MutableRefObject } from 'react';
 import type { SlideImage } from '../types';
 import {
-  exportPresentationRecording,
-  type PauseRange,
-  type ExportProgress,
-} from '../lib/presentationExport';
-import { SLIDE_DURATION_MS, type OverlayInfo } from '../lib/recordingOverlay';
+  drawOverlayOnCanvas,
+  getRecordingCanvasSize,
+  type OverlayInfo,
+} from '../lib/recordingOverlay';
 
-function pickAudioMimeType(): string {
+const FINAL_FRAME_SETTLE_MS = 250;
+const RECORDER_STOP_TIMEOUT_MS = 8_000;
+const VIDEO_BITRATE = 2_500_000;
+const AUDIO_BITRATE = 128_000;
+const FALLBACK_CAPTURE_FPS = 1;
+
+type CanvasTrackWithRequestFrame = MediaStreamTrack & {
+  requestFrame?: () => void;
+};
+
+function pickVideoMimeType(): string {
   if (typeof MediaRecorder === 'undefined' || typeof MediaRecorder.isTypeSupported !== 'function') {
     return '';
   }
 
   const candidates = [
-    'audio/webm;codecs=opus',
-    'audio/mp4;codecs=mp4a.40.2',
-    'audio/webm',
-    'audio/mp4',
+    'video/mp4;codecs=avc1,mp4a.40.2',
+    'video/mp4;codecs=avc1',
+    'video/mp4',
   ];
 
   for (const mime of candidates) {
@@ -26,22 +34,13 @@ function pickAudioMimeType(): string {
   return '';
 }
 
-export type { OverlayInfo } from '../lib/recordingOverlay';
-
-export interface MediaRecorderHandle {
-  startRecording: (slides: SlideImage[], preAcquiredAudio?: MediaStream | null) => Promise<void>;
-  stopRecording: (finalActiveDurationMs?: number) => Promise<Blob | null>;
-  drawSlide: (_slide: SlideImage, overlay?: OverlayInfo) => void;
-  updateOverlay: (overlay: OverlayInfo) => void;
-  setPaused: (paused: boolean) => void;
-  isRecording: boolean;
-  isProcessing: boolean;
-  processingLabel: string;
-  processingProgress: number | null;
-  micDenied: boolean;
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
 }
 
-async function stopAudioRecorder(
+async function stopRecorder(
   recorder: MediaRecorder,
   mimeType: string,
   chunksRef: MutableRefObject<Blob[]>,
@@ -49,7 +48,7 @@ async function stopAudioRecorder(
   return new Promise((resolve, reject) => {
     if (recorder.state === 'inactive') {
       const blob = chunksRef.current.length > 0
-        ? new Blob(chunksRef.current, { type: mimeType || recorder.mimeType || 'application/octet-stream' })
+        ? new Blob(chunksRef.current, { type: mimeType || recorder.mimeType || 'video/mp4' })
         : null;
       resolve(blob);
       return;
@@ -63,7 +62,7 @@ async function stopAudioRecorder(
       if (settled || !dataSeen || !stopSeen) return;
       settled = true;
       const blob = chunksRef.current.length > 0
-        ? new Blob(chunksRef.current, { type: mimeType || recorder.mimeType || 'application/octet-stream' })
+        ? new Blob(chunksRef.current, { type: mimeType || recorder.mimeType || 'video/mp4' })
         : null;
       resolve(blob);
     };
@@ -72,19 +71,21 @@ async function stopAudioRecorder(
       if (event.data && event.data.size > 0) {
         chunksRef.current.push(event.data);
       }
+      console.log(`[MediaRecorder] dataavailable fired, size=${event.data?.size ?? 0}`);
       dataSeen = true;
       finalize();
     };
 
     recorder.onstop = () => {
+      console.log('[MediaRecorder] onstop fired');
       stopSeen = true;
       finalize();
     };
 
-    recorder.onerror = () => {
+    recorder.onerror = (event) => {
       if (settled) return;
       settled = true;
-      reject(new Error('Audio recording failed while finalizing'));
+      reject(new Error(`Recording finalization failed: ${String(event)}`));
     };
 
     try {
@@ -92,19 +93,35 @@ async function stopAudioRecorder(
     } catch (error) {
       if (settled) return;
       settled = true;
-      reject(error instanceof Error ? error : new Error('Failed to stop audio recorder'));
+      reject(error instanceof Error ? error : new Error('Failed to stop recorder'));
       return;
     }
 
     window.setTimeout(() => {
       if (settled) return;
       settled = true;
+      console.warn(`[MediaRecorder] stop timeout — dataSeen=${dataSeen}, stopSeen=${stopSeen}`);
       const blob = chunksRef.current.length > 0
-        ? new Blob(chunksRef.current, { type: mimeType || recorder.mimeType || 'application/octet-stream' })
+        ? new Blob(chunksRef.current, { type: mimeType || recorder.mimeType || 'video/mp4' })
         : null;
       resolve(blob);
-    }, 8_000);
+    }, RECORDER_STOP_TIMEOUT_MS);
   });
+}
+
+export type { OverlayInfo } from '../lib/recordingOverlay';
+
+export interface MediaRecorderHandle {
+  startRecording: (slides: SlideImage[], preAcquiredAudio?: MediaStream | null) => Promise<void>;
+  stopRecording: (finalActiveDurationMs?: number) => Promise<Blob | null>;
+  drawSlide: (slide: SlideImage, overlay?: OverlayInfo) => void;
+  updateOverlay: (overlay: OverlayInfo) => void;
+  setPaused: (paused: boolean) => void;
+  isRecording: boolean;
+  isProcessing: boolean;
+  processingLabel: string;
+  processingProgress: number | null;
+  micDenied: boolean;
 }
 
 export function useMediaRecorder(): MediaRecorderHandle {
@@ -114,35 +131,19 @@ export function useMediaRecorder(): MediaRecorderHandle {
   const [processingProgress, setProcessingProgress] = useState<number | null>(null);
   const [micDenied, setMicDenied] = useState(false);
 
-  const slidesRef = useRef<SlideImage[]>([]);
-  const overlayBaseRef = useRef<Omit<OverlayInfo, 'currentSlide' | 'slideSecondsLeft'>>({
-    eventTitle: '',
-    storyName: '',
-    speakerName: '',
-    totalSlides: 0,
-  });
-  const recorderRef = useRef<MediaRecorder | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const canvasStreamRef = useRef<MediaStream | null>(null);
+  const canvasTrackRef = useRef<CanvasTrackWithRequestFrame | null>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const audioMimeRef = useRef('');
+  const mimeRef = useRef('');
   const startedAtRef = useRef(0);
-  const openPauseStartedAtRef = useRef<number | null>(null);
-  const pauseRangesRef = useRef<PauseRange[]>([]);
-
-  const applyProgress = useCallback((progress: ExportProgress) => {
-    setProcessingLabel(progress.label);
-    setProcessingProgress(progress.progress);
-  }, []);
-
-  const rememberOverlay = useCallback((overlay?: OverlayInfo) => {
-    if (!overlay) return;
-    overlayBaseRef.current = {
-      eventTitle: overlay.eventTitle,
-      storyName: overlay.storyName,
-      speakerName: overlay.speakerName,
-      totalSlides: overlay.totalSlides,
-    };
-  }, []);
+  const overlayRef = useRef<OverlayInfo | null>(null);
+  const lastImageRef = useRef<HTMLImageElement | null>(null);
+  const drawTokenRef = useRef(0);
+  const manualFrameModeRef = useRef(false);
 
   const cleanup = useCallback(() => {
     recorderRef.current = null;
@@ -153,183 +154,256 @@ export function useMediaRecorder(): MediaRecorderHandle {
     audioStreamRef.current?.getTracks().forEach((track) => track.stop());
     audioStreamRef.current = null;
 
+    canvasStreamRef.current?.getTracks().forEach((track) => track.stop());
+    canvasStreamRef.current = null;
+    canvasTrackRef.current = null;
+
+    if (canvasRef.current?.parentNode) {
+      canvasRef.current.parentNode.removeChild(canvasRef.current);
+    }
+
+    canvasRef.current = null;
+    ctxRef.current = null;
     chunksRef.current = [];
-    slidesRef.current = [];
-    overlayBaseRef.current = {
-      eventTitle: '',
-      storyName: '',
-      speakerName: '',
-      totalSlides: 0,
-    };
-    audioMimeRef.current = '';
+    mimeRef.current = '';
     startedAtRef.current = 0;
-    openPauseStartedAtRef.current = null;
-    pauseRangesRef.current = [];
+    overlayRef.current = null;
+    lastImageRef.current = null;
+    drawTokenRef.current = 0;
+    manualFrameModeRef.current = false;
+
     setIsRecording(false);
     setIsProcessing(false);
     setProcessingLabel('');
     setProcessingProgress(null);
   }, []);
 
-  const startRecording = useCallback(async (slides: SlideImage[], preAcquiredAudio?: MediaStream | null) => {
-    if (slides.length === 0) {
-      throw new Error('No slides provided for recording');
+  const requestVideoFrame = useCallback(() => {
+    if (!manualFrameModeRef.current) return;
+    const track = canvasTrackRef.current;
+    if (!track || typeof track.requestFrame !== 'function') return;
+    try {
+      track.requestFrame();
+    } catch (error) {
+      console.warn('[MediaRecorder] requestFrame failed:', error);
+    }
+  }, []);
+
+  const paintCurrentFrame = useCallback((): boolean => {
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+    const img = lastImageRef.current;
+    if (!canvas || !ctx || !img) return false;
+
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    if (overlayRef.current) {
+      drawOverlayOnCanvas(ctx, canvas.width, canvas.height, overlayRef.current);
     }
 
-    cleanup();
-    slidesRef.current = slides;
-    overlayBaseRef.current = {
-      eventTitle: '',
-      storyName: '',
-      speakerName: '',
-      totalSlides: slides.length,
+    return true;
+  }, []);
+
+  const rememberOverlay = useCallback((overlay?: OverlayInfo) => {
+    if (!overlay) return;
+    overlayRef.current = overlay;
+  }, []);
+
+  const drawSlide = useCallback((slide: SlideImage, overlay?: OverlayInfo) => {
+    rememberOverlay(overlay);
+
+    const token = drawTokenRef.current + 1;
+    drawTokenRef.current = token;
+
+    const image = new Image();
+    image.decoding = 'async';
+    image.onload = () => {
+      if (token !== drawTokenRef.current) return;
+      lastImageRef.current = image;
+      if (paintCurrentFrame()) {
+        requestVideoFrame();
+      }
     };
-    pauseRangesRef.current = [];
-    openPauseStartedAtRef.current = null;
-    chunksRef.current = [];
-    startedAtRef.current = performance.now();
-    setMicDenied(false);
+    image.onerror = () => {
+      if (token !== drawTokenRef.current) return;
+      console.error(`[MediaRecorder] Failed to load slide image: ${slide.objectUrl}`);
+    };
+    image.src = slide.objectUrl;
+  }, [paintCurrentFrame, rememberOverlay, requestVideoFrame]);
+
+  const updateOverlay = useCallback((overlay: OverlayInfo) => {
+    rememberOverlay(overlay);
+    if (paintCurrentFrame()) {
+      requestVideoFrame();
+    }
+  }, [paintCurrentFrame, rememberOverlay, requestVideoFrame]);
+
+  const startRecording = useCallback(async (slides: SlideImage[], preAcquiredAudio?: MediaStream | null) => {
+    cleanup();
+
+    if (slides.length === 0) {
+      throw new Error('No slides provided for recording.');
+    }
+    if (typeof MediaRecorder === 'undefined') {
+      throw new Error('This browser does not support recording.');
+    }
+
+    const mimeType = pickVideoMimeType();
+    if (!mimeType) {
+      throw new Error('This browser does not support MP4 recording.');
+    }
+
+    const probeCanvas = document.createElement('canvas');
+    if (typeof probeCanvas.captureStream !== 'function') {
+      throw new Error('Canvas capture is not available in this browser.');
+    }
+
+    const size = getRecordingCanvasSize(slides[0]);
+    const canvas = document.createElement('canvas');
+    canvas.width = size.width;
+    canvas.height = size.height;
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '2px';
+    canvas.style.height = '2px';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '2147483647';
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      cleanup();
+      throw new Error('Failed to create recording canvas.');
+    }
+
+    canvasRef.current = canvas;
+    ctxRef.current = ctx;
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const manualStream = canvas.captureStream(0);
+    const manualTrack = manualStream.getVideoTracks()[0] as CanvasTrackWithRequestFrame | undefined;
+    manualFrameModeRef.current = typeof manualTrack?.requestFrame === 'function';
+
+    const canvasStream = manualFrameModeRef.current
+      ? manualStream
+      : canvas.captureStream(FALLBACK_CAPTURE_FPS);
+
+    if (!manualFrameModeRef.current) {
+      manualStream.getTracks().forEach((track) => track.stop());
+    }
+
+    const canvasTrack = canvasStream.getVideoTracks()[0] as CanvasTrackWithRequestFrame | undefined;
+    if (!canvasTrack) {
+      cleanup();
+      throw new Error('Failed to create a video track for recording.');
+    }
+
+    canvasStreamRef.current = canvasStream;
+    canvasTrackRef.current = canvasTrack;
 
     let audioStream: MediaStream | null = preAcquiredAudio ?? null;
     if (!audioStream) {
       try {
         audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        setMicDenied(false);
       } catch {
         setMicDenied(true);
       }
+    } else {
+      setMicDenied(false);
     }
 
     audioStreamRef.current = audioStream;
-
     audioStream?.getAudioTracks().forEach((track) => {
       track.onended = () => {
+        console.warn('[MediaRecorder] audio track ended unexpectedly');
         setMicDenied(true);
       };
     });
 
-    if (audioStream && typeof MediaRecorder !== 'undefined') {
-      const mimeType = pickAudioMimeType();
-      audioMimeRef.current = mimeType;
+    const combinedStream = new MediaStream();
+    combinedStream.addTrack(canvasTrack);
+    audioStream?.getAudioTracks().forEach((track) => combinedStream.addTrack(track));
 
-      try {
-        const recorder = mimeType
-          ? new MediaRecorder(audioStream, { mimeType, audioBitsPerSecond: 128_000 })
-          : new MediaRecorder(audioStream);
+    chunksRef.current = [];
+    mimeRef.current = mimeType;
 
-        recorder.ondataavailable = (event) => {
-          if (event.data && event.data.size > 0) {
-            chunksRef.current.push(event.data);
-          }
-        };
-        recorder.onerror = (event) => {
-          console.error('[Recording] audio recorder error:', event);
-        };
-        recorder.start();
-        recorderRef.current = recorder;
-      } catch (error) {
-        console.error('[Recording] failed to start audio recorder:', error);
-        setMicDenied(true);
-      }
+    let recorder: MediaRecorder;
+    try {
+      recorder = new MediaRecorder(combinedStream, {
+        mimeType,
+        videoBitsPerSecond: VIDEO_BITRATE,
+        audioBitsPerSecond: audioStream?.getAudioTracks().length ? AUDIO_BITRATE : undefined,
+      });
+    } catch (error) {
+      cleanup();
+      throw error instanceof Error ? error : new Error('Failed to start MP4 recording.');
     }
 
-    setIsRecording(true);
-  }, [cleanup]);
+    recorder.ondataavailable = (event) => {
+      if (event.data && event.data.size > 0) {
+        chunksRef.current.push(event.data);
+      }
+    };
+    recorder.onerror = (event) => {
+      console.error('[MediaRecorder] recorder error:', event);
+    };
 
-  const stopRecording = useCallback(async (finalActiveDurationMs?: number): Promise<Blob | null> => {
-    if (startedAtRef.current === 0) {
+    recorderRef.current = recorder;
+    startedAtRef.current = Date.now();
+    recorder.start();
+
+    setIsRecording(true);
+    console.log(
+      `[MediaRecorder] Recording started (${size.width}x${size.height}, ${mimeType}, ` +
+      `mode=${manualFrameModeRef.current ? 'manual' : '1fps'}, audio: ${!!audioStream})`,
+    );
+
+    drawSlide(slides[0], overlayRef.current ?? undefined);
+  }, [cleanup, drawSlide]);
+
+  const stopRecording = useCallback(async (_finalActiveDurationMs?: number): Promise<Blob | null> => {
+    void _finalActiveDurationMs;
+    const recorder = recorderRef.current;
+    if (!recorder) {
       cleanup();
       return null;
     }
 
-    const stoppedAt = performance.now();
-    if (openPauseStartedAtRef.current !== null) {
-      pauseRangesRef.current.push({
-        startMs: openPauseStartedAtRef.current - startedAtRef.current,
-        endMs: stoppedAt - startedAtRef.current,
-      });
-      openPauseStartedAtRef.current = null;
-    }
-
-    const wallDurationMs = Math.max(0, stoppedAt - startedAtRef.current);
-    const totalPausedMs = pauseRangesRef.current.reduce(
-      (sum, range) => sum + Math.max(0, range.endMs - range.startMs),
-      0,
-    );
-    const maxDurationMs = slidesRef.current.length * SLIDE_DURATION_MS;
-    const computedActiveDurationMs = Math.max(
-      0,
-      Math.min(maxDurationMs, wallDurationMs - totalPausedMs),
-    );
-    const activeDurationMs = Math.max(
-      0,
-      Math.min(
-        maxDurationMs,
-        finalActiveDurationMs ?? computedActiveDurationMs,
-      ),
-    );
-
-    console.log(
-      `[Recording] finalize wall=${Math.round(wallDurationMs)}ms paused=${Math.round(totalPausedMs)}ms ` +
-      `computed=${Math.round(computedActiveDurationMs)}ms final=${Math.round(activeDurationMs)}ms`,
-    );
+    const elapsedMs = startedAtRef.current > 0 ? Date.now() - startedAtRef.current : 0;
+    console.log(`[MediaRecorder] Stopping recording after ${(elapsedMs / 1000).toFixed(1)}s`);
 
     setIsRecording(false);
     setIsProcessing(true);
-    setProcessingLabel('Finalizing audio');
+    setProcessingLabel('Finalizing recording');
     setProcessingProgress(null);
 
+    if (paintCurrentFrame()) {
+      requestVideoFrame();
+      await wait(FINAL_FRAME_SETTLE_MS);
+    }
+
     try {
-      let audioBlob: Blob | null = null;
-      const recorder = recorderRef.current;
-      if (recorder) {
-        audioBlob = await stopAudioRecorder(recorder, audioMimeRef.current, chunksRef);
+      const blob = await stopRecorder(recorder, mimeRef.current, chunksRef);
+      if (blob) {
+        console.log(`[MediaRecorder] Final blob: ${(blob.size / 1024 / 1024).toFixed(2)}MB`);
       }
-
-      const blob = await exportPresentationRecording({
-        slides: slidesRef.current,
-        overlayBase: overlayBaseRef.current,
-        activeDurationMs,
-        wallDurationMs,
-        pauseRanges: pauseRangesRef.current,
-        audioBlob,
-        audioMimeType: audioMimeRef.current,
-        onProgress: applyProgress,
-      });
-
       cleanup();
-      return blob;
+      return blob && blob.size > 0 ? blob : null;
     } catch (error) {
       cleanup();
-      throw error instanceof Error ? error : new Error('Recording export failed');
+      throw error instanceof Error ? error : new Error('Recording finalization failed.');
     }
-  }, [applyProgress, cleanup]);
+  }, [cleanup, paintCurrentFrame, requestVideoFrame]);
 
-  const drawSlide = useCallback((_slide: SlideImage, overlay?: OverlayInfo) => {
-    rememberOverlay(overlay);
-  }, [rememberOverlay]);
-
-  const updateOverlay = useCallback((overlay: OverlayInfo) => {
-    rememberOverlay(overlay);
-  }, [rememberOverlay]);
-
-  const setPaused = useCallback((paused: boolean) => {
-    if (startedAtRef.current === 0) return;
-    const now = performance.now();
-
-    if (paused) {
-      if (openPauseStartedAtRef.current === null) {
-        openPauseStartedAtRef.current = now;
-      }
-      return;
-    }
-
-    if (openPauseStartedAtRef.current !== null) {
-      pauseRangesRef.current.push({
-        startMs: openPauseStartedAtRef.current - startedAtRef.current,
-        endMs: now - startedAtRef.current,
-      });
-      openPauseStartedAtRef.current = null;
-    }
+  const setPaused = useCallback((_paused: boolean) => {
+    void _paused;
+    // Intentionally keep MediaRecorder running. Safari MP4 output is more
+    // reliable when we leave the native encoder in recording state.
   }, []);
 
   return {

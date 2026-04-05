@@ -4,7 +4,6 @@ import type { ShareableEvent, LoadedDeck } from '../types';
 import { loadEvent, saveEvent, uploadRecording, deleteRecording, downloadPdf } from '../lib/storage';
 import { renderPdfFromBlob } from '../lib/pdfRenderer';
 import { generateLogo } from '../lib/generateLogo';
-import { preloadPresentationExporter } from '../lib/presentationExport';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { PresentationScreen } from './PresentationScreen';
 import { LogoSplash } from './LogoSplash';
@@ -110,9 +109,6 @@ export function EventRunScreen() {
     try {
       let micStream: MediaStream | null = null;
       if (event.recordEnabled) {
-        void preloadPresentationExporter().catch((error) => {
-          console.error('[Recording] failed to preload exporter:', error);
-        });
         try {
           micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         } catch { /* video-only */ }

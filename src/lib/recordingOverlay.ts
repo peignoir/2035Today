@@ -2,7 +2,7 @@ import type { SlideImage } from '../types';
 
 export const SLIDE_DURATION_MS = 15_000;
 export const TOTAL_SLIDES = 20;
-export const RECORDING_EXPORT_VERSION = 'rec-v2026-04-05c';
+export const RECORDING_EXPORT_VERSION = 'rec-v2026-04-05d';
 const MAX_RECORDING_WIDTH = 1280;
 const MAX_RECORDING_HEIGHT = 720;
 

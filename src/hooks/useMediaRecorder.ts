@@ -10,7 +10,8 @@ const FINAL_FRAME_SETTLE_MS = 250;
 const RECORDER_STOP_TIMEOUT_MS = 8_000;
 const VIDEO_BITRATE = 2_500_000;
 const AUDIO_BITRATE = 128_000;
-const FALLBACK_CAPTURE_FPS = 1;
+const FRAME_PUMP_FPS = 5;
+const FRAME_PUMP_INTERVAL_MS = Math.round(1000 / FRAME_PUMP_FPS);
 
 type CanvasTrackWithRequestFrame = MediaStreamTrack & {
   requestFrame?: () => void;
@@ -22,6 +23,11 @@ function pickVideoMimeType(): string {
   }
 
   const candidates = [
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm;codecs=vp9',
+    'video/webm;codecs=vp8',
+    'video/webm',
     'video/mp4;codecs=avc1,mp4a.40.2',
     'video/mp4;codecs=avc1',
     'video/mp4',
@@ -144,6 +150,8 @@ export function useMediaRecorder(): MediaRecorderHandle {
   const lastImageRef = useRef<HTMLImageElement | null>(null);
   const drawTokenRef = useRef(0);
   const manualFrameModeRef = useRef(false);
+  const framePumpIdRef = useRef<number>(0);
+  const framePumpPhaseRef = useRef(0);
 
   const cleanup = useCallback(() => {
     recorderRef.current = null;
@@ -171,6 +179,11 @@ export function useMediaRecorder(): MediaRecorderHandle {
     lastImageRef.current = null;
     drawTokenRef.current = 0;
     manualFrameModeRef.current = false;
+    if (framePumpIdRef.current) {
+      window.clearInterval(framePumpIdRef.current);
+      framePumpIdRef.current = 0;
+    }
+    framePumpPhaseRef.current = 0;
 
     setIsRecording(false);
     setIsProcessing(false);
@@ -188,6 +201,17 @@ export function useMediaRecorder(): MediaRecorderHandle {
       console.warn('[MediaRecorder] requestFrame failed:', error);
     }
   }, []);
+
+  const tickFramePump = useCallback(() => {
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+    if (!canvas || !ctx) return;
+
+    framePumpPhaseRef.current = framePumpPhaseRef.current === 0 ? 1 : 0;
+    ctx.fillStyle = framePumpPhaseRef.current === 0 ? 'rgba(0,0,0,0.015)' : 'rgba(255,255,255,0.015)';
+    ctx.fillRect(canvas.width - 1, canvas.height - 1, 1, 1);
+    requestVideoFrame();
+  }, [requestVideoFrame]);
 
   const paintCurrentFrame = useCallback((): boolean => {
     const canvas = canvasRef.current;
@@ -290,7 +314,7 @@ export function useMediaRecorder(): MediaRecorderHandle {
 
     const canvasStream = manualFrameModeRef.current
       ? manualStream
-      : canvas.captureStream(FALLBACK_CAPTURE_FPS);
+      : canvas.captureStream(FRAME_PUMP_FPS);
 
     if (!manualFrameModeRef.current) {
       manualStream.getTracks().forEach((track) => track.stop());
@@ -360,11 +384,14 @@ export function useMediaRecorder(): MediaRecorderHandle {
     setIsRecording(true);
     console.log(
       `[MediaRecorder] Recording started (${size.width}x${size.height}, ${mimeType}, ` +
-      `mode=${manualFrameModeRef.current ? 'manual' : '1fps'}, audio: ${!!audioStream})`,
+      `mode=${manualFrameModeRef.current ? `${FRAME_PUMP_FPS}fps-manual` : `${FRAME_PUMP_FPS}fps-auto`}, audio: ${!!audioStream})`,
     );
 
     drawSlide(slides[0], overlayRef.current ?? undefined);
-  }, [cleanup, drawSlide]);
+    framePumpIdRef.current = window.setInterval(() => {
+      tickFramePump();
+    }, FRAME_PUMP_INTERVAL_MS);
+  }, [cleanup, drawSlide, tickFramePump]);
 
   const stopRecording = useCallback(async (_finalActiveDurationMs?: number): Promise<Blob | null> => {
     void _finalActiveDurationMs;

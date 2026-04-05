@@ -7,6 +7,12 @@ type StorageListFile = {
   updated_at?: string;
 };
 
+type RecordingAsset = {
+  path: string;
+  cacheBust: string;
+  updatedAtMs: number;
+};
+
 function withCacheBust(url: string, cacheBust?: string | number): string {
   if (cacheBust === undefined || cacheBust === null || cacheBust === '') return url;
   const joiner = url.includes('?') ? '&' : '?';
@@ -32,6 +38,20 @@ function fileVersion(file: StorageListFile): string {
   return file.updated_at || file.created_at || Date.now().toString();
 }
 
+function fileUpdatedAtMs(file: StorageListFile): number {
+  const raw = file.updated_at || file.created_at;
+  const value = raw ? Date.parse(raw) : NaN;
+  return Number.isFinite(value) ? value : 0;
+}
+
+function recordingExtensionForMimeType(mimeType: string): 'mp4' | 'webm' {
+  return mimeType.includes('webm') ? 'webm' : 'mp4';
+}
+
+function recordingPaths(slug: string, index: number): string[] {
+  return [`${slug}-${index}.mp4`, `${slug}-${index}.webm`];
+}
+
 function applyDiscoveredAssets(
   event: ShareableEvent,
   city: string,
@@ -43,17 +63,26 @@ function applyDiscoveredAssets(
     recording: undefined,
     pdfUrl: undefined,
   }));
+  const recordings = new Map<number, RecordingAsset>();
 
   let logo: string | undefined;
 
   for (const file of files) {
     const version = fileVersion(file);
 
-    const recordingMatch = file.name.match(new RegExp(`^${date}-(\\d+)\\.mp4$`));
+    const recordingMatch = file.name.match(new RegExp(`^${date}-(\\d+)\\.(mp4|webm)$`));
     if (recordingMatch) {
       const index = parseInt(recordingMatch[1], 10);
       if (index < presentations.length) {
-        presentations[index].recording = publicUrl(`${city}/${file.name}`, version);
+        const existing = recordings.get(index);
+        const candidate: RecordingAsset = {
+          path: `${city}/${file.name}`,
+          cacheBust: version,
+          updatedAtMs: fileUpdatedAtMs(file),
+        };
+        if (!existing || candidate.updatedAtMs >= existing.updatedAtMs) {
+          recordings.set(index, candidate);
+        }
       }
       continue;
     }
@@ -70,6 +99,10 @@ function applyDiscoveredAssets(
     if (file.name.match(new RegExp(`^${date}-logo\\.`))) {
       logo = publicUrl(`${city}/${file.name}`, version);
     }
+  }
+
+  for (const [index, recording] of recordings.entries()) {
+    presentations[index].recording = publicUrl(recording.path, recording.cacheBust);
   }
 
   return {
@@ -285,7 +318,8 @@ export async function uploadRecording(
   onProgress?: (pct: number) => void,
   signal?: AbortSignal,
 ): Promise<string> {
-  const path = `${slug}-${index}.mp4`;
+  const ext = recordingExtensionForMimeType(blob.type || '');
+  const path = `${slug}-${index}.${ext}`;
   const sizeMB = (blob.size / 1024 / 1024).toFixed(2);
   const startedAt = Date.now();
   console.log(`[Storage] Uploading recording ${index} (${sizeMB}MB, ${blob.size} bytes, type=${blob.type || 'unknown'}) path=${path}`);
@@ -293,7 +327,7 @@ export async function uploadRecording(
 
   // Delete existing file first to avoid upsert issues with large files
   try {
-    const { error: rmErr } = await supabase.storage.from(EVENTS_BUCKET).remove([path]);
+    const { error: rmErr } = await supabase.storage.from(EVENTS_BUCKET).remove(recordingPaths(slug, index));
     if (rmErr) {
       console.warn(`[Storage] Pre-upload delete returned error (non-fatal):`, rmErr);
     } else {
@@ -314,7 +348,7 @@ export async function uploadRecording(
     xhr.open('POST', url);
     xhr.setRequestHeader('Authorization', `Bearer ${supabaseKey}`);
     xhr.setRequestHeader('apikey', supabaseKey);
-    xhr.setRequestHeader('Content-Type', 'video/mp4');
+    xhr.setRequestHeader('Content-Type', blob.type || 'application/octet-stream');
     xhr.setRequestHeader('x-upsert', 'true');
 
     if (signal) {
@@ -382,8 +416,17 @@ export async function uploadRecording(
 
 /** Delete a recording from storage. */
 export async function deleteRecording(slug: string, index: number): Promise<void> {
-  const path = `${slug}-${index}.mp4`;
-  await deleteStorageFile(path, `recording ${index}`);
+  let deleted = false;
+  for (const path of recordingPaths(slug, index)) {
+    const exists = await storageFileExists(path);
+    if (!exists) continue;
+    await deleteStorageFile(path, `recording ${index}`);
+    deleted = true;
+  }
+
+  if (!deleted) {
+    console.log(`[Storage] Recording ${index} already absent`);
+  }
 }
 
 /** Upload a PDF to storage. Returns the CDN URL. */

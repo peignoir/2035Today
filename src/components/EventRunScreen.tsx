@@ -218,9 +218,10 @@ export function EventRunScreen() {
   const handleDownloadBlob = useCallback(() => {
     if (!uploadState) return;
     const url = URL.createObjectURL(uploadState.blob);
+    const extension = uploadState.blob.type.includes('webm') ? 'webm' : 'mp4';
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${slug}-${uploadState.presIndex}-${Date.now()}.mp4`;
+    a.download = `${slug}-${uploadState.presIndex}-${Date.now()}.${extension}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

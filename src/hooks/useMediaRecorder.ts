@@ -156,18 +156,8 @@ export function useMediaRecorder(): MediaRecorderHandle {
   const mimeRef = useRef('');
   const startTimeRef = useRef(0);
   const lastImageRef = useRef<HTMLImageElement | null>(null);
-  const frameLoopIdRef = useRef<number>(0);
-  const pausedRef = useRef(false);
-  const userPausedRef = useRef(false); // paused by the user via setPaused
   const visibilityHandlerRef = useRef<(() => void) | null>(null);
-
-  const pushFrame = useCallback(() => {
-    const stream = canvasStreamRef.current;
-    const videoTrack = stream?.getVideoTracks()[0];
-    if (videoTrack && 'requestFrame' in videoTrack) {
-      (videoTrack as CanvasCaptureMediaStreamTrack).requestFrame();
-    }
-  }, []);
+  const userPausedRef = useRef(false);
 
   const drawSlide = useCallback((slide: SlideImage, overlay?: OverlayInfo) => {
     const ctx = ctxRef.current;
@@ -181,10 +171,9 @@ export function useMediaRecorder(): MediaRecorderHandle {
       if (overlay) {
         drawOverlayOnCanvas(ctx, canvas.width, canvas.height, overlay);
       }
-      pushFrame();
     };
     img.src = slide.objectUrl;
-  }, [pushFrame]);
+  }, []);
 
   /** Redraw cached slide + updated overlay (called every second for timer updates) */
   const updateOverlay = useCallback((overlay: OverlayInfo) => {
@@ -195,11 +184,9 @@ export function useMediaRecorder(): MediaRecorderHandle {
 
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     drawOverlayOnCanvas(ctx, canvas.width, canvas.height, overlay);
-    pushFrame();
-  }, [pushFrame]);
+  }, []);
 
   const startRecording = useCallback(async (slides: SlideImage[], preAcquiredAudio?: MediaStream | null) => {
-    // Check browser support
     if (typeof MediaRecorder === 'undefined') {
       console.warn('[MediaRecorder] MediaRecorder API not available');
       return;
@@ -212,21 +199,20 @@ export function useMediaRecorder(): MediaRecorderHandle {
     mimeRef.current = mime;
     console.log('[MediaRecorder] Using MIME type:', mime);
 
-    // Bail if captureStream not supported
     const testCanvas = document.createElement('canvas');
     if (!testCanvas.captureStream) {
       console.warn('[MediaRecorder] canvas.captureStream not supported');
       return;
     }
 
-    // Create offscreen canvas – cap at 1280×720 to keep memory low during 5-min recordings.
-    // Slides are rendered at 2× for display, but that resolution is overkill for recording.
     const firstSlide = slides[0];
     if (!firstSlide) {
       console.warn('[MediaRecorder] No slides provided');
       return;
     }
 
+    // Recording canvas at 1280x720 max. Intrinsic bitmap size — CSS size
+    // below is just for DOM layout.
     const MAX_W = 1280;
     const MAX_H = 720;
     const aspect = firstSlide.width / firstSlide.height;
@@ -244,25 +230,33 @@ export function useMediaRecorder(): MediaRecorderHandle {
       return;
     }
 
-    // Attach canvas to DOM (hidden off-screen) — Safari only emits capture
-    // frames from canvases that are actually painted. A fully detached
-    // canvas produces a frozen/single-frame video track.
+    // Attach canvas to the DOM, VISIBLE but small (2x2 px in a corner).
+    // Browsers throttle/suspend the render loop for off-viewport or
+    // opacity:0 canvases, which silently stops captureStream frame
+    // production after ~17s. A tiny visible canvas forces continuous
+    // painting, so captureStream(30) stays live for the full recording.
+    // Note: intrinsic bitmap (1280x720) is what captureStream samples —
+    // the 2x2 CSS size only affects screen layout.
     canvas.style.position = 'fixed';
-    canvas.style.left = '-99999px';
     canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '2px';
+    canvas.style.height = '2px';
     canvas.style.pointerEvents = 'none';
-    canvas.style.opacity = '0';
+    canvas.style.zIndex = '2147483647'; // on top so compositor keeps painting
     document.body.appendChild(canvas);
 
     canvasRef.current = canvas;
     ctxRef.current = ctx;
 
-    // Use captureStream(0) so frames are emitted ONLY when we call
-    // requestFrame(). Our RAF loop calls requestFrame() at ~30fps, so
-    // the stream gets steady real-time frame timestamps. Mixing auto-
-    // capture (captureStream(30)) with manual requestFrame() has
-    // undefined behavior in some browsers.
-    const canvasStream = canvas.captureStream(0);
+    // Draw the first slide BEFORE capturing, so the first frame isn't blank.
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, recW, recH);
+
+    // captureStream(30): browser automatically samples the canvas at 30fps.
+    // No manual requestFrame / RAF loop needed — the browser handles frame
+    // timing, which gives real-time-synced frame timestamps.
+    const canvasStream = canvas.captureStream(30);
     canvasStreamRef.current = canvasStream;
 
     // Use pre-acquired audio stream, or request mic if not provided
@@ -279,10 +273,9 @@ export function useMediaRecorder(): MediaRecorderHandle {
     }
     audioStreamRef.current = audioStream;
 
-    // Detect unexpected audio-track termination (phone call, system audio
-    // interrupt, headset unplugged). Log + surface via micDenied so the
-    // parent can display feedback. Don't auto-stop — the partial recording
-    // is still valuable.
+    // Detect unexpected audio-track termination (phone call, headset
+    // unplugged). Surface via micDenied; the partial recording is still
+    // valuable, so we don't auto-stop.
     if (audioStream) {
       audioStream.getAudioTracks().forEach((track) => {
         track.onended = () => {
@@ -303,7 +296,10 @@ export function useMediaRecorder(): MediaRecorderHandle {
       }
     }
 
-    // Create recorder
+    // Create recorder. IMPORTANT: no timeslice — Safari and Chrome with MP4
+    // emit each timeslice chunk as a self-contained MP4 file, so
+    // concatenating them would only play back the first chunk. A single
+    // stop-time emission produces one valid, complete file.
     chunksRef.current = [];
     const recorder = new MediaRecorder(combinedStream, { mimeType: mime });
     recorder.ondataavailable = (e) => {
@@ -316,89 +312,54 @@ export function useMediaRecorder(): MediaRecorderHandle {
       cleanup();
     };
     recorderRef.current = recorder;
-    // IMPORTANT: no timeslice. Safari (and Chrome with MP4) emit each
-    // timeslice chunk as a self-contained MP4 file rather than a
-    // concatenable fragment. If we pass a timeslice, the resulting blob
-    // only plays back the first chunk. A single stop-time emission
-    // produces one valid, complete MP4/WebM file.
     recorder.start();
     startTimeRef.current = Date.now();
-    pausedRef.current = false;
     userPausedRef.current = false;
     setIsRecording(true);
     console.log(`[MediaRecorder] Recording started (${recW}x${recH}, ${mime}, audio: ${!!audioStream})`);
 
-    // Pause recording + RAF frame loop when the tab is backgrounded — the
-    // browser throttles requestAnimationFrame to ~1Hz on hidden tabs, which
-    // would desync video timestamps from audio. Resume when visible again,
-    // unless the user has paused manually.
+    // Draw first slide now that capture is live
+    drawSlide(firstSlide);
+
+    // Pause recording when tab is backgrounded — captureStream's auto-
+    // sampler throttles on hidden tabs, which would desync video from
+    // audio. Resume when visible again, unless user manually paused.
     const visibilityHandler = () => {
       const rec = recorderRef.current;
       if (!rec || rec.state === 'inactive') return;
       if (document.hidden) {
         if (rec.state === 'recording') {
           console.log('[MediaRecorder] tab hidden — pausing');
-          pausedRef.current = true;
           try { rec.pause(); } catch { /* ignore */ }
         }
       } else {
-        // Only auto-resume if the user hasn't manually paused.
         if (rec.state === 'paused' && !userPausedRef.current) {
           console.log('[MediaRecorder] tab visible — resuming');
-          pausedRef.current = false;
           try { rec.resume(); } catch { /* ignore */ }
         }
       }
     };
     document.addEventListener('visibilitychange', visibilityHandler);
     visibilityHandlerRef.current = visibilityHandler;
-
-    // Draw first slide (overlay will be added by PresentationScreen interval)
-    drawSlide(firstSlide);
-
-    // Drive the canvas stream at ~30fps so the muxer's frame timestamps
-    // track wall-clock time smoothly. The trailing-frames-dropped issue at
-    // stop() is handled separately by a flush delay in stopRecording().
-    const FRAME_INTERVAL_MS = 1000 / 30;
-    let lastFrameTime = performance.now();
-    let frameCount = 0;
-    let lastLogTime = performance.now();
-    const frameLoop = () => {
-      if (!canvasStreamRef.current) return; // stopped
-      const now = performance.now();
-      if (!pausedRef.current && now - lastFrameTime >= FRAME_INTERVAL_MS) {
-        pushFrame();
-        frameCount++;
-        lastFrameTime = now;
-      }
-      // Log frame throughput every 10s
-      if (now - lastLogTime >= 10_000) {
-        console.log(`[MediaRecorder] frames pushed: ${frameCount} (last 10s), total elapsed: ${((now - lastLogTime) / 1000).toFixed(1)}s`);
-        frameCount = 0;
-        lastLogTime = now;
-      }
-      frameLoopIdRef.current = requestAnimationFrame(frameLoop);
-    };
-    frameLoopIdRef.current = requestAnimationFrame(frameLoop);
-  }, [drawSlide, pushFrame]);
+  }, [drawSlide]);
 
   const stopRecording = useCallback((): Promise<Blob | null> => {
     return new Promise((resolve) => {
       const recorder = recorderRef.current;
       if (!recorder || recorder.state === 'inactive') {
-        console.warn('[MediaRecorder] stopRecording called but no active recorder (state:', recorder?.state ?? 'null', ')');
+        console.warn('[MediaRecorder] stopRecording called but no active recorder');
         cleanup();
         resolve(null);
         return;
       }
 
       const elapsed = Date.now() - startTimeRef.current;
-      console.log(`[MediaRecorder] Stopping recording after ${(elapsed / 1000).toFixed(1)}s, chunks so far: ${chunksRef.current.length}`);
+      console.log(`[MediaRecorder] Stopping recording after ${(elapsed / 1000).toFixed(1)}s`);
 
       // With no timeslice, exactly one dataavailable event fires during stop().
-      // We must wait for BOTH ondataavailable AND onstop before building the
-      // blob — the event order isn't guaranteed across browsers, and if we
-      // build the blob in onstop alone, Safari sometimes reports empty chunks.
+      // Wait for BOTH ondataavailable AND onstop before building the blob —
+      // Safari can fire onstop before ondataavailable, which would leave us
+      // with empty chunks. We finalize only when both have arrived.
       let dataSeen = false;
       let stopSeen = false;
       let resolved = false;
@@ -406,25 +367,20 @@ export function useMediaRecorder(): MediaRecorderHandle {
         if (resolved || !dataSeen || !stopSeen) return;
         resolved = true;
         const blob = new Blob(chunksRef.current, { type: mimeRef.current });
-        console.log(`[MediaRecorder] Final blob: ${(blob.size / 1024 / 1024).toFixed(2)}MB (${chunksRef.current.length} chunks)`);
-        // Sanity check: if we recorded >30s but got <100KB, the encoder likely
-        // produced a malformed/partial file. Log for diagnostics — the parent
-        // still decides via onRecordingComplete/onRecordingFailed.
+        console.log(`[MediaRecorder] Final blob: ${(blob.size / 1024 / 1024).toFixed(2)}MB`);
         if (elapsed > 30_000 && blob.size < 100_000) {
-          console.warn(`[MediaRecorder] suspiciously small blob: ${blob.size} bytes for ${(elapsed / 1000).toFixed(1)}s recording — output may be corrupt`);
+          console.warn(`[MediaRecorder] suspiciously small blob: ${blob.size} bytes for ${(elapsed / 1000).toFixed(1)}s — output may be corrupt`);
         }
         chunksRef.current = [];
         cleanup();
         resolve(blob);
       };
 
-      // Replace the ondataavailable handler to also fire tryFinalize.
-      // (The original handler pushes to chunksRef, same behavior.)
       recorder.ondataavailable = (e) => {
         if (e.data && e.data.size > 0) {
           chunksRef.current.push(e.data);
         }
-        console.log(`[MediaRecorder] dataavailable fired, size=${e.data?.size ?? 0}, total chunks=${chunksRef.current.length}`);
+        console.log(`[MediaRecorder] dataavailable fired, size=${e.data?.size ?? 0}`);
         dataSeen = true;
         tryFinalize();
       };
@@ -434,54 +390,38 @@ export function useMediaRecorder(): MediaRecorderHandle {
         tryFinalize();
       };
 
-      // Resume first if paused — stop only flushes from 'recording' state cleanly.
+      // Resume first if paused — stop() only flushes cleanly from
+      // 'recording' state.
       try {
-        if (recorder.state === 'paused') {
-          recorder.resume();
-        }
-      } catch {
-        // safe to ignore
+        if (recorder.state === 'paused') recorder.resume();
+      } catch { /* ignore */ }
+
+      try {
+        recorder.stop();
+      } catch (e) {
+        console.error('[MediaRecorder] recorder.stop() threw:', e);
+        cleanup();
+        resolved = true;
+        resolve(null);
+        return;
       }
 
-      // Give the encoder pipeline time to drain before stop(). The H.264
-      // encoder buffers several frames internally (GOP + re-order buffer);
-      // if we call stop() immediately, the trailing frames in its pipeline
-      // are discarded and the video freezes N seconds before the end.
-      // We: (1) halt frame pushing, (2) wait for the pipeline to drain,
-      // (3) then call stop() which naturally emits the buffered data.
-      //
-      // NOTE: we intentionally do NOT call requestData() here. On Safari's
-      // no-timeslice MP4 path, requestData() can emit the buffer in a bad
-      // state and leave stop() with zero bytes to emit.
-      pausedRef.current = true; // halts pushFrame() in the RAF loop
-      const FLUSH_DELAY_MS = 5000;
-      setTimeout(() => {
-        try {
-          recorder.stop();
-        } catch (e) {
-          console.error('[MediaRecorder] recorder.stop() threw:', e);
-          cleanup();
-          resolved = true;
-          resolve(null);
-        }
-      }, FLUSH_DELAY_MS);
-
-      // Safety timeout: if neither event fires within 12s (5s flush + 7s slack),
-      // resolve with whatever we have.
+      // Safety timeout: resolve with whatever we have if neither event
+      // fires within 8s. In practice stop() + ondataavailable fire within
+      // ~200ms, but give plenty of slack for slow hardware.
       setTimeout(() => {
         if (resolved) return;
-        console.warn(`[MediaRecorder] stop timeout reached — dataSeen=${dataSeen}, stopSeen=${stopSeen}, chunks=${chunksRef.current.length}`);
+        console.warn(`[MediaRecorder] stop timeout — dataSeen=${dataSeen}, stopSeen=${stopSeen}`);
         resolved = true;
         const blob = new Blob(chunksRef.current, { type: mimeRef.current });
         chunksRef.current = [];
         cleanup();
         resolve(blob);
-      }, 12000);
+      }, 8000);
     });
   }, []);
 
   const setPaused = useCallback((paused: boolean) => {
-    pausedRef.current = paused;
     userPausedRef.current = paused;
     const recorder = recorderRef.current;
     if (!recorder || recorder.state === 'inactive') return;
@@ -494,12 +434,6 @@ export function useMediaRecorder(): MediaRecorderHandle {
   }, []);
 
   function cleanup() {
-    // Stop the frame-push RAF loop
-    if (frameLoopIdRef.current) {
-      cancelAnimationFrame(frameLoopIdRef.current);
-      frameLoopIdRef.current = 0;
-    }
-    pausedRef.current = false;
     userPausedRef.current = false;
 
     // Remove tab-visibility listener
@@ -508,7 +442,8 @@ export function useMediaRecorder(): MediaRecorderHandle {
       visibilityHandlerRef.current = null;
     }
 
-    // Clear audio-track onended handlers
+    // Clear audio-track onended handlers before stopping tracks, so
+    // track.stop() doesn't trigger a false-positive setMicDenied.
     audioStreamRef.current?.getAudioTracks().forEach((track) => {
       track.onended = null;
     });

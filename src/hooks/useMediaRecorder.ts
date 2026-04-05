@@ -8,8 +8,9 @@ import {
 
 const FINAL_FRAME_SETTLE_MS = 250;
 const RECORDER_STOP_TIMEOUT_MS = 8_000;
-const VIDEO_BITRATE = 2_500_000;
-const AUDIO_BITRATE = 128_000;
+const SAFARI_VIDEO_BITRATE = 1_200_000;
+const DEFAULT_VIDEO_BITRATE = 900_000;
+const AUDIO_BITRATE = 64_000;
 const FRAME_PUMP_FPS = 5;
 const FRAME_PUMP_INTERVAL_MS = Math.round(1000 / FRAME_PUMP_FPS);
 const RECORDER_TIMESLICE_MS = 1_000;
@@ -18,6 +19,10 @@ function isProbablySafari(): boolean {
   if (typeof navigator === 'undefined') return false;
   const ua = navigator.userAgent;
   return /Safari\//.test(ua) && !/(Chrome|Chromium|Edg|OPR|Firefox|CriOS|FxiOS|EdgiOS|OPiOS)/.test(ua);
+}
+
+function getVideoBitrate(): number {
+  return isProbablySafari() ? SAFARI_VIDEO_BITRATE : DEFAULT_VIDEO_BITRATE;
 }
 
 function pickVideoMimeType(): string {
@@ -340,10 +345,11 @@ export function useMediaRecorder(): MediaRecorderHandle {
     mimeRef.current = requestedMimeType;
 
     let recorder: MediaRecorder;
+    const videoBitrate = getVideoBitrate();
     try {
       recorder = new MediaRecorder(combinedStream, {
         mimeType: requestedMimeType,
-        videoBitsPerSecond: VIDEO_BITRATE,
+        videoBitsPerSecond: videoBitrate,
         audioBitsPerSecond: audioStream?.getAudioTracks().length ? AUDIO_BITRATE : undefined,
       });
     } catch (error) {
@@ -371,7 +377,8 @@ export function useMediaRecorder(): MediaRecorderHandle {
     console.log(`[MediaRecorder] Recorder MIME type: ${actualMimeType}`);
     console.log(
       `[MediaRecorder] Recording started (${size.width}x${size.height}, ${actualMimeType}, ` +
-      `mode=${FRAME_PUMP_FPS}fps-auto, audio: ${!!audioStream})`,
+      `mode=${FRAME_PUMP_FPS}fps-auto, vbr=${Math.round(videoBitrate / 1000)}kbps, ` +
+      `abr=${audioStream ? Math.round(AUDIO_BITRATE / 1000) : 0}kbps, audio: ${!!audioStream})`,
     );
 
     drawSlide(slides[0], overlayRef.current ?? undefined);

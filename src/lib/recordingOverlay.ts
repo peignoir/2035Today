@@ -2,8 +2,8 @@ import type { SlideImage } from '../types';
 
 export const SLIDE_DURATION_MS = 15_000;
 export const TOTAL_SLIDES = 20;
-const MAX_RECORDING_WIDTH = 960;
-const MAX_RECORDING_HEIGHT = 540;
+const MAX_RECORDING_WIDTH = 1280;
+const MAX_RECORDING_HEIGHT = 720;
 
 export interface OverlayInfo {
   eventTitle: string;
@@ -32,6 +32,9 @@ export function getRecordingCanvasSize(firstSlide: Pick<SlideImage, 'width' | 'h
     height = MAX_RECORDING_HEIGHT;
     width = Math.round(height * aspect);
   }
+
+  if (width % 2 !== 0) width -= 1;
+  if (height % 2 !== 0) height -= 1;
 
   return { width, height };
 }

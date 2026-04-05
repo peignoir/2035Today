@@ -8,7 +8,8 @@ import {
 } from './recordingOverlay';
 
 const FRAME_INTERVAL_MS = 1_000;
-const OUTPUT_FPS = 10;
+const INPUT_FPS = 1000 / FRAME_INTERVAL_MS;
+const OUTPUT_FPS = 30;
 const PNG_TIMEOUT_MS = 10_000;
 
 export interface PauseRange {
@@ -181,7 +182,7 @@ async function writeFrameFiles(
   overlayBase: ExportPresentationRecordingOptions['overlayBase'],
   activeDurationMs: number,
   onProgress?: ExportPresentationRecordingOptions['onProgress'],
-): Promise<{ concatPath: string; createdFiles: string[] }> {
+): Promise<{ framePattern: string; createdFiles: string[] }> {
   const slideImages = await Promise.all(slides.map((slide) => loadImage(slide.objectUrl)));
   const size = getRecordingCanvasSize(slides[0]);
   const canvas = document.createElement('canvas');
@@ -193,14 +194,10 @@ async function writeFrameFiles(
   }
 
   const frameCount = Math.max(1, Math.ceil(activeDurationMs / FRAME_INTERVAL_MS));
-  const concatLines = ['ffconcat version 1.0'];
   const createdFiles: string[] = [];
-  let lastFrameName = '';
 
   for (let frameIndex = 0; frameIndex < frameCount; frameIndex++) {
     const frameStartMs = frameIndex * FRAME_INTERVAL_MS;
-    const remainingMs = Math.max(activeDurationMs - frameStartMs, 1);
-    const frameDurationSec = Math.min(FRAME_INTERVAL_MS, remainingMs) / 1000;
     const sampleTimeMs = Math.min(frameStartMs, Math.max(activeDurationMs - 1, 0));
     const overlay = buildOverlayForElapsed(overlayBase, sampleTimeMs);
     const slideImage = slideImages[Math.min(overlay.currentSlide, slideImages.length - 1)];
@@ -210,15 +207,11 @@ async function writeFrameFiles(
     ctx.drawImage(slideImage, 0, 0, canvas.width, canvas.height);
     drawOverlayOnCanvas(ctx, canvas.width, canvas.height, overlay);
 
-    const frameName = `frame-${String(frameIndex).padStart(3, '0')}.png`;
+    const frameName = `frame-${String(frameIndex).padStart(4, '0')}.png`;
     const framePath = `${workDir}/${frameName}`;
     const frameBlob = await canvasToBlob(canvas);
     await ffmpeg.writeFile(framePath, await blobToUint8Array(frameBlob));
     createdFiles.push(framePath);
-
-    concatLines.push(`file '${frameName}'`);
-    concatLines.push(`duration ${frameDurationSec.toFixed(3)}`);
-    lastFrameName = frameName;
 
     setProgress(
       onProgress,
@@ -227,24 +220,26 @@ async function writeFrameFiles(
     );
   }
 
-  concatLines.push(`file '${lastFrameName}'`);
-
-  const concatPath = `${workDir}/frames.ffconcat`;
-  await ffmpeg.writeFile(concatPath, concatLines.join('\n'));
-  createdFiles.push(concatPath);
-
-  return { concatPath, createdFiles };
+  return { framePattern: `${workDir}/frame-%04d.png`, createdFiles };
 }
 
 function buildEncodeArgs(options: {
-  concatPath: string;
+  framePattern: string;
+  durationSeconds: string;
   audioPath: string | null;
   audioFilter: string | null;
   outputPath: string;
   videoCodecArgs: string[];
 }): string[] {
-  const { concatPath, audioPath, audioFilter, outputPath, videoCodecArgs } = options;
-  const args = ['-f', 'concat', '-safe', '0', '-i', concatPath];
+  const { framePattern, durationSeconds, audioPath, audioFilter, outputPath, videoCodecArgs } = options;
+  const args = [
+    '-framerate',
+    String(INPUT_FPS),
+    '-start_number',
+    '0',
+    '-i',
+    framePattern,
+  ];
 
   if (audioPath) {
     args.push('-i', audioPath);
@@ -254,7 +249,12 @@ function buildEncodeArgs(options: {
     args.push('-filter_complex', audioFilter);
   }
 
-  args.push('-map', '0:v:0');
+  args.push(
+    '-map',
+    '0:v:0',
+    '-t',
+    durationSeconds,
+  );
 
   if (audioPath && audioFilter) {
     args.push('-map', '[aout]');
@@ -263,6 +263,8 @@ function buildEncodeArgs(options: {
   args.push(
     '-vf',
     `fps=${OUTPUT_FPS},format=yuv420p`,
+    '-r',
+    String(OUTPUT_FPS),
     ...videoCodecArgs,
     '-movflags',
     '+faststart',
@@ -274,7 +276,7 @@ function buildEncodeArgs(options: {
     args.push('-an');
   }
 
-  args.push('-shortest', outputPath);
+  args.push(outputPath);
 
   return args;
 }
@@ -347,7 +349,7 @@ export async function exportPresentationRecording({
   await ffmpeg.createDir(workDir);
 
   try {
-    const { concatPath, createdFiles: frameFiles } = await writeFrameFiles(
+    const { framePattern, createdFiles: frameFiles } = await writeFrameFiles(
       ffmpeg,
       workDir,
       slides,
@@ -371,20 +373,31 @@ export async function exportPresentationRecording({
 
     const outputPath = `${workDir}/output.mp4`;
     createdFiles.push(outputPath);
+    const durationSeconds = msToSeconds(activeDurationMs);
 
     setProgress(onProgress, 'Starting encode', 0.60);
     await runEncode(
       ffmpeg,
       [
         buildEncodeArgs({
-          concatPath,
+          framePattern,
+          durationSeconds,
           audioPath,
           audioFilter,
           outputPath,
-          videoCodecArgs: ['-c:v', 'libx264', '-preset', 'veryfast', '-tune', 'stillimage'],
+          videoCodecArgs: [
+            '-c:v', 'libx264',
+            '-preset', 'veryfast',
+            '-tune', 'stillimage',
+            '-g', String(OUTPUT_FPS),
+            '-keyint_min', String(OUTPUT_FPS),
+            '-sc_threshold', '0',
+            '-pix_fmt', 'yuv420p',
+          ],
         }),
         buildEncodeArgs({
-          concatPath,
+          framePattern,
+          durationSeconds,
           audioPath,
           audioFilter,
           outputPath,

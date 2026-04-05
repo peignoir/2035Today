@@ -11,9 +11,7 @@
     "postinstall": "cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/pdf.worker.min.mjs"
   },
   "dependencies": {
-    "@ffmpeg/core": "^0.12.10",
     "@ffmpeg/ffmpeg": "^0.12.15",
-    "@ffmpeg/util": "^0.12.2",
     "@supabase/supabase-js": "^2.98.0",
     "pdfjs-dist": "^5.4.624",
     "react": "^19.2.0",

@@ -1,5 +1,4 @@
 import type { FFmpeg } from '@ffmpeg/ffmpeg';
-import { toBlobURL } from '@ffmpeg/util';
 import type { SlideImage } from '../types';
 import {
   buildOverlayForElapsed,
@@ -14,7 +13,10 @@ const INPUT_FPS = 1000 / FRAME_INTERVAL_MS;
 const OUTPUT_FPS = 30;
 const PNG_TIMEOUT_MS = 10_000;
 const FFMPEG_CORE_VERSION = '0.12.10';
-const FFMPEG_BASE_URL = `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${FFMPEG_CORE_VERSION}/dist/umd`;
+const FFMPEG_BASE_URL = `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${FFMPEG_CORE_VERSION}/dist/esm`;
+const FFMPEG_CORE_URL = `${FFMPEG_BASE_URL}/ffmpeg-core.js`;
+const FFMPEG_WASM_URL = `${FFMPEG_BASE_URL}/ffmpeg-core.wasm`;
+const FFMPEG_WORKER_URL = `${FFMPEG_BASE_URL}/ffmpeg-core.worker.js`;
 
 export interface PauseRange {
   startMs: number;
@@ -38,6 +40,7 @@ interface ExportPresentationRecordingOptions {
 }
 
 let ffmpegPromise: Promise<FFmpeg> | null = null;
+let ffmpegWorkerUrlPromise: Promise<string> | null = null;
 
 function sanitizeProgress(progress: number): number {
   if (!Number.isFinite(progress)) return 0;
@@ -58,19 +61,25 @@ function setProgress(
 async function getFFmpeg(): Promise<FFmpeg> {
   if (!ffmpegPromise) {
     ffmpegPromise = (async () => {
-      const [{ FFmpeg }, { default: ffmpegWorkerUrl }] = await Promise.all([
+      if (!ffmpegWorkerUrlPromise) {
+        ffmpegWorkerUrlPromise = import('@ffmpeg/ffmpeg/worker?worker&url')
+          .then(({ default: url }) => url)
+          .catch((error) => {
+            ffmpegWorkerUrlPromise = null;
+            throw error;
+          });
+      }
+
+      const [{ FFmpeg }, ffmpegWorkerUrl] = await Promise.all([
         import('@ffmpeg/ffmpeg'),
-        import('@ffmpeg/ffmpeg/worker?url'),
-      ]);
-      const [ffmpegCoreUrl, ffmpegWasmUrl] = await Promise.all([
-        toBlobURL(`${FFMPEG_BASE_URL}/ffmpeg-core.js`, 'text/javascript'),
-        toBlobURL(`${FFMPEG_BASE_URL}/ffmpeg-core.wasm`, 'application/wasm'),
+        ffmpegWorkerUrlPromise,
       ]);
       const ffmpeg = new FFmpeg();
       await ffmpeg.load({
         classWorkerURL: ffmpegWorkerUrl,
-        coreURL: ffmpegCoreUrl,
-        wasmURL: ffmpegWasmUrl,
+        coreURL: FFMPEG_CORE_URL,
+        wasmURL: FFMPEG_WASM_URL,
+        workerURL: FFMPEG_WORKER_URL,
       });
       return ffmpeg;
     })().catch((error) => {

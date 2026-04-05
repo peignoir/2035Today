@@ -1,10 +1,22 @@
-import type { ShareableEvent, SpeakerSignup } from '../types';
+import type { ShareableEvent, ShareablePresentation, SpeakerSignup } from '../types';
 import { supabase, EVENTS_BUCKET } from './supabase';
 
+type StorageListFile = {
+  name: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+function withCacheBust(url: string, cacheBust?: string | number): string {
+  if (cacheBust === undefined || cacheBust === null || cacheBust === '') return url;
+  const joiner = url.includes('?') ? '&' : '?';
+  return `${url}${joiner}v=${encodeURIComponent(String(cacheBust))}`;
+}
+
 /** Get the public CDN URL for a file in the events bucket. */
-export function publicUrl(path: string): string {
+export function publicUrl(path: string, cacheBust?: string | number): string {
   const { data } = supabase.storage.from(EVENTS_BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+  return withCacheBust(data.publicUrl, cacheBust);
 }
 
 /** Upload a file, overwriting if it exists. */
@@ -14,6 +26,94 @@ async function upload(path: string, data: Blob | string, contentType: string): P
     .from(EVENTS_BUCKET)
     .upload(path, body, { contentType, upsert: true });
   if (error) throw new Error(`Upload failed for ${path}: ${error.message}`);
+}
+
+function fileVersion(file: StorageListFile): string {
+  return file.updated_at || file.created_at || Date.now().toString();
+}
+
+function applyDiscoveredAssets(
+  event: ShareableEvent,
+  city: string,
+  date: string,
+  files: StorageListFile[],
+): ShareableEvent {
+  const presentations: ShareablePresentation[] = event.presentations.map((presentation) => ({
+    ...presentation,
+    recording: undefined,
+    pdfUrl: undefined,
+  }));
+
+  let logo: string | undefined;
+
+  for (const file of files) {
+    const version = fileVersion(file);
+
+    const recordingMatch = file.name.match(new RegExp(`^${date}-(\\d+)\\.mp4$`));
+    if (recordingMatch) {
+      const index = parseInt(recordingMatch[1], 10);
+      if (index < presentations.length) {
+        presentations[index].recording = publicUrl(`${city}/${file.name}`, version);
+      }
+      continue;
+    }
+
+    const pdfMatch = file.name.match(new RegExp(`^${date}-(\\d+)\\.pdf$`));
+    if (pdfMatch) {
+      const index = parseInt(pdfMatch[1], 10);
+      if (index < presentations.length) {
+        presentations[index].pdfUrl = publicUrl(`${city}/${file.name}`, version);
+      }
+      continue;
+    }
+
+    if (file.name.match(new RegExp(`^${date}-logo\\.`))) {
+      logo = publicUrl(`${city}/${file.name}`, version);
+    }
+  }
+
+  return {
+    ...event,
+    presentations,
+    logo,
+  };
+}
+
+function splitStoragePath(path: string): { folder: string; fileName: string } {
+  const slashIndex = path.lastIndexOf('/');
+  if (slashIndex === -1) {
+    return { folder: '', fileName: path };
+  }
+
+  return {
+    folder: path.slice(0, slashIndex),
+    fileName: path.slice(slashIndex + 1),
+  };
+}
+
+async function storageFileExists(path: string): Promise<boolean> {
+  const { folder, fileName } = splitStoragePath(path);
+  const { data: files, error } = await supabase.storage
+    .from(EVENTS_BUCKET)
+    .list(folder, { limit: 200 });
+  if (error) {
+    throw new Error(`Failed to verify storage file ${path}: ${error.message}`);
+  }
+  return (files ?? []).some((file) => file.name === fileName);
+}
+
+async function deleteStorageFile(path: string, label: string): Promise<void> {
+  const existedBefore = await storageFileExists(path);
+  if (!existedBefore) return;
+
+  const { error } = await supabase.storage.from(EVENTS_BUCKET).remove([path]);
+  if (error) {
+    throw new Error(`Failed to delete ${label}: ${error.message}`);
+  }
+
+  if (await storageFileExists(path)) {
+    throw new Error(`Failed to delete ${label}: file still exists in storage. Check the Supabase Storage DELETE policy.`);
+  }
 }
 
 /** List all events from the bucket. Returns slug + parsed JSON. */
@@ -48,17 +148,10 @@ export async function listEvents(): Promise<{ slug: string; event: ShareableEven
           .from(EVENTS_BUCKET)
           .download(path);
         if (dlErr || !blob) continue;
-        const event = JSON.parse(await blob.text()) as ShareableEvent;
+        const rawEvent = JSON.parse(await blob.text()) as ShareableEvent;
         const slug = path.replace(/\.json$/, '');
         const date = file.name.replace(/\.json$/, '');
-
-        // Auto-discover logo from bucket (source of truth)
-        if (!event.logo) {
-          const logoFile = files.find((f) => f.name.match(new RegExp(`^${date}-logo\\.`)));
-          if (logoFile) {
-            event.logo = publicUrl(`${folder.name}/${logoFile.name}`);
-          }
-        }
+        const event = applyDiscoveredAssets(rawEvent, folder.name, date, files);
 
         results.push({ slug, event });
       } catch { /* skip broken files */ }
@@ -86,7 +179,7 @@ export async function loadEvent(slug: string): Promise<ShareableEvent | null> {
       .from(EVENTS_BUCKET)
       .download(`${slug}.json`);
     if (error || !blob) return null;
-    const event = JSON.parse(await blob.text()) as ShareableEvent;
+    const rawEvent = JSON.parse(await blob.text()) as ShareableEvent;
 
     // Discover recordings, PDFs & logo from the actual bucket files
     const [city, date] = slug.split('/');
@@ -94,36 +187,10 @@ export async function loadEvent(slug: string): Promise<ShareableEvent | null> {
       const { data: files } = await supabase.storage
         .from(EVENTS_BUCKET)
         .list(city, { limit: 200 });
-      if (files) {
-        for (const file of files) {
-          // Match recordings: {date}-{index}.mp4
-          const recMatch = file.name.match(new RegExp(`^${date}-(\\d+)\\.mp4$`));
-          if (recMatch) {
-            const idx = parseInt(recMatch[1], 10);
-            if (idx < event.presentations.length) {
-              event.presentations[idx].recording = publicUrl(`${city}/${file.name}`);
-            }
-          }
-          // Match PDFs: {date}-{index}.pdf
-          const pdfMatch = file.name.match(new RegExp(`^${date}-(\\d+)\\.pdf$`));
-          if (pdfMatch) {
-            const idx = parseInt(pdfMatch[1], 10);
-            if (idx < event.presentations.length && !event.presentations[idx].pdfUrl) {
-              event.presentations[idx].pdfUrl = publicUrl(`${city}/${file.name}`);
-            }
-          }
-          // Match logo: {date}-logo.{ext} — only if JSON didn't already have one
-          if (!event.logo) {
-            const logoMatch = file.name.match(new RegExp(`^${date}-logo\\.`));
-            if (logoMatch) {
-              event.logo = publicUrl(`${city}/${file.name}`);
-            }
-          }
-        }
-      }
+      return applyDiscoveredAssets(rawEvent, city, date, files ?? []);
     }
 
-    return event;
+    return rawEvent;
   } catch {
     return null;
   }
@@ -310,13 +377,13 @@ export async function uploadRecording(
 
   const totalElapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
   console.log(`[Storage] Recording ${index} uploaded in ${totalElapsed}s`);
-  return publicUrl(path);
+  return publicUrl(path, Date.now());
 }
 
 /** Delete a recording from storage. */
 export async function deleteRecording(slug: string, index: number): Promise<void> {
   const path = `${slug}-${index}.mp4`;
-  await supabase.storage.from(EVENTS_BUCKET).remove([path]);
+  await deleteStorageFile(path, `recording ${index}`);
 }
 
 /** Upload a PDF to storage. Returns the CDN URL. */
@@ -325,13 +392,13 @@ export async function uploadPdf(slug: string, index: number, blob: Blob): Promis
   console.log(`[Storage] Uploading PDF ${index}`);
   await upload(path, blob, 'application/pdf');
   console.log(`[Storage] PDF ${index} uploaded`);
-  return publicUrl(path);
+  return publicUrl(path, Date.now());
 }
 
 /** Delete a PDF from storage. */
 export async function deletePdf(slug: string, index: number): Promise<void> {
   const path = `${slug}-${index}.pdf`;
-  await supabase.storage.from(EVENTS_BUCKET).remove([path]);
+  await deleteStorageFile(path, `PDF ${index}`);
 }
 
 /** Download a PDF blob, bypassing CDN cache. */
@@ -370,7 +437,7 @@ export async function uploadLogo(slug: string, blob: Blob, ext: string): Promise
   console.log(`[Storage] Uploading logo as ${path}`);
   await upload(path, blob, blob.type || `image/${ext}`);
   console.log(`[Storage] Logo uploaded`);
-  return publicUrl(path);
+  return publicUrl(path, Date.now());
 }
 
 /** Load speaker signups for an event. */

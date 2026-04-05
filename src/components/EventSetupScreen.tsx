@@ -270,7 +270,12 @@ export function EventSetupScreen() {
 
   const handleDeleteRecording = useCallback(async (index: number) => {
     if (!event) return;
-    try { await deleteRecording(slug, index); } catch { /* ignore */ }
+    try {
+      await deleteRecording(slug, index);
+    } catch (error) {
+      setUploadRecError(error instanceof Error ? error.message : 'Failed to delete recording.');
+      return;
+    }
     setEvent((prev) => {
       if (!prev) return prev;
       const presentations = prev.presentations.map((p, i) =>
@@ -357,7 +362,7 @@ export function EventSetupScreen() {
       }
     };
     input.click();
-  }, [slug, save]);
+  }, [slug]);
 
   const handleCancelUpload = useCallback(() => {
     uploadAbortRef.current?.abort();
@@ -412,10 +417,20 @@ export function EventSetupScreen() {
   const handleDeletePres = useCallback(async (index: number) => {
     if (!event) return;
     if (event.presentations[index]?.recording) {
-      try { await deleteRecording(slug, index); } catch { /* ignore */ }
+      try {
+        await deleteRecording(slug, index);
+      } catch (error) {
+        setUploadRecError(error instanceof Error ? error.message : 'Failed to delete recording.');
+        return;
+      }
     }
     if (event.presentations[index]?.pdfUrl) {
-      try { await deletePdf(slug, index); } catch { /* ignore */ }
+      try {
+        await deletePdf(slug, index);
+      } catch (error) {
+        setPdfError(error instanceof Error ? error.message : 'Failed to delete PDF.');
+        return;
+      }
     }
     setEvent((prev) => {
       if (!prev) return prev;

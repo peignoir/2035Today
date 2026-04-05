@@ -234,7 +234,12 @@ export function EventRunScreen() {
 
   const handleDeleteRecording = useCallback(async (presIndex: number) => {
     if (!event) return;
-    try { await deleteRecording(slug, presIndex); } catch { /* ignore */ }
+    try {
+      await deleteRecording(slug, presIndex);
+    } catch (error) {
+      setRunError(error instanceof Error ? error.message : 'Failed to delete recording.');
+      return;
+    }
     setEvent((prev) => {
       if (!prev) return prev;
       const presentations = prev.presentations.map((p, i) =>

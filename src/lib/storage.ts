@@ -444,16 +444,46 @@ export async function deletePdf(slug: string, index: number): Promise<void> {
   await deleteStorageFile(path, `PDF ${index}`);
 }
 
-/** Download a PDF blob, bypassing CDN cache. */
-export async function downloadPdf(slug: string, index: number): Promise<Blob> {
-  const path = `${slug}-${index}.pdf`;
-  console.log(`[Storage] Downloading PDF ${path}`);
-  const { data, error } = await supabase.storage
-    .from(EVENTS_BUCKET)
-    .download(path);
-  if (error || !data) throw new Error(`Failed to download PDF: ${error?.message ?? 'no data'}`);
-  console.log(`[Storage] PDF downloaded (${(data.size / 1024).toFixed(0)} KB)`);
-  return data;
+/** Download a PDF blob from its public URL with progress reporting. */
+export async function downloadPdf(
+  pdfUrl: string,
+  onProgress?: (loaded: number, total: number | null) => void,
+  signal?: AbortSignal,
+): Promise<Blob> {
+  console.log(`[Storage] Downloading PDF ${pdfUrl}`);
+
+  return await new Promise<Blob>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', pdfUrl, true);
+    xhr.responseType = 'blob';
+    xhr.timeout = 180_000;
+
+    if (signal) {
+      signal.addEventListener('abort', () => {
+        xhr.abort();
+        reject(new Error('PDF download cancelled'));
+      }, { once: true });
+    }
+
+    xhr.onprogress = (event) => {
+      const total = event.lengthComputable ? event.total : null;
+      onProgress?.(event.loaded, total);
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300 && xhr.response) {
+        const blob = xhr.response as Blob;
+        console.log(`[Storage] PDF downloaded (${(blob.size / 1024).toFixed(0)} KB)`);
+        resolve(blob);
+      } else {
+        reject(new Error(`Failed to download PDF (${xhr.status})`));
+      }
+    };
+
+    xhr.onerror = () => reject(new Error('Network error while downloading PDF'));
+    xhr.ontimeout = () => reject(new Error('PDF download timed out'));
+    xhr.send();
+  });
 }
 
 /** Upload a logo blob. Returns the CDN URL.

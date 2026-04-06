@@ -9,7 +9,7 @@ import { PresentationScreen } from './PresentationScreen';
 import { LogoSplash } from './LogoSplash';
 import styles from './EventRunScreen.module.css';
 
-type RunState = 'loading' | 'logo-splash' | 'rendering' | 'presenting';
+type RunState = 'loading' | 'logo-splash' | 'preparing' | 'rendering' | 'presenting';
 
 interface UploadState {
   presIndex: number;
@@ -33,12 +33,14 @@ export function EventRunScreen() {
   const [currentDeck, setCurrentDeck] = useState<LoadedDeck | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [renderProgress, setRenderProgress] = useState(0);
+  const [renderLabel, setRenderLabel] = useState('Rendering slide 0 of 20...');
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   const [confirmPresIndex, setConfirmPresIndex] = useState<number | null>(null);
   const [uploadState, setUploadState] = useState<UploadState | null>(null);
   const [runError, setRunError] = useState<string | null>(null);
 
   const pdfCacheRef = useRef<Map<number, Blob>>(new Map());
+  const pdfLoadRef = useRef<Map<number, Promise<Blob>>>(new Map());
 
   // Load event from Supabase
   useEffect(() => {
@@ -79,32 +81,56 @@ export function EventRunScreen() {
     if (!pres) return;
     setConfirmPresIndex(null);
     setRunError(null);
+    setCurrentPresIndex(presIndex);
+    setRunState('preparing');
+    setRenderProgress(0);
+    setRenderLabel('Downloading PDF...');
 
     // ── Step 1: Obtain PDF blob (stays on logo-splash while doing this) ──
 
     if (!pres.pdfUrl) {
       setRunError('No PDF uploaded for this presentation. Go back to setup and upload it.');
+      setRunState('logo-splash');
+      setCurrentPresIndex(null);
       return;
     }
 
     let pdfBlob: Blob | null = pdfCacheRef.current.get(presIndex) ?? null;
 
     if (!pdfBlob) {
+      let pending = pdfLoadRef.current.get(presIndex);
+      if (!pending) {
+        pending = downloadPdf(pres.pdfUrl, (loaded, total) => {
+          if (total && total > 0) {
+            const pct = Math.max(1, Math.min(99, Math.round((loaded / total) * 100)));
+            setRenderProgress(pct);
+            setRenderLabel(`Downloading PDF... ${pct}%`);
+          } else {
+            setRenderProgress(0);
+            setRenderLabel('Downloading PDF...');
+          }
+        });
+        pdfLoadRef.current.set(presIndex, pending);
+      }
       try {
-        pdfBlob = await downloadPdf(slug, presIndex);
+        pdfBlob = await pending;
         pdfCacheRef.current.set(presIndex, pdfBlob);
       } catch (e) {
+        pdfLoadRef.current.delete(presIndex);
         console.error('[GoLive] PDF download failed:', e);
         setRunError(`Failed to download PDF: ${e instanceof Error ? e.message : 'unknown error'}`);
+        setRunState('logo-splash');
+        setCurrentPresIndex(null);
         return;
       }
+      pdfLoadRef.current.delete(presIndex);
     }
 
     // ── Step 2: We have a PDF — now show rendering UI ──
 
-    setCurrentPresIndex(presIndex);
     setRunState('rendering');
     setRenderProgress(0);
+    setRenderLabel('Rendering slide 0 of 20...');
 
     try {
       let micStream: MediaStream | null = null;
@@ -117,6 +143,7 @@ export function EventRunScreen() {
 
       const deck = await renderPdfFromBlob(pdfBlob, pres.fileName || 'slides.pdf', (page) => {
         setRenderProgress(page);
+        setRenderLabel(`Rendering slide ${page} of 20...`);
       });
       setCurrentDeck(deck);
       setRunState('presenting');
@@ -128,12 +155,13 @@ export function EventRunScreen() {
   }, [event, slug]);
 
   const handlePlay = useCallback((presIndex: number) => {
+    if (runState !== 'logo-splash') return;
     if (event?.recordEnabled && event.presentations[presIndex]?.recording) {
       setConfirmPresIndex(presIndex);
     } else {
       startPlay(presIndex);
     }
-  }, [event, startPlay]);
+  }, [event, runState, startPlay]);
 
   const handleRecordingComplete = useCallback(async (blob: Blob) => {
     if (currentPresIndex === null) return;
@@ -285,12 +313,15 @@ export function EventRunScreen() {
         <div className={styles.loadingScreen}>Loading...</div>
       )}
 
-      {runState === 'rendering' && (
+      {(runState === 'preparing' || runState === 'rendering') && (
         <div className={styles.loadingScreen}>
           <div className={styles.renderBar}>
-            <div className={styles.renderFill} style={{ width: `${(renderProgress / 20) * 100}%` }} />
+            <div
+              className={styles.renderFill}
+              style={{ width: `${runState === 'rendering' ? (renderProgress / 20) * 100 : renderProgress}%` }}
+            />
           </div>
-          <p>Rendering slide {renderProgress} of 20...</p>
+          <p>{renderLabel}</p>
         </div>
       )}
 

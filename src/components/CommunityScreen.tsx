@@ -228,11 +228,11 @@ export function CommunityScreen() {
           <p className={styles.heroSub}>The community where solo founders build together</p>
           <div className={styles.ctaRow}>
             <button onClick={() => scrollTo('cities')} className={styles.ctaPrimary}>
-              Find a Solo Jam
+              Find a 2h Solo Jam
             </button>
-            <Link to="/soloha" className={styles.ctaGhost}>
-              Join the next One Week HA Free Program
-            </Link>
+            <button onClick={() => scrollTo('soloha')} className={styles.ctaSecondary}>
+              Apply to One Week HA
+            </button>
           </div>
         </div>
       </section>

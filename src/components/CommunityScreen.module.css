@@ -162,6 +162,29 @@
   color: white;
 }
 
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 36px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #0D0F0E;
+  background: var(--green);
+  border: none;
+  border-radius: 10px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+  box-shadow: 0 4px 20px rgba(68, 255, 136, 0.25);
+}
+
+.ctaSecondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(68, 255, 136, 0.35);
+  color: #0D0F0E;
+}
+
 .ctaGhost {
   display: inline-flex;
   align-items: center;

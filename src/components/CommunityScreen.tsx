@@ -209,7 +209,7 @@ export function CommunityScreen() {
             <span className={styles.brandName}>2035 Today</span>
             <span className={styles.tagline}>The future starts as a <span className={styles.flicker}>solo project.</span></span>
           </h1>
-          <p className={styles.heroSub}>the global solo founders community</p>
+          <p className={styles.heroSub}>The community where solo founders build together</p>
           <p className={styles.heroMission}>
             Post-AGI. On the way to ASI.
             One person with AI agents will build what teams of 50 couldn&rsquo;t.
@@ -529,7 +529,7 @@ export function CommunityScreen() {
       {/* ── Footer ── */}
       <footer className={styles.footer}>
         <span className={styles.footerBrand}>2035 Today</span>
-        <span className={styles.footerMotto}>the global solo founders community</span>
+        <span className={styles.footerMotto}>The community where solo founders build together</span>
         <span className={styles.footerVibe}>Vibe coded by Franck Nouyrigat</span>
         <Link to="/admin" className={styles.footerLink}>Login</Link>
       </footer>

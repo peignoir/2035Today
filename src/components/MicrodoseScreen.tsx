@@ -8,7 +8,7 @@ export function MicrodoseScreen() {
       <p className={styles.tagline}>Idea-to-launch in 60 minutes. Coming soon.</p>
       <div className={styles.comingSoon}>
         <p>The Microdose process page is under construction.</p>
-        <Link to="/" className={styles.backLink}>&larr; Back to 2035Cafe</Link>
+        <Link to="/" className={styles.backLink}>&larr; Back to 2035Today</Link>
       </div>
     </section>
   );

@@ -205,7 +205,7 @@ export function PrepareScreen() {
               to share their stories and <span className={styles.accent}>tilt the balance in the right direction</span>.
             </p>
             <p className={styles.missionBody}>
-              Every story told at a 2035Cafe is an act of hope. Not blind optimism &mdash;
+              Every story told at a 2035Today is an act of hope. Not blind optimism &mdash;
               <em>informed</em> optimism, from people who've seen both the promise and the peril up close.
             </p>
           </div>

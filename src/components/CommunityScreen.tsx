@@ -315,7 +315,7 @@ export function CommunityScreen() {
         <div className={styles.heroContent}>
           <CoffeeCupSVG />
           <h1 className={styles.headline}>
-            <span className={styles.brandName}>2035Cafe</span>
+            <span className={styles.brandName}>2035Today</span>
             <span className={styles.tagline}>What was impossible is now a <span className={styles.flicker}>side project.</span></span>
           </h1>
           <p className={styles.heroMission}>
@@ -595,7 +595,7 @@ export function CommunityScreen() {
           <span className={styles.accentText}>Fear Nothing, Build Anything.</span>
         </h2>
         <p className={styles.finalSub}>
-          Join a 2035Cafe near you, or start one in your city.
+          Join a 2035Today near you, or start one in your city.
         </p>
         <div className={styles.ctaRow}>
           <Link to="/apply" className={styles.ctaPrimary}>
@@ -609,7 +609,7 @@ export function CommunityScreen() {
 
       {/* ── Footer ── */}
       <footer className={styles.footer}>
-        <span className={styles.footerBrand}>&#9749; 2035Cafe</span>
+        <span className={styles.footerBrand}>&#9749; 2035Today</span>
         <span className={styles.footerMotto}>Fear Nothing, Build Anything.</span>
         <span className={styles.footerVibe}>Vibe coded by Franck Nouyrigat</span>
         <Link to="/admin" className={styles.footerLink}>Login</Link>

@@ -37,7 +37,7 @@ export function Navbar({ scrollTo, onLogout }: NavbarProps) {
 
   return (
     <nav className={styles.topNav}>
-      <Link to="/" className={styles.navBrand}>☕ 2035Cafe</Link>
+      <Link to="/" className={styles.navBrand}>☕ 2035Today</Link>
 
       <div className={styles.navRight}>{links}</div>
 

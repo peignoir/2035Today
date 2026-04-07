@@ -226,18 +226,13 @@ export function CommunityScreen() {
             <span className={styles.tagline}>The future starts as a <span className={styles.flicker}>solo project.</span></span>
           </h1>
           <p className={styles.heroSub}>The community where solo founders build together</p>
-          <p className={styles.heroMission}>
-            Post-AGI. On the way to ASI.
-            One person with AI agents will build what teams of 50 couldn&rsquo;t.
-            We&rsquo;re the AI preppers &mdash; the builder kind.
-          </p>
           <div className={styles.ctaRow}>
             <button onClick={() => scrollTo('cities')} className={styles.ctaPrimary}>
               Find a Solo Jam
             </button>
-            <button onClick={() => scrollTo('journey')} className={styles.ctaGhost}>
-              How it works &darr;
-            </button>
+            <Link to="/soloha" className={styles.ctaGhost}>
+              Join the next One Week HA Free Program
+            </Link>
           </div>
         </div>
       </section>
@@ -391,6 +386,11 @@ export function CommunityScreen() {
             One week. Every month. A gamified web app.
             AI-scored and tracked. For founders who want to go deeper.
             From idea to investable signal.
+          </p>
+          <p className={styles.sectionSubDim}>
+            Post-AGI. On the way to ASI.
+            One person with AI agents will build what teams of 50 couldn&rsquo;t.
+            We&rsquo;re the AI preppers &mdash; the builder kind.
           </p>
           <p className={styles.terminalLine}>&gt; the startup world needs to catch up_</p>
         </div>

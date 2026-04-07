@@ -27,6 +27,7 @@
   align-items: center;
   justify-content: center;
   padding: 120px 32px 100px;
+  min-height: calc(100vh - 60px);
 }
 
 .heroGlow {
@@ -397,6 +398,17 @@
   gap: 12px;
   justify-content: center;
   margin-top: 32px;
+}
+
+.sectionSubDim {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text-dim);
+  text-align: center;
+  max-width: 500px;
+  margin: -24px auto 32px;
+  opacity: 0.6;
+  font-style: italic;
 }
 
 .terminalLine {
@@ -836,7 +848,8 @@
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .hero {
-    padding: 100px 20px 80px;
+    padding: 60px 20px 60px;
+    min-height: calc(100vh - 52px);
   }
 
   .heroIcon {
@@ -850,10 +863,6 @@
 
   .tagline {
     font-size: 1.15rem;
-  }
-
-  .heroMission {
-    font-size: 1rem;
   }
 
   .section, .beliefs, .citiesSection, .finalCta {

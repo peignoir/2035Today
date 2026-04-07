@@ -27,17 +27,17 @@ export function Navbar({ scrollTo, onLogout }: NavbarProps) {
 
   const links = (
     <>
-      <button onClick={() => goToSection('the2hours')} className={styles.navLink}>How it works</button>
-      <Link to="/prepare" className={styles.navLink} onClick={close}>Become a Storyteller</Link>
+      <button onClick={() => goToSection('solojam')} className={styles.navLink}>Solo Jam</button>
+      <button onClick={() => goToSection('soloha')} className={styles.navLink}>Solo HA</button>
       <Link to="/apply" className={styles.navLink} onClick={close}>Become a Curator</Link>
-      <button onClick={() => goToSection('cities')} className={styles.navCta}>Find an event</button>
+      <button onClick={() => goToSection('cities')} className={styles.navCta}>Find a Solo Jam</button>
       {onLogout && <button onClick={() => { onLogout(); close(); }} className={styles.navLink}>Logout</button>}
     </>
   );
 
   return (
     <nav className={styles.topNav}>
-      <Link to="/" className={styles.navBrand}>☕ 2035Today</Link>
+      <Link to="/" className={styles.navBrand}>2035 Today</Link>
 
       <div className={styles.navRight}>{links}</div>
 

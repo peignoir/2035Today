@@ -53,32 +53,89 @@ function RotatingWelcome() {
   );
 }
 
-/* ── Reusable pixel character builder ── */
+/* ── Higher-res pixel person (Monkey Island style) ── */
 function PixelPerson({ hairColor, shirtColor, flip, className }: {
   hairColor: string; shirtColor: string; flip?: boolean; className?: string;
 }) {
-  const S = 4;
-  const px = (x: number, y: number, fill: string) => (
-    <rect key={`${x}-${y}`} x={x * S} y={y * S} width={S} height={S} fill={fill} shapeRendering="crispEdges" />
+  const S = 2; // smaller pixels = more detail
+  const px = (x: number, y: number, fill: string, o = 1) => (
+    <rect key={`${x}-${y}-${fill}`} x={x * S} y={y * S} width={S} height={S} fill={fill} opacity={o} shapeRendering="crispEdges" />
   );
+  const skin = '#F0C8A0';
+  const skinShade = '#D4A878';
+  const dark = '#1a1a1a';
+  const pants = '#2a2a3a';
+  const shoe = '#5a3a2a';
+  const shoeDark = '#3a2518';
+
   return (
-    <svg viewBox="0 0 28 44" className={className || styles.pixelPerson}
+    <svg viewBox="0 0 30 60" className={className || styles.pixelPerson}
       style={{ imageRendering: 'pixelated', transform: flip ? 'scaleX(-1)' : undefined }} aria-hidden="true">
-      {/* Hair */}
-      {px(2, 0, hairColor)}{px(3, 0, hairColor)}{px(4, 0, hairColor)}
+      {/* Hair top */}
+      {px(5, 0, hairColor)}{px(6, 0, hairColor)}{px(7, 0, hairColor)}{px(8, 0, hairColor)}{px(9, 0, hairColor)}
+      {px(4, 1, hairColor)}{px(5, 1, hairColor)}{px(6, 1, hairColor)}{px(7, 1, hairColor)}{px(8, 1, hairColor)}{px(9, 1, hairColor)}{px(10, 1, hairColor)}
+      {px(4, 2, hairColor)}{px(5, 2, hairColor)}{px(6, 2, hairColor)}{px(7, 2, hairColor)}{px(8, 2, hairColor)}{px(9, 2, hairColor)}{px(10, 2, hairColor)}
       {/* Face */}
-      {px(2, 1, '#EEEEEE')}{px(3, 1, '#EEEEEE')}{px(4, 1, '#EEEEEE')}
-      {/* Eyes */}
-      {px(2, 1, '#0D0F0E')}{px(4, 1, '#0D0F0E')}
-      {/* Torso */}
-      {px(3, 2, shirtColor)}
-      {px(2, 3, shirtColor)}{px(3, 3, shirtColor)}{px(4, 3, shirtColor)}
-      {/* Arms */}
-      {px(1, 2, '#EEEEEE')}{px(5, 2, '#EEEEEE')}
+      {px(4, 3, hairColor)}{px(5, 3, skin)}{px(6, 3, skin)}{px(7, 3, skin)}{px(8, 3, skin)}{px(9, 3, skin)}{px(10, 3, hairColor)}
+      {px(4, 4, skin)}{px(5, 4, skin)}{px(6, 4, dark)}{px(7, 4, skin)}{px(8, 4, dark)}{px(9, 4, skin)}{px(10, 4, skin)}
+      {px(5, 5, skin)}{px(6, 5, skin)}{px(7, 5, skinShade)}{px(8, 5, skin)}{px(9, 5, skin)}
+      {px(5, 6, skinShade)}{px(6, 6, skin)}{px(7, 6, skin)}{px(8, 6, skin)}{px(9, 6, skinShade)}
+      {/* Neck */}
+      {px(6, 7, skin)}{px(7, 7, skin)}{px(8, 7, skin)}
+      {/* Shirt */}
+      {px(4, 8, shirtColor)}{px(5, 8, shirtColor)}{px(6, 8, shirtColor)}{px(7, 8, shirtColor)}{px(8, 8, shirtColor)}{px(9, 8, shirtColor)}{px(10, 8, shirtColor)}
+      {px(3, 9, shirtColor)}{px(4, 9, shirtColor)}{px(5, 9, shirtColor)}{px(6, 9, shirtColor)}{px(7, 9, shirtColor)}{px(8, 9, shirtColor)}{px(9, 9, shirtColor)}{px(10, 9, shirtColor)}{px(11, 9, shirtColor)}
+      {px(2, 10, skin)}{px(3, 10, shirtColor)}{px(4, 10, shirtColor)}{px(5, 10, shirtColor)}{px(6, 10, shirtColor)}{px(7, 10, shirtColor)}{px(8, 10, shirtColor)}{px(9, 10, shirtColor)}{px(10, 10, shirtColor)}{px(11, 10, shirtColor)}{px(12, 10, skin)}
+      {px(2, 11, skin)}{px(3, 11, shirtColor)}{px(4, 11, shirtColor)}{px(5, 11, shirtColor)}{px(6, 11, shirtColor)}{px(7, 11, shirtColor)}{px(8, 11, shirtColor)}{px(9, 11, shirtColor)}{px(10, 11, shirtColor)}{px(11, 11, shirtColor)}{px(12, 11, skin)}
+      {px(1, 12, skin)}{px(2, 12, skin)}{px(5, 12, shirtColor)}{px(6, 12, shirtColor)}{px(7, 12, shirtColor)}{px(8, 12, shirtColor)}{px(9, 12, shirtColor)}{px(12, 12, skin)}{px(13, 12, skin)}
+      {px(5, 13, shirtColor)}{px(6, 13, shirtColor)}{px(7, 13, shirtColor)}{px(8, 13, shirtColor)}{px(9, 13, shirtColor)}
+      {/* Belt */}
+      {px(5, 14, '#555')}{px(6, 14, '#555')}{px(7, 14, '#888')}{px(8, 14, '#555')}{px(9, 14, '#555')}
+      {/* Pants */}
+      {px(5, 15, pants)}{px(6, 15, pants)}{px(7, 15, pants)}{px(8, 15, pants)}{px(9, 15, pants)}
+      {px(5, 16, pants)}{px(6, 16, pants)}{px(7, 16, pants)}{px(8, 16, pants)}{px(9, 16, pants)}
+      {px(5, 17, pants)}{px(6, 17, pants)}{px(8, 17, pants)}{px(9, 17, pants)}
+      {px(5, 18, pants)}{px(6, 18, pants)}{px(8, 18, pants)}{px(9, 18, pants)}
+      {px(5, 19, pants)}{px(6, 19, pants)}{px(8, 19, pants)}{px(9, 19, pants)}
+      {/* Boots */}
+      {px(4, 20, shoe)}{px(5, 20, shoe)}{px(6, 20, shoe)}{px(8, 20, shoe)}{px(9, 20, shoe)}{px(10, 20, shoe)}
+      {px(3, 21, shoeDark)}{px(4, 21, shoe)}{px(5, 21, shoe)}{px(6, 21, shoe)}{px(8, 21, shoe)}{px(9, 21, shoe)}{px(10, 21, shoe)}{px(11, 21, shoeDark)}
+    </svg>
+  );
+}
+
+/* ── R2D2-style pixel robot — white/blue, friendly ── */
+function PixelRobot({ className }: { className?: string }) {
+  const S = 2;
+  const px = (x: number, y: number, fill: string, o = 1) => (
+    <rect key={`${x}-${y}-${fill}`} x={x * S} y={y * S} width={S} height={S} fill={fill} opacity={o} shapeRendering="crispEdges" />
+  );
+  const w = '#EEEEEE';
+  const wShade = '#CCCCCC';
+  const blue = '#4ECDC4';
+  const blueDark = '#2a8a84';
+
+  return (
+    <svg viewBox="0 0 28 48" className={className || styles.pixelPerson}
+      style={{ imageRendering: 'pixelated' }} aria-hidden="true">
+      {/* Dome top */}
+      {px(5, 0, wShade)}{px(6, 0, w)}{px(7, 0, w)}{px(8, 0, wShade)}
+      {px(4, 1, wShade)}{px(5, 1, w)}{px(6, 1, w)}{px(7, 1, w)}{px(8, 1, w)}{px(9, 1, wShade)}
+      {/* Eye / sensor */}
+      {px(4, 2, w)}{px(5, 2, w)}{px(6, 2, '#111')}{px(7, 2, '#FF6B4A')}{px(8, 2, w)}{px(9, 2, w)}
+      {px(4, 3, wShade)}{px(5, 3, w)}{px(6, 3, w)}{px(7, 3, w)}{px(8, 3, w)}{px(9, 3, wShade)}
+      {/* Body panels */}
+      {px(3, 4, wShade)}{px(4, 4, w)}{px(5, 4, blue)}{px(6, 4, w)}{px(7, 4, w)}{px(8, 4, blue)}{px(9, 4, w)}{px(10, 4, wShade)}
+      {px(3, 5, wShade)}{px(4, 5, blue)}{px(5, 5, blue)}{px(6, 5, w)}{px(7, 5, w)}{px(8, 5, blue)}{px(9, 5, blue)}{px(10, 5, wShade)}
+      {px(3, 6, wShade)}{px(4, 6, w)}{px(5, 6, blue)}{px(6, 6, w)}{px(7, 6, w)}{px(8, 6, blue)}{px(9, 6, w)}{px(10, 6, wShade)}
+      {px(3, 7, wShade)}{px(4, 7, w)}{px(5, 7, w)}{px(6, 7, wShade)}{px(7, 7, wShade)}{px(8, 7, w)}{px(9, 7, w)}{px(10, 7, wShade)}
+      {px(3, 8, wShade)}{px(4, 8, blue)}{px(5, 8, w)}{px(6, 8, w)}{px(7, 8, w)}{px(8, 8, w)}{px(9, 8, blue)}{px(10, 8, wShade)}
+      {px(3, 9, wShade)}{px(4, 9, w)}{px(5, 9, blue)}{px(6, 9, blueDark)}{px(7, 9, blueDark)}{px(8, 9, blue)}{px(9, 9, w)}{px(10, 9, wShade)}
       {/* Legs */}
-      {px(2, 4, '#445544')}{px(4, 4, '#445544')}
+      {px(3, 10, wShade)}{px(4, 10, wShade)}{px(5, 10, w)}{px(6, 10, w)}{px(7, 10, w)}{px(8, 10, w)}{px(9, 10, wShade)}{px(10, 10, wShade)}
+      {px(4, 11, wShade)}{px(5, 11, wShade)}{px(8, 11, wShade)}{px(9, 11, wShade)}
       {/* Feet */}
-      {px(1, 5, '#778877')}{px(2, 5, '#778877')}{px(4, 5, '#778877')}{px(5, 5, '#778877')}
+      {px(3, 12, wShade)}{px(4, 12, w)}{px(5, 12, w)}{px(8, 12, w)}{px(9, 12, w)}{px(10, 12, wShade)}
     </svg>
   );
 }
@@ -173,22 +230,7 @@ function LogoSVG() {
         </rect>
       </g>
 
-      {/* ── Mini pixel robot floating nearby — subtle ── */}
-      <g opacity="0.5">
-        <animateTransform attributeName="transform" type="translate"
-          values="0,0; 0,-2; 0,0; 0,2; 0,0" dur="2s" repeatCount="indefinite" />
-        {/* Robot head */}
-        {px(39, 4, '#4ECDC4')}{px(40, 4, '#4ECDC4')}{px(41, 4, '#4ECDC4')}
-        {px(39, 5, '#4ECDC4')}{px(40, 5, '#44FF88')}{px(41, 5, '#4ECDC4')}
-        {/* Eyes */}
-        {px(39, 5, '#0D0F0E')}{px(41, 5, '#0D0F0E')}
-        {/* Antenna */}
-        {px(40, 3, '#44FF88')}
-        {/* Body */}
-        {px(39, 6, '#778877')}{px(40, 6, '#778877')}{px(41, 6, '#778877')}
-        {/* Arms */}
-        {px(38, 6, '#778877')}{px(42, 6, '#778877')}
-      </g>
+      {/* (robot removed — cleaner hero) */}
     </svg>
   );
 }
@@ -392,6 +434,9 @@ export function CommunityScreen() {
             One person with AI agents will build what teams of 50 couldn&rsquo;t.
             We&rsquo;re the AI preppers &mdash; the builder kind.
           </p>
+          <div className={styles.robotRow}>
+            <PixelRobot className={styles.pixelPersonSmall} />
+          </div>
           <p className={styles.terminalLine}>&gt; the startup world needs to catch up_</p>
         </div>
       </section>
@@ -536,8 +581,10 @@ export function CommunityScreen() {
         </div>
         <div className={styles.finalPeople}>
           <PixelPerson hairColor="#44FF88" shirtColor="#FF6B4A" />
+          <PixelRobot />
           <PixelPerson hairColor="#4ECDC4" shirtColor="#FFE66D" flip />
           <PixelPerson hairColor="#FF6B4A" shirtColor="#44FF88" />
+          <PixelRobot />
           <PixelPerson hairColor="#FFE66D" shirtColor="#4ECDC4" flip />
         </div>
       </section>

@@ -86,12 +86,11 @@
 }
 
 .heroSub {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--green-dim);
-  margin-bottom: 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-dim);
+  margin-bottom: 28px;
 }
 
 /* Neon flicker for "solo project." */
@@ -398,14 +397,14 @@
 
 /* ── Pixel characters ── */
 .pixelPerson {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 48px;
   flex-shrink: 0;
 }
 
 .pixelPersonSmall {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 40px;
   flex-shrink: 0;
 }
 
@@ -414,6 +413,12 @@
   gap: 4px;
   justify-content: flex-end;
   margin-top: 12px;
+}
+
+.robotRow {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
 }
 
 .finalPeople {

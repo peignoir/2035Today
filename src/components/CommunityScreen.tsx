@@ -61,39 +61,50 @@ function LogoSVG() {
   );
 
   return (
-    <svg viewBox="80 -2 120 68" className={styles.heroIcon} aria-hidden="true" style={{ imageRendering: 'pixelated' }}>
+    <svg viewBox="80 -2 120 68" className={styles.heroIcon} aria-hidden="true" style={{ imageRendering: 'pixelated', overflow: 'visible' }}>
       <defs>
         <linearGradient id="trailGrad" x1="1" y1="0" x2="0" y2="0">
           <stop offset="0%" stopColor="#FF6B4A" stopOpacity="0.9" />
           <stop offset="50%" stopColor="#FFE66D" stopOpacity="0.4" />
           <stop offset="100%" stopColor="#44FF88" stopOpacity="0" />
         </linearGradient>
+        {/* Edge fade mask — feathers all edges to transparent */}
+        <radialGradient id="fadeMask" cx="0.55" cy="0.45" rx="0.5" ry="0.5">
+          <stop offset="40%" stopColor="white" stopOpacity="1" />
+          <stop offset="100%" stopColor="white" stopOpacity="0" />
+        </radialGradient>
+        <mask id="edgeFade">
+          <rect x="60" y="-20" width="160" height="100" fill="url(#fadeMask)" />
+        </mask>
       </defs>
 
-      {/* ── Speed lines streaking left (horizontal) ── */}
-      <rect x="0" y="18" width="14" height="1.5" fill="#44FF88" opacity="0.45">
-        <animate attributeName="x" values="200;-20" dur="0.5s" repeatCount="indefinite" />
-      </rect>
-      <rect x="0" y="32" width="10" height="1.5" fill="#4ECDC4" opacity="0.3">
-        <animate attributeName="x" values="210;-15" dur="0.65s" repeatCount="indefinite" />
-      </rect>
-      <rect x="0" y="48" width="12" height="1.5" fill="#44FF88" opacity="0.4">
-        <animate attributeName="x" values="205;-18" dur="0.55s" repeatCount="indefinite" />
-      </rect>
-      <rect x="0" y="60" width="8" height="1.5" fill="#778877" opacity="0.25">
-        <animate attributeName="x" values="195;-12" dur="0.4s" repeatCount="indefinite" />
-      </rect>
+      {/* ── Speed lines & stars — masked to fade at edges ── */}
+      <g mask="url(#edgeFade)">
+        {/* Speed lines streaking left */}
+        <rect x="0" y="18" width="14" height="1.5" fill="#44FF88" opacity="0.45">
+          <animate attributeName="x" values="200;-20" dur="0.5s" repeatCount="indefinite" />
+        </rect>
+        <rect x="0" y="32" width="10" height="1.5" fill="#4ECDC4" opacity="0.3">
+          <animate attributeName="x" values="210;-15" dur="0.65s" repeatCount="indefinite" />
+        </rect>
+        <rect x="0" y="48" width="12" height="1.5" fill="#44FF88" opacity="0.4">
+          <animate attributeName="x" values="205;-18" dur="0.55s" repeatCount="indefinite" />
+        </rect>
+        <rect x="0" y="60" width="8" height="1.5" fill="#778877" opacity="0.25">
+          <animate attributeName="x" values="195;-12" dur="0.4s" repeatCount="indefinite" />
+        </rect>
 
-      {/* ── Pixel stars streaking left ── */}
-      <rect x="0" y="10" width="3" height="3" fill="#44FF88" opacity="0.6" shapeRendering="crispEdges">
-        <animate attributeName="x" values="210;-10" dur="0.75s" repeatCount="indefinite" />
-      </rect>
-      <rect x="0" y="42" width="3" height="3" fill="#FFE66D" opacity="0.5" shapeRendering="crispEdges">
-        <animate attributeName="x" values="220;-10" dur="0.9s" repeatCount="indefinite" />
-      </rect>
-      <rect x="0" y="55" width="3" height="3" fill="#FF6B4A" opacity="0.4" shapeRendering="crispEdges">
-        <animate attributeName="x" values="200;-10" dur="1.1s" repeatCount="indefinite" />
-      </rect>
+        {/* Pixel stars streaking left */}
+        <rect x="0" y="10" width="3" height="3" fill="#44FF88" opacity="0.6" shapeRendering="crispEdges">
+          <animate attributeName="x" values="210;-10" dur="0.75s" repeatCount="indefinite" />
+        </rect>
+        <rect x="0" y="42" width="3" height="3" fill="#FFE66D" opacity="0.5" shapeRendering="crispEdges">
+          <animate attributeName="x" values="220;-10" dur="0.9s" repeatCount="indefinite" />
+        </rect>
+        <rect x="0" y="55" width="3" height="3" fill="#FF6B4A" opacity="0.4" shapeRendering="crispEdges">
+          <animate attributeName="x" values="200;-10" dur="1.1s" repeatCount="indefinite" />
+        </rect>
+      </g>
 
       {/* ── Rocket + rider group — shakes ── */}
       <g>

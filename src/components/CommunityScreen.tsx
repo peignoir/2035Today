@@ -230,7 +230,7 @@ function LogoSVG() {
         </rect>
       </g>
 
-      {/* (robot removed — cleaner hero) */}
+      {/* empty — clean hero */}
     </svg>
   );
 }
@@ -421,8 +421,9 @@ export function CommunityScreen() {
           <div className={styles.productHeader}>
             <h2 className={`${styles.productTitle} ${styles.tealText}`}>Solo HA</h2>
             <span className={`${styles.productBadge} ${styles.tealBadge}`}>Online</span>
+            <span className={`${styles.productBadge} ${styles.tealBadge}`}>Open to all</span>
           </div>
-          <p className={styles.productSubtitle}>Hyper Accelerator</p>
+          <p className={styles.productSubtitle}>Hyper Accelerator &mdash; Next one starts soon</p>
           <p className={`${styles.productTagline} ${styles.tealText}`}>At the speed of AI.</p>
           <p className={styles.sectionSub}>
             One week. Every month. A gamified web app.
@@ -434,6 +435,7 @@ export function CommunityScreen() {
             One person with AI agents will build what teams of 50 couldn&rsquo;t.
             We&rsquo;re the AI preppers &mdash; the builder kind.
           </p>
+          <p className={styles.haMonthly}>Every month. Free. Apply now for the next cohort.</p>
           <div className={styles.robotRow}>
             <PixelRobot className={styles.pixelPersonSmall} />
           </div>
@@ -489,9 +491,9 @@ export function CommunityScreen() {
       {/* ── Cities ── */}
       <section id="cities" className={styles.citiesSection}>
         <div className={styles.inner}>
-          <h2 className={styles.sectionTitle}>Find your city</h2>
+          <h2 className={styles.sectionTitle}>Solo Jam near you</h2>
           <p className={styles.sectionSub}>
-            Join an upcoming Solo Jam or start one where you are.
+            Find an upcoming Solo Jam or start one where you are.
           </p>
 
           {(() => {
@@ -569,7 +571,7 @@ export function CommunityScreen() {
           <span className={styles.accentText}>The future starts as a solo project.</span>
         </h2>
         <p className={styles.finalSub}>
-          Join a Solo Jam near you, or start one in your city.
+          Find a Solo Jam near you, or start one in your city.
         </p>
         <div className={styles.ctaRow}>
           <Link to="/apply" className={styles.ctaPrimary}>

@@ -400,19 +400,43 @@
   width: 32px;
   height: 48px;
   flex-shrink: 0;
+  animation: pixelBob 3s ease-in-out infinite;
+}
+
+.pixelPerson:nth-child(2) { animation-delay: -0.6s; }
+.pixelPerson:nth-child(3) { animation-delay: -1.2s; }
+.pixelPerson:nth-child(4) { animation-delay: -1.8s; }
+.pixelPerson:nth-child(5) { animation-delay: -2.4s; }
+.pixelPerson:nth-child(6) { animation-delay: -0.3s; }
+
+@keyframes pixelBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
 .pixelPersonSmall {
   width: 26px;
   height: 40px;
   flex-shrink: 0;
+  animation: pixelBob 3s ease-in-out infinite;
 }
+
+.pixelPersonSmall:nth-child(2) { animation-delay: -1s; }
 
 .actPeople {
   display: flex;
   gap: 4px;
   justify-content: flex-end;
   margin-top: 12px;
+}
+
+.haMonthly {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--teal);
+  text-align: center;
+  margin-top: -16px;
+  margin-bottom: 16px;
 }
 
 .robotRow {

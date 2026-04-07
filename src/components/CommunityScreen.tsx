@@ -131,9 +131,12 @@ function LogoSVG() {
         </rect>
       </g>
 
-      <g>
+      {/* ── Rocket (no rider) — light, clean ── */}
+      <g opacity="0.75">
         <animateTransform attributeName="transform" type="translate"
-          values="0,0; 0.5,-0.6; -0.3,0.5; 0.4,-0.3; 0,0" dur="0.18s" repeatCount="indefinite" />
+          values="0,0; 0.4,-0.4; -0.3,0.3; 0.2,-0.2; 0,0" dur="0.22s" repeatCount="indefinite" />
+
+        {/* Rocket body */}
         {px(37, 9, '#EEEEEE')}
         {px(36, 8, '#EEEEEE')}{px(36, 9, '#DDDDDD')}{px(36, 10, '#EEEEEE')}
         {px(35, 7, '#EEEEEE')}{px(35, 8, '#CCCCCC')}{px(35, 9, '#CCCCCC')}{px(35, 10, '#CCCCCC')}{px(35, 11, '#EEEEEE')}
@@ -143,10 +146,13 @@ function LogoSVG() {
         {px(31, 7, '#EEEEEE')}{px(31, 8, '#CCCCCC')}{px(31, 9, '#CCCCCC')}{px(31, 10, '#CCCCCC')}{px(31, 11, '#EEEEEE')}
         {px(30, 7, '#EEEEEE')}{px(30, 8, '#CCCCCC')}{px(30, 9, '#CCCCCC')}{px(30, 10, '#CCCCCC')}{px(30, 11, '#EEEEEE')}
         {px(29, 7, '#EEEEEE')}{px(29, 8, '#CCCCCC')}{px(29, 9, '#CCCCCC')}{px(29, 10, '#CCCCCC')}{px(29, 11, '#EEEEEE')}
+        {/* Fins */}
         {px(29, 6, '#FF6B4A')}{px(30, 6, '#FF6B4A')}
         {px(28, 5, '#FF6B4A')}{px(29, 5, '#FF6B4A')}
         {px(29, 12, '#FF6B4A')}{px(30, 12, '#FF6B4A')}
         {px(28, 13, '#FF6B4A')}{px(29, 13, '#FF6B4A')}
+
+        {/* Exhaust flame */}
         <g>
           {px(28, 8, '#FFE66D')}{px(28, 9, '#FFE66D')}{px(28, 10, '#FFE66D')}
           {px(27, 7, '#FF6B4A')}{px(27, 8, '#FFE66D')}{px(27, 9, '#FFFFFF')}{px(27, 10, '#FFE66D')}{px(27, 11, '#FF6B4A')}
@@ -155,23 +161,33 @@ function LogoSVG() {
           <animate attributeName="opacity" values="1;0.5;1" dur="0.1s" repeatCount="indefinite" />
         </g>
         <g>
-          {px(26, 7, '#FF6B4A', 0.7)}{px(26, 11, '#FF6B4A', 0.7)}
-          {px(25, 8, '#FF6B4A', 0.5)}{px(25, 10, '#FF6B4A', 0.5)}
-          {px(24, 9, '#FF6B4A', 0.3)}{px(24, 8, '#FF6B4A', 0.2)}{px(24, 10, '#FF6B4A', 0.2)}
-          <animate attributeName="opacity" values="0.7;0.15;0.7" dur="0.08s" repeatCount="indefinite" />
+          {px(26, 7, '#FF6B4A', 0.6)}{px(26, 11, '#FF6B4A', 0.6)}
+          {px(25, 8, '#FF6B4A', 0.4)}{px(25, 10, '#FF6B4A', 0.4)}
+          {px(24, 9, '#FF6B4A', 0.2)}
+          <animate attributeName="opacity" values="0.6;0.1;0.6" dur="0.08s" repeatCount="indefinite" />
         </g>
-        <rect x="0" y="34" width="96" height="8" fill="url(#trailGrad)" opacity="0.35" rx="1">
-          <animate attributeName="opacity" values="0.35;0.12;0.35" dur="0.2s" repeatCount="indefinite" />
+
+        {/* Exhaust trail */}
+        <rect x="0" y="34" width="96" height="8" fill="url(#trailGrad)" opacity="0.25" rx="1">
+          <animate attributeName="opacity" values="0.25;0.08;0.25" dur="0.2s" repeatCount="indefinite" />
         </rect>
-        {px(32, 6, '#EEEEEE')}{px(34, 6, '#EEEEEE')}
-        {px(33, 5, '#FF6B4A')}
-        {px(32, 4, '#FF6B4A')}{px(33, 4, '#FF6B4A')}{px(34, 4, '#FF6B4A')}
-        {px(35, 3, '#EEEEEE')}{px(36, 2, '#EEEEEE')}
-        {px(31, 3, '#EEEEEE')}{px(30, 2, '#EEEEEE')}
-        {px(32, 3, '#EEEEEE')}{px(33, 3, '#EEEEEE')}{px(34, 3, '#EEEEEE')}
-        {px(34, 3, '#0D0F0E')}
-        {px(31, 2, '#44FF88')}{px(32, 2, '#44FF88')}{px(33, 2, '#44FF88')}{px(34, 2, '#44FF88')}
-        {px(30, 1, '#44FF88')}{px(31, 1, '#44FF88')}
+      </g>
+
+      {/* ── Mini pixel robot floating nearby — subtle ── */}
+      <g opacity="0.5">
+        <animateTransform attributeName="transform" type="translate"
+          values="0,0; 0,-2; 0,0; 0,2; 0,0" dur="2s" repeatCount="indefinite" />
+        {/* Robot head */}
+        {px(39, 4, '#4ECDC4')}{px(40, 4, '#4ECDC4')}{px(41, 4, '#4ECDC4')}
+        {px(39, 5, '#4ECDC4')}{px(40, 5, '#44FF88')}{px(41, 5, '#4ECDC4')}
+        {/* Eyes */}
+        {px(39, 5, '#0D0F0E')}{px(41, 5, '#0D0F0E')}
+        {/* Antenna */}
+        {px(40, 3, '#44FF88')}
+        {/* Body */}
+        {px(39, 6, '#778877')}{px(40, 6, '#778877')}{px(41, 6, '#778877')}
+        {/* Arms */}
+        {px(38, 6, '#778877')}{px(42, 6, '#778877')}
       </g>
     </svg>
   );

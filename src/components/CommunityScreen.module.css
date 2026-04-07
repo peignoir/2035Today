@@ -54,9 +54,9 @@
 }
 
 .heroIcon {
-  width: 140px;
-  height: 160px;
-  margin: 0 auto 4px;
+  width: 360px;
+  height: 122px;
+  margin: 0 auto 8px;
   display: block;
   image-rendering: pixelated;
 }

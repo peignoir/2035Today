@@ -53,110 +53,119 @@ function RotatingWelcome() {
   );
 }
 
-/* ── Logo SVG — pixel art founder on a rocket blasting through space ── */
+/* ── Logo SVG — horizontal pixel rocket with rider on top ── */
 function LogoSVG() {
-  const S = 5; // pixel size — big chunky pixels
+  const S = 4; // pixel size
   const px = (x: number, y: number, fill: string, o = 1) => (
     <rect key={`${x}-${y}-${fill}`} x={x * S} y={y * S} width={S} height={S} fill={fill} opacity={o} shapeRendering="crispEdges" />
   );
 
   return (
-    <svg viewBox="0 0 75 110" className={styles.heroIcon} aria-hidden="true" style={{ imageRendering: 'pixelated' }}>
+    <svg viewBox="80 -2 120 68" className={styles.heroIcon} aria-hidden="true" style={{ imageRendering: 'pixelated' }}>
       <defs>
-        <linearGradient id="trailGrad" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="trailGrad" x1="1" y1="0" x2="0" y2="0">
           <stop offset="0%" stopColor="#FF6B4A" stopOpacity="0.9" />
-          <stop offset="50%" stopColor="#FFE66D" stopOpacity="0.5" />
+          <stop offset="50%" stopColor="#FFE66D" stopOpacity="0.4" />
           <stop offset="100%" stopColor="#44FF88" stopOpacity="0" />
         </linearGradient>
       </defs>
 
-      {/* ── Speed lines streaking downward ── */}
-      <rect x="5" y="0" width="1.5" height="12" fill="#44FF88" opacity="0.5">
-        <animate attributeName="y" values="-15;115" dur="0.55s" repeatCount="indefinite" />
+      {/* ── Speed lines streaking left (horizontal) ── */}
+      <rect x="0" y="18" width="14" height="1.5" fill="#44FF88" opacity="0.45">
+        <animate attributeName="x" values="200;-20" dur="0.5s" repeatCount="indefinite" />
       </rect>
-      <rect x="18" y="0" width="1.5" height="8" fill="#4ECDC4" opacity="0.35">
-        <animate attributeName="y" values="-20;110" dur="0.7s" repeatCount="indefinite" />
+      <rect x="0" y="32" width="10" height="1.5" fill="#4ECDC4" opacity="0.3">
+        <animate attributeName="x" values="210;-15" dur="0.65s" repeatCount="indefinite" />
       </rect>
-      <rect x="58" y="0" width="1.5" height="10" fill="#44FF88" opacity="0.4">
-        <animate attributeName="y" values="-10;120" dur="0.6s" repeatCount="indefinite" />
+      <rect x="0" y="48" width="12" height="1.5" fill="#44FF88" opacity="0.4">
+        <animate attributeName="x" values="205;-18" dur="0.55s" repeatCount="indefinite" />
       </rect>
-      <rect x="70" y="0" width="1.5" height="7" fill="#778877" opacity="0.3">
-        <animate attributeName="y" values="-8;118" dur="0.45s" repeatCount="indefinite" />
-      </rect>
-
-      {/* ── Pixel stars zooming by ── */}
-      <rect x="12" y="0" width="3" height="3" fill="#44FF88" opacity="0.7" shapeRendering="crispEdges">
-        <animate attributeName="y" values="-5;115" dur="0.8s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.7;0.1;0.7" dur="0.8s" repeatCount="indefinite" />
-      </rect>
-      <rect x="62" y="0" width="3" height="3" fill="#FFE66D" opacity="0.5" shapeRendering="crispEdges">
-        <animate attributeName="y" values="-12;108" dur="1s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.5;0.1;0.5" dur="1s" repeatCount="indefinite" />
-      </rect>
-      <rect x="25" y="0" width="3" height="3" fill="#FF6B4A" opacity="0.45" shapeRendering="crispEdges">
-        <animate attributeName="y" values="-18;102" dur="1.2s" repeatCount="indefinite" />
+      <rect x="0" y="60" width="8" height="1.5" fill="#778877" opacity="0.25">
+        <animate attributeName="x" values="195;-12" dur="0.4s" repeatCount="indefinite" />
       </rect>
 
-      {/* ── The rocket + rider group (shakes for speed) ── */}
+      {/* ── Pixel stars streaking left ── */}
+      <rect x="0" y="10" width="3" height="3" fill="#44FF88" opacity="0.6" shapeRendering="crispEdges">
+        <animate attributeName="x" values="210;-10" dur="0.75s" repeatCount="indefinite" />
+      </rect>
+      <rect x="0" y="42" width="3" height="3" fill="#FFE66D" opacity="0.5" shapeRendering="crispEdges">
+        <animate attributeName="x" values="220;-10" dur="0.9s" repeatCount="indefinite" />
+      </rect>
+      <rect x="0" y="55" width="3" height="3" fill="#FF6B4A" opacity="0.4" shapeRendering="crispEdges">
+        <animate attributeName="x" values="200;-10" dur="1.1s" repeatCount="indefinite" />
+      </rect>
+
+      {/* ── Rocket + rider group — shakes ── */}
       <g>
         <animateTransform
           attributeName="transform"
           type="translate"
-          values="0,0; -0.8,0.5; 0.6,-0.4; -0.4,0.6; 0,0"
+          values="0,0; 0.5,-0.6; -0.3,0.5; 0.4,-0.3; 0,0"
           dur="0.18s"
           repeatCount="indefinite"
         />
 
-        {/* ── Pixel person ── */}
-        {/* Green hair */}
-        {px(6, 0, '#44FF88')}{px(7, 0, '#44FF88')}{px(8, 0, '#44FF88')}
-        {/* Face */}
-        {px(6, 1, '#EEEEEE')}{px(7, 1, '#EEEEEE')}{px(8, 1, '#EEEEEE')}
-        {/* Eyes */}
-        {px(6, 1, '#0D0F0E')}{px(8, 1, '#0D0F0E')}
-        {/* Torso */}
-        {px(7, 2, '#FF6B4A')}
-        {px(6, 3, '#FF6B4A')}{px(7, 3, '#FF6B4A')}{px(8, 3, '#FF6B4A')}
-        {/* Arms raised */}
-        {px(4, 1, '#EEEEEE')}{px(5, 2, '#EEEEEE')}
-        {px(10, 1, '#EEEEEE')}{px(9, 2, '#EEEEEE')}
+        {/* ── HORIZONTAL ROCKET (nose pointing right) ── */}
+        {/* Nose cone — rightmost */}
+        {px(37, 9, '#EEEEEE')}
+        {px(36, 8, '#EEEEEE')}{px(36, 9, '#DDDDDD')}{px(36, 10, '#EEEEEE')}
 
-        {/* ── Rocket body ── */}
-        {/* Nose */}
-        {px(7, 4, '#EEEEEE')}
-        {px(6, 5, '#EEEEEE')}{px(7, 5, '#DDDDDD')}{px(8, 5, '#EEEEEE')}
         {/* Hull */}
-        {px(5, 6, '#EEEEEE')}{px(6, 6, '#CCCCCC')}{px(7, 6, '#CCCCCC')}{px(8, 6, '#CCCCCC')}{px(9, 6, '#EEEEEE')}
+        {px(35, 7, '#EEEEEE')}{px(35, 8, '#CCCCCC')}{px(35, 9, '#CCCCCC')}{px(35, 10, '#CCCCCC')}{px(35, 11, '#EEEEEE')}
         {/* Window stripe */}
-        {px(5, 7, '#EEEEEE')}{px(6, 7, '#4ECDC4')}{px(7, 7, '#44FF88')}{px(8, 7, '#4ECDC4')}{px(9, 7, '#EEEEEE')}
-        {/* Hull */}
-        {px(5, 8, '#EEEEEE')}{px(6, 8, '#CCCCCC')}{px(7, 8, '#CCCCCC')}{px(8, 8, '#CCCCCC')}{px(9, 8, '#EEEEEE')}
-        {px(5, 9, '#EEEEEE')}{px(6, 9, '#CCCCCC')}{px(7, 9, '#CCCCCC')}{px(8, 9, '#CCCCCC')}{px(9, 9, '#EEEEEE')}
-        {/* Fins */}
-        {px(4, 9, '#FF6B4A')}{px(10, 9, '#FF6B4A')}
-        {px(3, 10, '#FF6B4A')}{px(5, 10, '#EEEEEE')}{px(6, 10, '#CCCCCC')}{px(7, 10, '#CCCCCC')}{px(8, 10, '#CCCCCC')}{px(9, 10, '#EEEEEE')}{px(11, 10, '#FF6B4A')}
-        {px(3, 11, '#FF6B4A')}{px(11, 11, '#FF6B4A')}
+        {px(34, 7, '#EEEEEE')}{px(34, 8, '#4ECDC4')}{px(34, 9, '#44FF88')}{px(34, 10, '#4ECDC4')}{px(34, 11, '#EEEEEE')}
+        {/* More hull */}
+        {px(33, 7, '#EEEEEE')}{px(33, 8, '#CCCCCC')}{px(33, 9, '#CCCCCC')}{px(33, 10, '#CCCCCC')}{px(33, 11, '#EEEEEE')}
+        {px(32, 7, '#EEEEEE')}{px(32, 8, '#CCCCCC')}{px(32, 9, '#CCCCCC')}{px(32, 10, '#CCCCCC')}{px(32, 11, '#EEEEEE')}
+        {px(31, 7, '#EEEEEE')}{px(31, 8, '#CCCCCC')}{px(31, 9, '#CCCCCC')}{px(31, 10, '#CCCCCC')}{px(31, 11, '#EEEEEE')}
+        {px(30, 7, '#EEEEEE')}{px(30, 8, '#CCCCCC')}{px(30, 9, '#CCCCCC')}{px(30, 10, '#CCCCCC')}{px(30, 11, '#EEEEEE')}
 
-        {/* ── Exhaust flame — flickers fast ── */}
+        {/* Tail */}
+        {px(29, 7, '#EEEEEE')}{px(29, 8, '#CCCCCC')}{px(29, 9, '#CCCCCC')}{px(29, 10, '#CCCCCC')}{px(29, 11, '#EEEEEE')}
+
+        {/* Fins (top and bottom) */}
+        {px(29, 6, '#FF6B4A')}{px(30, 6, '#FF6B4A')}
+        {px(28, 5, '#FF6B4A')}{px(29, 5, '#FF6B4A')}
+        {px(29, 12, '#FF6B4A')}{px(30, 12, '#FF6B4A')}
+        {px(28, 13, '#FF6B4A')}{px(29, 13, '#FF6B4A')}
+
+        {/* ── Exhaust flame (left of rocket, horizontal) ── */}
         <g>
-          {px(6, 11, '#FFE66D')}{px(7, 11, '#FFE66D')}{px(8, 11, '#FFE66D')}
-          {px(5, 12, '#FF6B4A')}{px(6, 12, '#FFE66D')}{px(7, 12, '#FFFFFF')}{px(8, 12, '#FFE66D')}{px(9, 12, '#FF6B4A')}
-          {px(6, 13, '#FF6B4A')}{px(7, 13, '#FFE66D')}{px(8, 13, '#FF6B4A')}
-          {px(7, 14, '#FF6B4A')}
+          {px(28, 8, '#FFE66D')}{px(28, 9, '#FFE66D')}{px(28, 10, '#FFE66D')}
+          {px(27, 7, '#FF6B4A')}{px(27, 8, '#FFE66D')}{px(27, 9, '#FFFFFF')}{px(27, 10, '#FFE66D')}{px(27, 11, '#FF6B4A')}
+          {px(26, 8, '#FF6B4A')}{px(26, 9, '#FFE66D')}{px(26, 10, '#FF6B4A')}
+          {px(25, 9, '#FF6B4A')}
           <animate attributeName="opacity" values="1;0.5;1" dur="0.1s" repeatCount="indefinite" />
         </g>
         <g>
-          {px(5, 13, '#FF6B4A', 0.7)}{px(9, 13, '#FF6B4A', 0.7)}
-          {px(6, 14, '#FF6B4A', 0.5)}{px(8, 14, '#FF6B4A', 0.5)}
-          {px(5, 14, '#FF6B4A', 0.3)}{px(9, 14, '#FF6B4A', 0.3)}
-          {px(7, 15, '#FF6B4A', 0.3)}
+          {px(26, 7, '#FF6B4A', 0.7)}{px(26, 11, '#FF6B4A', 0.7)}
+          {px(25, 8, '#FF6B4A', 0.5)}{px(25, 10, '#FF6B4A', 0.5)}
+          {px(24, 9, '#FF6B4A', 0.3)}
+          {px(24, 8, '#FF6B4A', 0.2)}{px(24, 10, '#FF6B4A', 0.2)}
           <animate attributeName="opacity" values="0.7;0.15;0.7" dur="0.08s" repeatCount="indefinite" />
         </g>
 
-        {/* ── Long exhaust trail ── */}
-        <rect x="30" y="78" width="15" height="35" fill="url(#trailGrad)" opacity="0.4" rx="2">
-          <animate attributeName="opacity" values="0.4;0.15;0.4" dur="0.2s" repeatCount="indefinite" />
+        {/* ── Exhaust trail (long, fading left) ── */}
+        <rect x="0" y="34" width="96" height="8" fill="url(#trailGrad)" opacity="0.35" rx="1">
+          <animate attributeName="opacity" values="0.35;0.12;0.35" dur="0.2s" repeatCount="indefinite" />
         </rect>
+
+        {/* ── Pixel person sitting on top ── */}
+        {/* Legs dangling on sides of rocket */}
+        {px(32, 6, '#EEEEEE')}{px(34, 6, '#EEEEEE')}
+        {/* Body / torso on top of hull */}
+        {px(33, 5, '#FF6B4A')}
+        {px(32, 4, '#FF6B4A')}{px(33, 4, '#FF6B4A')}{px(34, 4, '#FF6B4A')}
+        {/* Arms — one forward, one up */}
+        {px(35, 3, '#EEEEEE')}{px(36, 2, '#EEEEEE')}
+        {px(31, 3, '#EEEEEE')}{px(30, 2, '#EEEEEE')}
+        {/* Head */}
+        {px(32, 3, '#EEEEEE')}{px(33, 3, '#EEEEEE')}{px(34, 3, '#EEEEEE')}
+        {/* Eyes (looking forward = right) */}
+        {px(34, 3, '#0D0F0E')}
+        {/* Green hair blowing back */}
+        {px(31, 2, '#44FF88')}{px(32, 2, '#44FF88')}{px(33, 2, '#44FF88')}{px(34, 2, '#44FF88')}
+        {px(30, 1, '#44FF88')}{px(31, 1, '#44FF88')}
       </g>
     </svg>
   );

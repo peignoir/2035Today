@@ -207,7 +207,7 @@ export function CommunityScreen() {
           <LogoSVG />
           <h1 className={styles.headline}>
             <span className={styles.brandName}>2035 Today</span>
-            <span className={styles.tagline}>What was impossible is now a <span className={styles.flicker}>solo project.</span></span>
+            <span className={styles.tagline}>The future starts as a <span className={styles.flicker}>solo project.</span></span>
           </h1>
           <p className={styles.heroSub}>the global solo founders community</p>
           <p className={styles.heroMission}>
@@ -505,7 +505,7 @@ export function CommunityScreen() {
       {/* ── Bottom CTA ── */}
       <section className={styles.finalCta}>
         <h2 className={styles.finalHeadline}>
-          <span className={styles.accentText}>What was impossible is now a solo project.</span>
+          <span className={styles.accentText}>The future starts as a solo project.</span>
         </h2>
         <p className={styles.finalSub}>
           Join a Solo Jam near you, or start one in your city.

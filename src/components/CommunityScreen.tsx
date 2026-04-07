@@ -345,11 +345,11 @@ export function CommunityScreen() {
                 <span className={styles.actNum} style={{ color: '#FF6B4A' }}>2</span>
                 <span className={styles.actTime}>20 min</span>
               </div>
-              <h3 className={styles.actName} style={{ color: '#FF6B4A' }}>Vibe Launch</h3>
+              <h3 className={styles.actName} style={{ color: '#FF6B4A' }}>Vibe Pitch</h3>
               <p className={styles.actDesc}>
-                Solo founders pitch what they&rsquo;re working on.
+                Connect your bio, idea, or not &mdash; you&rsquo;re in!
                 Raw, real, no polish.
-                Just the idea and the energy.
+                Just show up and the energy does the rest.
               </p>
               <div className={styles.actPeople}>
                 <PixelPerson hairColor="#FF6B4A" shirtColor="#FFE66D" className={styles.pixelPersonSmall} />

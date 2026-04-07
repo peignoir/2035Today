@@ -53,9 +53,39 @@ function RotatingWelcome() {
   );
 }
 
+/* ── Reusable pixel character builder ── */
+function PixelPerson({ hairColor, shirtColor, flip, className }: {
+  hairColor: string; shirtColor: string; flip?: boolean; className?: string;
+}) {
+  const S = 4;
+  const px = (x: number, y: number, fill: string) => (
+    <rect key={`${x}-${y}`} x={x * S} y={y * S} width={S} height={S} fill={fill} shapeRendering="crispEdges" />
+  );
+  return (
+    <svg viewBox="0 0 28 44" className={className || styles.pixelPerson}
+      style={{ imageRendering: 'pixelated', transform: flip ? 'scaleX(-1)' : undefined }} aria-hidden="true">
+      {/* Hair */}
+      {px(2, 0, hairColor)}{px(3, 0, hairColor)}{px(4, 0, hairColor)}
+      {/* Face */}
+      {px(2, 1, '#EEEEEE')}{px(3, 1, '#EEEEEE')}{px(4, 1, '#EEEEEE')}
+      {/* Eyes */}
+      {px(2, 1, '#0D0F0E')}{px(4, 1, '#0D0F0E')}
+      {/* Torso */}
+      {px(3, 2, shirtColor)}
+      {px(2, 3, shirtColor)}{px(3, 3, shirtColor)}{px(4, 3, shirtColor)}
+      {/* Arms */}
+      {px(1, 2, '#EEEEEE')}{px(5, 2, '#EEEEEE')}
+      {/* Legs */}
+      {px(2, 4, '#445544')}{px(4, 4, '#445544')}
+      {/* Feet */}
+      {px(1, 5, '#778877')}{px(2, 5, '#778877')}{px(4, 5, '#778877')}{px(5, 5, '#778877')}
+    </svg>
+  );
+}
+
 /* ── Logo SVG — horizontal pixel rocket with rider on top ── */
 function LogoSVG() {
-  const S = 4; // pixel size
+  const S = 4;
   const px = (x: number, y: number, fill: string, o = 1) => (
     <rect key={`${x}-${y}-${fill}`} x={x * S} y={y * S} width={S} height={S} fill={fill} opacity={o} shapeRendering="crispEdges" />
   );
@@ -68,7 +98,6 @@ function LogoSVG() {
           <stop offset="50%" stopColor="#FFE66D" stopOpacity="0.4" />
           <stop offset="100%" stopColor="#44FF88" stopOpacity="0" />
         </linearGradient>
-        {/* Edge fade mask — feathers all edges to transparent */}
         <radialGradient id="fadeMask" cx="0.55" cy="0.45" rx="0.5" ry="0.5">
           <stop offset="40%" stopColor="white" stopOpacity="1" />
           <stop offset="100%" stopColor="white" stopOpacity="0" />
@@ -78,9 +107,7 @@ function LogoSVG() {
         </mask>
       </defs>
 
-      {/* ── Speed lines & stars — masked to fade at edges ── */}
       <g mask="url(#edgeFade)">
-        {/* Speed lines streaking left */}
         <rect x="0" y="18" width="14" height="1.5" fill="#44FF88" opacity="0.45">
           <animate attributeName="x" values="200;-20" dur="0.5s" repeatCount="indefinite" />
         </rect>
@@ -93,8 +120,6 @@ function LogoSVG() {
         <rect x="0" y="60" width="8" height="1.5" fill="#778877" opacity="0.25">
           <animate attributeName="x" values="195;-12" dur="0.4s" repeatCount="indefinite" />
         </rect>
-
-        {/* Pixel stars streaking left */}
         <rect x="0" y="10" width="3" height="3" fill="#44FF88" opacity="0.6" shapeRendering="crispEdges">
           <animate attributeName="x" values="210;-10" dur="0.75s" repeatCount="indefinite" />
         </rect>
@@ -106,41 +131,22 @@ function LogoSVG() {
         </rect>
       </g>
 
-      {/* ── Rocket + rider group — shakes ── */}
       <g>
-        <animateTransform
-          attributeName="transform"
-          type="translate"
-          values="0,0; 0.5,-0.6; -0.3,0.5; 0.4,-0.3; 0,0"
-          dur="0.18s"
-          repeatCount="indefinite"
-        />
-
-        {/* ── HORIZONTAL ROCKET (nose pointing right) ── */}
-        {/* Nose cone — rightmost */}
+        <animateTransform attributeName="transform" type="translate"
+          values="0,0; 0.5,-0.6; -0.3,0.5; 0.4,-0.3; 0,0" dur="0.18s" repeatCount="indefinite" />
         {px(37, 9, '#EEEEEE')}
         {px(36, 8, '#EEEEEE')}{px(36, 9, '#DDDDDD')}{px(36, 10, '#EEEEEE')}
-
-        {/* Hull */}
         {px(35, 7, '#EEEEEE')}{px(35, 8, '#CCCCCC')}{px(35, 9, '#CCCCCC')}{px(35, 10, '#CCCCCC')}{px(35, 11, '#EEEEEE')}
-        {/* Window stripe */}
         {px(34, 7, '#EEEEEE')}{px(34, 8, '#4ECDC4')}{px(34, 9, '#44FF88')}{px(34, 10, '#4ECDC4')}{px(34, 11, '#EEEEEE')}
-        {/* More hull */}
         {px(33, 7, '#EEEEEE')}{px(33, 8, '#CCCCCC')}{px(33, 9, '#CCCCCC')}{px(33, 10, '#CCCCCC')}{px(33, 11, '#EEEEEE')}
         {px(32, 7, '#EEEEEE')}{px(32, 8, '#CCCCCC')}{px(32, 9, '#CCCCCC')}{px(32, 10, '#CCCCCC')}{px(32, 11, '#EEEEEE')}
         {px(31, 7, '#EEEEEE')}{px(31, 8, '#CCCCCC')}{px(31, 9, '#CCCCCC')}{px(31, 10, '#CCCCCC')}{px(31, 11, '#EEEEEE')}
         {px(30, 7, '#EEEEEE')}{px(30, 8, '#CCCCCC')}{px(30, 9, '#CCCCCC')}{px(30, 10, '#CCCCCC')}{px(30, 11, '#EEEEEE')}
-
-        {/* Tail */}
         {px(29, 7, '#EEEEEE')}{px(29, 8, '#CCCCCC')}{px(29, 9, '#CCCCCC')}{px(29, 10, '#CCCCCC')}{px(29, 11, '#EEEEEE')}
-
-        {/* Fins (top and bottom) */}
         {px(29, 6, '#FF6B4A')}{px(30, 6, '#FF6B4A')}
         {px(28, 5, '#FF6B4A')}{px(29, 5, '#FF6B4A')}
         {px(29, 12, '#FF6B4A')}{px(30, 12, '#FF6B4A')}
         {px(28, 13, '#FF6B4A')}{px(29, 13, '#FF6B4A')}
-
-        {/* ── Exhaust flame (left of rocket, horizontal) ── */}
         <g>
           {px(28, 8, '#FFE66D')}{px(28, 9, '#FFE66D')}{px(28, 10, '#FFE66D')}
           {px(27, 7, '#FF6B4A')}{px(27, 8, '#FFE66D')}{px(27, 9, '#FFFFFF')}{px(27, 10, '#FFE66D')}{px(27, 11, '#FF6B4A')}
@@ -151,30 +157,19 @@ function LogoSVG() {
         <g>
           {px(26, 7, '#FF6B4A', 0.7)}{px(26, 11, '#FF6B4A', 0.7)}
           {px(25, 8, '#FF6B4A', 0.5)}{px(25, 10, '#FF6B4A', 0.5)}
-          {px(24, 9, '#FF6B4A', 0.3)}
-          {px(24, 8, '#FF6B4A', 0.2)}{px(24, 10, '#FF6B4A', 0.2)}
+          {px(24, 9, '#FF6B4A', 0.3)}{px(24, 8, '#FF6B4A', 0.2)}{px(24, 10, '#FF6B4A', 0.2)}
           <animate attributeName="opacity" values="0.7;0.15;0.7" dur="0.08s" repeatCount="indefinite" />
         </g>
-
-        {/* ── Exhaust trail (long, fading left) ── */}
         <rect x="0" y="34" width="96" height="8" fill="url(#trailGrad)" opacity="0.35" rx="1">
           <animate attributeName="opacity" values="0.35;0.12;0.35" dur="0.2s" repeatCount="indefinite" />
         </rect>
-
-        {/* ── Pixel person sitting on top ── */}
-        {/* Legs dangling on sides of rocket */}
         {px(32, 6, '#EEEEEE')}{px(34, 6, '#EEEEEE')}
-        {/* Body / torso on top of hull */}
         {px(33, 5, '#FF6B4A')}
         {px(32, 4, '#FF6B4A')}{px(33, 4, '#FF6B4A')}{px(34, 4, '#FF6B4A')}
-        {/* Arms — one forward, one up */}
         {px(35, 3, '#EEEEEE')}{px(36, 2, '#EEEEEE')}
         {px(31, 3, '#EEEEEE')}{px(30, 2, '#EEEEEE')}
-        {/* Head */}
         {px(32, 3, '#EEEEEE')}{px(33, 3, '#EEEEEE')}{px(34, 3, '#EEEEEE')}
-        {/* Eyes (looking forward = right) */}
         {px(34, 3, '#0D0F0E')}
-        {/* Green hair blowing back */}
         {px(31, 2, '#44FF88')}{px(32, 2, '#44FF88')}{px(33, 2, '#44FF88')}{px(34, 2, '#44FF88')}
         {px(30, 1, '#44FF88')}{px(31, 1, '#44FF88')}
       </g>
@@ -185,13 +180,9 @@ function LogoSVG() {
 function formatEventDate(dateStr: string): string {
   try {
     return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+      month: 'short', day: 'numeric', year: 'numeric',
     });
-  } catch {
-    return dateStr;
-  }
+  } catch { return dateStr; }
 }
 
 function isPastEvent(dateStr: string): boolean {
@@ -228,47 +219,78 @@ export function CommunityScreen() {
             <button onClick={() => scrollTo('cities')} className={styles.ctaPrimary}>
               Find a Solo Jam
             </button>
-            <button onClick={() => scrollTo('solojam')} className={styles.ctaGhost}>
+            <button onClick={() => scrollTo('journey')} className={styles.ctaGhost}>
               How it works &darr;
             </button>
           </div>
         </div>
       </section>
 
-      {/* ── Beliefs ── */}
-      <section className={styles.beliefs}>
+      {/* ── The Solo Founder Journey — side-by-side overview ── */}
+      <section id="journey" className={styles.section}>
         <div className={styles.inner}>
-          <h2 className={styles.sectionTitle}>2035 is coming fast. We need to get ready.</h2>
-          <div className={styles.beliefGrid}>
-            <div className={styles.beliefCard}>
-              <span className={styles.beliefEmoji}>&#x1f9d1;&#x200d;&#x1f4bb;</span>
-              <h3 className={styles.beliefTitle}>Solo is the new startup</h3>
-              <p className={styles.beliefDesc}>
-                AI made everyone a builder. A designer ships code.
-                A chef launches a startup. <strong>It takes only a week to get started.</strong>
-              </p>
+          <h2 className={styles.sectionTitle}>The Solo Founder Journey</h2>
+          <p className={styles.journeyMeta}>Two products &mdash; every month &mdash; 10x faster</p>
+          <p className={styles.sectionSub}>
+            What used to take months now takes <strong className={styles.greenText}>2 hours + 1 week.</strong>
+          </p>
+          <p className={styles.journeySubMeta}>
+            A light, powerful engine. Running every month. Scaling to run even more.
+          </p>
+
+          {/* 1 → 2 cards */}
+          <div className={styles.journeyGrid}>
+            {/* Step 1 */}
+            <div className={styles.journeyCard}>
+              <span className={styles.journeyNum} style={{ borderColor: '#44FF88', color: '#44FF88' }}>1</span>
+              <div className={styles.journeyCardInner} style={{ borderTopColor: '#44FF88' }}>
+                <div className={styles.journeyCardHeader}>
+                  <h3 className={`${styles.productTitle} ${styles.greenText}`} style={{ fontSize: '2rem' }}>Solo Jam</h3>
+                  <span className={`${styles.productBadge} ${styles.greenBadge}`}>Offline &middot; Local</span>
+                </div>
+                <span className={styles.journeyLabel}>Get Inspired</span>
+                <span className={styles.journeyDuration} style={{ color: '#44FF88' }}>2h event</span>
+                <p className={styles.journeyDesc}>
+                  Volunteer speakers share visions of 2035. 20 cities globally.
+                  Universities, coworking spaces. Meet your people.
+                </p>
+                <div className={styles.journeyPeople}>
+                  <PixelPerson hairColor="#44FF88" shirtColor="#4ECDC4" />
+                  <PixelPerson hairColor="#FF6B4A" shirtColor="#FFE66D" />
+                </div>
+              </div>
             </div>
-            <div className={styles.beliefCard}>
-              <span className={styles.beliefEmoji}>&#x1f680;</span>
-              <h3 className={styles.beliefTitle}>1M+ solo founders by 2035</h3>
-              <p className={styles.beliefDesc}>
-                10x founders. 10x the economy. 10x faster to build, to ship, to learn.
-                We believe <strong>abundance is coming</strong>, and we want to help get us there.
-              </p>
-            </div>
-            <div className={styles.beliefCard}>
-              <span className={styles.beliefEmoji}>&#x1f916;</span>
-              <h3 className={styles.beliefTitle}>AI-friendly by design</h3>
-              <p className={styles.beliefDesc}>
-                We believe sharing data with AI is key. Sessions are recorded.
-                We use it to give you <strong>better intros, better direction, better matches</strong>.
-              </p>
+
+            {/* Arrow */}
+            <div className={styles.journeyArrow}>&rarr;</div>
+
+            {/* Step 2 */}
+            <div className={styles.journeyCard}>
+              <span className={styles.journeyNum} style={{ borderColor: '#4ECDC4', color: '#4ECDC4' }}>2</span>
+              <div className={styles.journeyCardInner} style={{ borderTopColor: '#4ECDC4' }}>
+                <div className={styles.journeyCardHeader}>
+                  <h3 className={`${styles.productTitle} ${styles.tealText}`} style={{ fontSize: '2rem' }}>Solo HA</h3>
+                  <span className={`${styles.productBadge} ${styles.tealBadge}`}>Online</span>
+                </div>
+                <span className={styles.journeyLabel}>Build &amp; Connect</span>
+                <span className={styles.journeyDuration} style={{ color: '#4ECDC4' }}>1 week</span>
+                <p className={styles.journeyDesc}>
+                  Gamified web app for founders who want to go deeper.
+                  AI-scored. From idea to investable signal.
+                </p>
+                <div className={styles.journeyPeople}>
+                  <PixelPerson hairColor="#4ECDC4" shirtColor="#44FF88" />
+                  <PixelPerson hairColor="#FFE66D" shirtColor="#FF6B4A" flip />
+                </div>
+              </div>
             </div>
           </div>
+
+          <p className={styles.terminalLine}>&gt; 1M+ solo founder startups globally by 2035_</p>
         </div>
       </section>
 
-      {/* ── Solo Jam ── */}
+      {/* ── Solo Jam detail ── */}
       <section id="solojam" className={styles.section}>
         <div className={styles.inner}>
           <div className={styles.productHeader}>
@@ -276,10 +298,6 @@ export function CommunityScreen() {
             <span className={`${styles.productBadge} ${styles.orangeBadge}`}>Offline &middot; In your city</span>
           </div>
           <p className={styles.productTagline}>2 hours that change everything.</p>
-          <p className={styles.sectionSub}>
-            What used to take months now takes 2 hours + 1 week.
-            A light, powerful engine. Running every month. Scaling globally.
-          </p>
 
           <div className={styles.welcomeBlock}>
             <p className={styles.welcomeLabel}>We welcome</p>
@@ -302,6 +320,9 @@ export function CommunityScreen() {
                 Volunteer speakers from past events,
                 curated by local organizers.
               </p>
+              <div className={styles.actPeople}>
+                <PixelPerson hairColor="#44FF88" shirtColor="#778877" className={styles.pixelPersonSmall} />
+              </div>
             </div>
             <div className={styles.actCard}>
               <div className={styles.actHeader}>
@@ -314,6 +335,9 @@ export function CommunityScreen() {
                 Raw, real, no polish.
                 Just the idea and the energy.
               </p>
+              <div className={styles.actPeople}>
+                <PixelPerson hairColor="#FF6B4A" shirtColor="#FFE66D" className={styles.pixelPersonSmall} />
+              </div>
             </div>
             <div className={styles.actCard}>
               <div className={styles.actHeader}>
@@ -325,6 +349,10 @@ export function CommunityScreen() {
                 The mixer. Find your people.
                 Collide with ideas you didn&rsquo;t know you needed.
               </p>
+              <div className={styles.actPeople}>
+                <PixelPerson hairColor="#FFE66D" shirtColor="#4ECDC4" className={styles.pixelPersonSmall} />
+                <PixelPerson hairColor="#4ECDC4" shirtColor="#FF6B4A" flip className={styles.pixelPersonSmall} />
+              </div>
             </div>
           </div>
 
@@ -334,7 +362,7 @@ export function CommunityScreen() {
         </div>
       </section>
 
-      {/* ── Solo HA ── */}
+      {/* ── Solo HA detail ── */}
       <section id="soloha" className={styles.section}>
         <div className={styles.inner}>
           <div className={styles.productHeader}>
@@ -356,7 +384,7 @@ export function CommunityScreen() {
       <section id="vc" className={styles.section}>
         <div className={styles.inner}>
           <h2 className={styles.sectionTitle}>2035.VC</h2>
-          <p className={`${styles.productTagline}`}>VC, reinvented for the AI era.</p>
+          <p className={styles.productTagline}>VC, reinvented for the AI era.</p>
           <p className={styles.sectionSub}>
             Why would you invest in an old-type VC fund if you believe the next 10 years
             will change how we invest and launch startups?
@@ -419,9 +447,7 @@ export function CommunityScreen() {
                     <div className={styles.citiesGrid}>
                       {upcoming.map(({ slug, event: ev }) => (
                         <Link key={slug} to={`/${slug}`} className={styles.cityCard}>
-                          {ev.logo && (
-                            <img src={ev.logo} alt={ev.name} className={styles.cityLogo} />
-                          )}
+                          {ev.logo && <img src={ev.logo} alt={ev.name} className={styles.cityLogo} />}
                           <div className={styles.cityInfo}>
                             <h4 className={styles.cityName}>{ev.city}</h4>
                             <p className={styles.cityDate}>
@@ -447,9 +473,7 @@ export function CommunityScreen() {
                       <div className={styles.citiesGrid}>
                         {past.map(({ slug, event: ev }) => (
                           <Link key={slug} to={`/${slug}`} className={`${styles.cityCard} ${styles.cityCardPast}`}>
-                            {ev.logo && (
-                              <img src={ev.logo} alt={ev.name} className={styles.cityLogo} />
-                            )}
+                            {ev.logo && <img src={ev.logo} alt={ev.name} className={styles.cityLogo} />}
                             <div className={styles.cityInfo}>
                               <h4 className={styles.cityName}>{ev.city}</h4>
                               <p className={styles.cityDate}>{formatEventDate(ev.date)}</p>
@@ -464,9 +488,7 @@ export function CommunityScreen() {
                 )}
 
                 {publicEvents.length === 0 && (
-                  <p className={styles.emptyState}>
-                    No public events yet, be the first!
-                  </p>
+                  <p className={styles.emptyState}>No public events yet, be the first!</p>
                 )}
               </>
             );
@@ -495,6 +517,12 @@ export function CommunityScreen() {
           <Link to="/prepare" className={styles.ctaGhost}>
             Become a storyteller
           </Link>
+        </div>
+        <div className={styles.finalPeople}>
+          <PixelPerson hairColor="#44FF88" shirtColor="#FF6B4A" />
+          <PixelPerson hairColor="#4ECDC4" shirtColor="#FFE66D" flip />
+          <PixelPerson hairColor="#FF6B4A" shirtColor="#44FF88" />
+          <PixelPerson hairColor="#FFE66D" shirtColor="#4ECDC4" flip />
         </div>
       </section>
 

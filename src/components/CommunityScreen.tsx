@@ -328,7 +328,7 @@ export function CommunityScreen() {
             <div className={styles.actCard}>
               <div className={styles.actHeader}>
                 <span className={styles.actNum} style={{ color: '#44FF88' }}>1</span>
-                <span className={styles.actTime}>45 min</span>
+                <span className={styles.actTime}>20 min</span>
               </div>
               <h3 className={styles.actName} style={{ color: '#44FF88' }}>AI Prepper Stories</h3>
               <p className={styles.actDesc}>
@@ -343,7 +343,7 @@ export function CommunityScreen() {
             <div className={styles.actCard}>
               <div className={styles.actHeader}>
                 <span className={styles.actNum} style={{ color: '#FF6B4A' }}>2</span>
-                <span className={styles.actTime}>30 min</span>
+                <span className={styles.actTime}>20 min</span>
               </div>
               <h3 className={styles.actName} style={{ color: '#FF6B4A' }}>Vibe Launch</h3>
               <p className={styles.actDesc}>
@@ -358,7 +358,7 @@ export function CommunityScreen() {
             <div className={styles.actCard}>
               <div className={styles.actHeader}>
                 <span className={styles.actNum} style={{ color: '#FFE66D' }}>3</span>
-                <span className={styles.actTime}>45 min</span>
+                <span className={styles.actTime}>80 min</span>
               </div>
               <h3 className={styles.actName} style={{ color: '#FFE66D' }}>Meet &amp; Collide</h3>
               <p className={styles.actDesc}>

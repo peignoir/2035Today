@@ -54,10 +54,11 @@
 }
 
 .heroIcon {
-  width: 120px;
-  height: 140px;
-  margin: 0 auto 8px;
+  width: 140px;
+  height: 160px;
+  margin: 0 auto 4px;
   display: block;
+  image-rendering: pixelated;
 }
 
 .headline {

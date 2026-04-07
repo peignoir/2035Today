@@ -53,65 +53,111 @@ function RotatingWelcome() {
   );
 }
 
-/* ── Logo SVG — solo founder on a rocket ── */
+/* ── Logo SVG — pixel art founder on a rocket blasting through space ── */
 function LogoSVG() {
+  const S = 5; // pixel size — big chunky pixels
+  const px = (x: number, y: number, fill: string, o = 1) => (
+    <rect key={`${x}-${y}-${fill}`} x={x * S} y={y * S} width={S} height={S} fill={fill} opacity={o} shapeRendering="crispEdges" />
+  );
+
   return (
-    <svg viewBox="0 0 120 140" className={styles.heroIcon} aria-hidden="true">
-      {/* Rocket trail — orange-to-green gradient */}
+    <svg viewBox="0 0 75 110" className={styles.heroIcon} aria-hidden="true" style={{ imageRendering: 'pixelated' }}>
       <defs>
         <linearGradient id="trailGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#FF6B4A" stopOpacity="0.9" />
-          <stop offset="60%" stopColor="#FFE66D" stopOpacity="0.4" />
+          <stop offset="50%" stopColor="#FFE66D" stopOpacity="0.5" />
           <stop offset="100%" stopColor="#44FF88" stopOpacity="0" />
         </linearGradient>
       </defs>
 
-      {/* Trail glow — wider flame */}
-      <path d="M60 52 Q55 78 50 108 Q60 114 70 108 Q65 78 60 52" fill="url(#trailGrad)">
-        <animate attributeName="d"
-          values="M60 52 Q55 78 50 108 Q60 114 70 108 Q65 78 60 52;M60 52 Q53 78 48 108 Q60 116 72 108 Q67 78 60 52;M60 52 Q55 78 50 108 Q60 114 70 108 Q65 78 60 52"
-          dur="1.2s" repeatCount="indefinite" />
-      </path>
+      {/* ── Speed lines streaking downward ── */}
+      <rect x="5" y="0" width="1.5" height="12" fill="#44FF88" opacity="0.5">
+        <animate attributeName="y" values="-15;115" dur="0.55s" repeatCount="indefinite" />
+      </rect>
+      <rect x="18" y="0" width="1.5" height="8" fill="#4ECDC4" opacity="0.35">
+        <animate attributeName="y" values="-20;110" dur="0.7s" repeatCount="indefinite" />
+      </rect>
+      <rect x="58" y="0" width="1.5" height="10" fill="#44FF88" opacity="0.4">
+        <animate attributeName="y" values="-10;120" dur="0.6s" repeatCount="indefinite" />
+      </rect>
+      <rect x="70" y="0" width="1.5" height="7" fill="#778877" opacity="0.3">
+        <animate attributeName="y" values="-8;118" dur="0.45s" repeatCount="indefinite" />
+      </rect>
 
-      {/* Exhaust sparks */}
-      <circle cx="55" cy="112" r="2.5" fill="#FF6B4A" opacity="0.7">
-        <animate attributeName="cy" values="112;124;112" dur="0.8s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.7;0;0.7" dur="0.8s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="65" cy="114" r="2" fill="#FFE66D" opacity="0.6">
-        <animate attributeName="cy" values="114;128;114" dur="1s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.6;0;0.6" dur="1s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="60" cy="116" r="2.2" fill="#FF6B4A" opacity="0.5">
-        <animate attributeName="cy" values="116;130;116" dur="1.2s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.5;0;0.5" dur="1.2s" repeatCount="indefinite" />
-      </circle>
+      {/* ── Pixel stars zooming by ── */}
+      <rect x="12" y="0" width="3" height="3" fill="#44FF88" opacity="0.7" shapeRendering="crispEdges">
+        <animate attributeName="y" values="-5;115" dur="0.8s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.7;0.1;0.7" dur="0.8s" repeatCount="indefinite" />
+      </rect>
+      <rect x="62" y="0" width="3" height="3" fill="#FFE66D" opacity="0.5" shapeRendering="crispEdges">
+        <animate attributeName="y" values="-12;108" dur="1s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.5;0.1;0.5" dur="1s" repeatCount="indefinite" />
+      </rect>
+      <rect x="25" y="0" width="3" height="3" fill="#FF6B4A" opacity="0.45" shapeRendering="crispEdges">
+        <animate attributeName="y" values="-18;102" dur="1.2s" repeatCount="indefinite" />
+      </rect>
 
-      {/* Person — minimal stick figure */}
-      {/* Head */}
-      <circle cx="60" cy="18" r="6" fill="none" stroke="#EEEEEE" strokeWidth="2.2" />
-      {/* Body */}
-      <line x1="60" y1="24" x2="60" y2="42" stroke="#EEEEEE" strokeWidth="2.2" strokeLinecap="round" />
-      {/* Arms raised — victory pose */}
-      <line x1="60" y1="30" x2="50" y2="22" stroke="#EEEEEE" strokeWidth="2" strokeLinecap="round" />
-      <line x1="60" y1="30" x2="70" y2="22" stroke="#EEEEEE" strokeWidth="2" strokeLinecap="round" />
-      {/* Legs straddling rocket */}
-      <line x1="60" y1="42" x2="53" y2="54" stroke="#EEEEEE" strokeWidth="2" strokeLinecap="round" />
-      <line x1="60" y1="42" x2="67" y2="54" stroke="#EEEEEE" strokeWidth="2" strokeLinecap="round" />
+      {/* ── The rocket + rider group (shakes for speed) ── */}
+      <g>
+        <animateTransform
+          attributeName="transform"
+          type="translate"
+          values="0,0; -0.8,0.5; 0.6,-0.4; -0.4,0.6; 0,0"
+          dur="0.18s"
+          repeatCount="indefinite"
+        />
 
-      {/* Stars around */}
-      <circle cx="25" cy="30" r="1.5" fill="#44FF88" opacity="0.5">
-        <animate attributeName="opacity" values="0.5;0.1;0.5" dur="2s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="95" cy="20" r="1.2" fill="#4ECDC4" opacity="0.4">
-        <animate attributeName="opacity" values="0.1;0.5;0.1" dur="1.8s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="30" cy="60" r="1" fill="#FFE66D" opacity="0.3">
-        <animate attributeName="opacity" values="0.3;0;0.3" dur="1.5s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="90" cy="50" r="1.3" fill="#FF6B4A" opacity="0.35">
-        <animate attributeName="opacity" values="0;0.4;0" dur="2.2s" repeatCount="indefinite" />
-      </circle>
+        {/* ── Pixel person ── */}
+        {/* Green hair */}
+        {px(6, 0, '#44FF88')}{px(7, 0, '#44FF88')}{px(8, 0, '#44FF88')}
+        {/* Face */}
+        {px(6, 1, '#EEEEEE')}{px(7, 1, '#EEEEEE')}{px(8, 1, '#EEEEEE')}
+        {/* Eyes */}
+        {px(6, 1, '#0D0F0E')}{px(8, 1, '#0D0F0E')}
+        {/* Torso */}
+        {px(7, 2, '#FF6B4A')}
+        {px(6, 3, '#FF6B4A')}{px(7, 3, '#FF6B4A')}{px(8, 3, '#FF6B4A')}
+        {/* Arms raised */}
+        {px(4, 1, '#EEEEEE')}{px(5, 2, '#EEEEEE')}
+        {px(10, 1, '#EEEEEE')}{px(9, 2, '#EEEEEE')}
+
+        {/* ── Rocket body ── */}
+        {/* Nose */}
+        {px(7, 4, '#EEEEEE')}
+        {px(6, 5, '#EEEEEE')}{px(7, 5, '#DDDDDD')}{px(8, 5, '#EEEEEE')}
+        {/* Hull */}
+        {px(5, 6, '#EEEEEE')}{px(6, 6, '#CCCCCC')}{px(7, 6, '#CCCCCC')}{px(8, 6, '#CCCCCC')}{px(9, 6, '#EEEEEE')}
+        {/* Window stripe */}
+        {px(5, 7, '#EEEEEE')}{px(6, 7, '#4ECDC4')}{px(7, 7, '#44FF88')}{px(8, 7, '#4ECDC4')}{px(9, 7, '#EEEEEE')}
+        {/* Hull */}
+        {px(5, 8, '#EEEEEE')}{px(6, 8, '#CCCCCC')}{px(7, 8, '#CCCCCC')}{px(8, 8, '#CCCCCC')}{px(9, 8, '#EEEEEE')}
+        {px(5, 9, '#EEEEEE')}{px(6, 9, '#CCCCCC')}{px(7, 9, '#CCCCCC')}{px(8, 9, '#CCCCCC')}{px(9, 9, '#EEEEEE')}
+        {/* Fins */}
+        {px(4, 9, '#FF6B4A')}{px(10, 9, '#FF6B4A')}
+        {px(3, 10, '#FF6B4A')}{px(5, 10, '#EEEEEE')}{px(6, 10, '#CCCCCC')}{px(7, 10, '#CCCCCC')}{px(8, 10, '#CCCCCC')}{px(9, 10, '#EEEEEE')}{px(11, 10, '#FF6B4A')}
+        {px(3, 11, '#FF6B4A')}{px(11, 11, '#FF6B4A')}
+
+        {/* ── Exhaust flame — flickers fast ── */}
+        <g>
+          {px(6, 11, '#FFE66D')}{px(7, 11, '#FFE66D')}{px(8, 11, '#FFE66D')}
+          {px(5, 12, '#FF6B4A')}{px(6, 12, '#FFE66D')}{px(7, 12, '#FFFFFF')}{px(8, 12, '#FFE66D')}{px(9, 12, '#FF6B4A')}
+          {px(6, 13, '#FF6B4A')}{px(7, 13, '#FFE66D')}{px(8, 13, '#FF6B4A')}
+          {px(7, 14, '#FF6B4A')}
+          <animate attributeName="opacity" values="1;0.5;1" dur="0.1s" repeatCount="indefinite" />
+        </g>
+        <g>
+          {px(5, 13, '#FF6B4A', 0.7)}{px(9, 13, '#FF6B4A', 0.7)}
+          {px(6, 14, '#FF6B4A', 0.5)}{px(8, 14, '#FF6B4A', 0.5)}
+          {px(5, 14, '#FF6B4A', 0.3)}{px(9, 14, '#FF6B4A', 0.3)}
+          {px(7, 15, '#FF6B4A', 0.3)}
+          <animate attributeName="opacity" values="0.7;0.15;0.7" dur="0.08s" repeatCount="indefinite" />
+        </g>
+
+        {/* ── Long exhaust trail ── */}
+        <rect x="30" y="78" width="15" height="35" fill="url(#trailGrad)" opacity="0.4" rx="2">
+          <animate attributeName="opacity" values="0.4;0.15;0.4" dur="0.2s" repeatCount="indefinite" />
+        </rect>
+      </g>
     </svg>
   );
 }

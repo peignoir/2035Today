@@ -90,19 +90,19 @@ export function EventLandingScreen({ event, citySlug, currentDate }: EventLandin
               </>
             ) : (
               <div className={styles.heroLogoFallback}>
-                <span className={styles.heroLogoText}>{event.name || 'Cafe2035'}</span>
+                <span className={styles.heroLogoText}>{event.name || '2035Today'}</span>
               </div>
             )}
           </div>
         </div>
       </section>
 
-      {/* What is Cafe2035 */}
+      {/* What is 2035Today */}
       <section id="what" className={styles.whatSection}>
         <div className={styles.whatContent}>
           <h2 className={styles.whatHeadline}>Fear nothing. Build anything.</h2>
           <p className={styles.whatBody}>
-            Think AI preppers — not the bunker kind, the builder kind. Cafe2035 brings together creative writers, entrepreneurs, AI researchers, designers, and anyone brave enough to imagine what's next. Over morning coffee or late-night drinks, in cities across the globe, we stage one question: <em>what does 2035 actually look like?</em>
+            Think AI preppers — not the bunker kind, the builder kind. 2035Today brings together creative writers, entrepreneurs, AI researchers, designers, and anyone brave enough to imagine what's next. Over morning coffee or late-night drinks, in cities across the globe, we stage one question: <em>what does 2035 actually look like?</em>
           </p>
           <p className={styles.whatBody}>
             Every voice gets the same stage. A sci-fi novelist shares a vision alongside a robotics founder. A teacher alongside a venture capitalist. The diversity is the point — because the future won't be built by one kind of person.
@@ -262,7 +262,7 @@ export function EventLandingScreen({ event, citySlug, currentDate }: EventLandin
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <a href="#/" className={styles.footerBrand}>Cafe2035</a>
+        <a href="#/" className={styles.footerBrand}>2035Today</a>
         <span className={styles.footerTagline}>See the future. Sleep better.</span>
         <a href="#/apply" className={styles.footerOrganize}>Organize in your city &rarr;</a>
       </footer>

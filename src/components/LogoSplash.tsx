@@ -53,7 +53,7 @@ export function LogoSplash({
         {logoUrl ? (
           <img src={logoUrl} alt={eventName} className={styles.logo} draggable={false} />
         ) : (
-          <h1 className={styles.eventName}>{eventName || 'Cafe 2035'}</h1>
+          <h1 className={styles.eventName}>{eventName || '2035Today'}</h1>
         )}
 
         <div className={styles.action}>

@@ -317,7 +317,7 @@ export function PrepareScreen() {
             </label>
             <a
               href={`${import.meta.env.BASE_URL}example-story.pdf`}
-              download="Cafe2035-example-story.pdf"
+              download="2035Today-example-story.pdf"
               className={styles.exampleLink}
             >
               &#8595; Download an example story
@@ -445,7 +445,7 @@ export function PrepareScreen() {
             Fear nothing. Build anything.
           </p>
           <p className={styles.footerSub}>Questions? Reach out to your event curator.</p>
-          <a href="#/" className={styles.footerBrand}>Cafe2035</a>
+          <a href="#/" className={styles.footerBrand}>2035Today</a>
         </footer>
       </div>
     </>

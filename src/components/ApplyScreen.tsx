@@ -147,7 +147,7 @@ export function ApplyScreen() {
               Bring <span className={styles.accent}>2035</span> to your city.
             </h1>
             <p className={styles.subhead}>
-              Cafe2035 is growing — one city at a time. If you want to organize a gathering of builders, dreamers, and storytellers, start here.
+              2035Today is growing — one city at a time. If you want to organize a gathering of builders, dreamers, and storytellers, start here.
             </p>
           </section>
 
@@ -272,7 +272,7 @@ export function ApplyScreen() {
               </div>
 
               <div className={styles.fieldGroup}>
-                <label className={styles.label}>Why do you want to bring Cafe2035 to your city?</label>
+                <label className={styles.label}>Why do you want to bring 2035Today to your city?</label>
                 <textarea
                   className={styles.textarea}
                   value={form.comment}
@@ -352,18 +352,18 @@ export function ApplyScreen() {
           )}
 
           <p className={styles.successMessage}>
-            Thanks for applying! We'll review your application and get back to you at <strong>{form.email}</strong>. In the meantime, tell your friends about Cafe2035.
+            Thanks for applying! We'll review your application and get back to you at <strong>{form.email}</strong>. In the meantime, tell your friends about 2035Today.
           </p>
 
           <Link to="/" className={styles.backLink}>
-            &larr; Back to Cafe2035
+            &larr; Back to 2035Today
           </Link>
         </section>
       ) : null}
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <span className={styles.footerBrand}>Cafe2035</span>
+        <span className={styles.footerBrand}>2035Today</span>
         <span className={styles.footerTagline}>See the future. Sleep better.</span>
       </footer>
     </>

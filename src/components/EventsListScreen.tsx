@@ -72,7 +72,7 @@ export function EventsListScreen() {
   }, [navigate]);
 
   const handleCreateEvent = useCallback(async (prefillCity?: string) => {
-    const name = prompt('Event name (e.g. Cafe2035 SF):');
+    const name = prompt('Event name (e.g. 2035Today SF):');
     if (!name?.trim()) return;
 
     let city = prefillCity || '';
@@ -149,7 +149,7 @@ export function EventsListScreen() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Cafe 2035</h1>
+        <h1 className={styles.title}>2035Today</h1>
         <p className={styles.subtitle}>A worldwide movement of builders, dreamers, and storytellers</p>
         <p className={styles.quote}>"How many things have been denied one day, only to become realities the next!" — Jules Verne</p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>

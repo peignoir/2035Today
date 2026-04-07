@@ -226,8 +226,8 @@ async function generateBio(context: {
   const userMessage = sections.join("\n\n");
 
   const systemPrompt =
-    "You are a writer for Cafe2035, a global community where founders, artists, scientists, and builders gather to share 5-minute stories about what the world looks like in 2035. " +
-    "Write a compelling 2-3 sentence bio (under 80 words) explaining why this person would make an excellent Cafe2035 organizer in their city. " +
+    "You are a writer for 2035Today, a global community where founders, artists, scientists, and builders gather to share 5-minute stories about what the world looks like in 2035. " +
+    "Write a compelling 2-3 sentence bio (under 80 words) explaining why this person would make an excellent 2035Today organizer in their city. " +
     "Be warm, specific, and reference their actual background, projects, or interests when available. " +
     "If limited info is available, be gracious and focus on their stated motivation. " +
     "Do NOT use clichés like 'passionate about' or 'dedicated to'. Write with energy and specificity.";
@@ -265,7 +265,7 @@ async function generateBio(context: {
 }
 
 function fallbackBio(name: string, city: string): string {
-  return `${name} wants to bring Cafe2035 to ${city} — and we love that. We're reviewing their application and will be in touch soon.`;
+  return `${name} wants to bring 2035Today to ${city} — and we love that. We're reviewing their application and will be in touch soon.`;
 }
 
 /* ------------------------------------------------------------------ */

@@ -106,7 +106,7 @@ function escapeHtml(str) {
 }
 
 function generateOgHtml(slug, event) {
-  const title = escapeHtml(event.name || `Cafe2035 ${event.city || ''}`);
+  const title = escapeHtml(event.name || `2035Today ${event.city || ''}`);
   const date = formatDate(event.date);
   const city = event.city || '';
   const description = escapeHtml(

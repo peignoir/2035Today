@@ -265,15 +265,15 @@ export function CommunityScreen() {
           <LogoSVG />
           <h1 className={styles.headline}>
             <span className={styles.brandName}>2035 Today</span>
-            <span className={styles.tagline}>The future starts as a <span className={styles.flicker}>solo project.</span></span>
+            <span className={styles.tagline}>Where <span className={styles.flicker}>future founders</span> begin.</span>
           </h1>
-          <p className={styles.heroSub}>The community where solo founders build together</p>
+          <p className={styles.heroSub}>Build the future. Don&rsquo;t just watch it happen.</p>
           <div className={styles.ctaRow}>
             <button onClick={() => scrollTo('cities')} className={styles.ctaPrimary}>
-              Find a 2h Solo Jam
+              Explore Solo Founder Life &middot; 2h
             </button>
             <button onClick={() => scrollTo('soloha')} className={styles.ctaSecondary}>
-              Apply to One Week HA
+              Commit to One Week of Building
             </button>
           </div>
         </div>
@@ -282,13 +282,13 @@ export function CommunityScreen() {
       {/* ── The Solo Founder Journey — side-by-side overview ── */}
       <section id="journey" className={styles.section}>
         <div className={styles.inner}>
-          <h2 className={styles.sectionTitle}>The Solo Founder Journey</h2>
-          <p className={styles.journeyMeta}>Two products &mdash; every month &mdash; 10x faster</p>
+          <h2 className={styles.sectionTitle}>The future founder journey starts in 2 steps</h2>
+          <p className={styles.journeyMeta}>2 hours to spark it &middot; 1 week to prove it</p>
           <p className={styles.sectionSub}>
-            What used to take months now takes <strong className={styles.greenText}>2 hours + 1 week.</strong>
+            What used to take months can now begin in <strong className={styles.greenText}>2 hours + 1 week.</strong>
           </p>
           <p className={styles.journeySubMeta}>
-            A light, powerful engine. Running every month. Scaling to run even more.
+            Start solo. Start part-time if needed. Add a co-founder later if it makes sense.
           </p>
 
           {/* 1 → 2 cards */}
@@ -298,14 +298,14 @@ export function CommunityScreen() {
               <span className={styles.journeyNum} style={{ borderColor: '#44FF88', color: '#44FF88' }}>1</span>
               <div className={styles.journeyCardInner} style={{ borderTopColor: '#44FF88' }}>
                 <div className={styles.journeyCardHeader}>
-                  <h3 className={`${styles.productTitle} ${styles.greenText}`} style={{ fontSize: '2rem' }}>Solo Jam</h3>
+                  <h3 className={`${styles.productTitle} ${styles.greenText}`} style={{ fontSize: '2rem' }}>Solo Founder Spark</h3>
                   <span className={`${styles.productBadge} ${styles.greenBadge}`}>Offline &middot; Local</span>
                 </div>
-                <span className={styles.journeyLabel}>Get Inspired</span>
+                <span className={styles.journeyLabel}>Explore Solo Founder Life</span>
                 <span className={styles.journeyDuration} style={{ color: '#44FF88' }}>2h event</span>
                 <p className={styles.journeyDesc}>
-                  Volunteer speakers share visions of 2035. 20 cities globally.
-                  Universities, coworking spaces. Meet your people.
+                  Idea or not, you&rsquo;re welcome. Bold visions of 2035,
+                  show up with your vibe, meet and collide.
                 </p>
                 <div className={styles.journeyPeople}>
                   <PixelPerson hairColor="#44FF88" shirtColor="#4ECDC4" />
@@ -322,14 +322,14 @@ export function CommunityScreen() {
               <span className={styles.journeyNum} style={{ borderColor: '#4ECDC4', color: '#4ECDC4' }}>2</span>
               <div className={styles.journeyCardInner} style={{ borderTopColor: '#4ECDC4' }}>
                 <div className={styles.journeyCardHeader}>
-                  <h3 className={`${styles.productTitle} ${styles.tealText}`} style={{ fontSize: '2rem' }}>Solo HA</h3>
+                  <h3 className={`${styles.productTitle} ${styles.tealText}`} style={{ fontSize: '2rem' }}>Solo Online Jam</h3>
                   <span className={`${styles.productBadge} ${styles.tealBadge}`}>Online</span>
                 </div>
-                <span className={styles.journeyLabel}>Build &amp; Connect</span>
+                <span className={styles.journeyLabel}>Commit to One Week of Building</span>
                 <span className={styles.journeyDuration} style={{ color: '#4ECDC4' }}>1 week</span>
                 <p className={styles.journeyDesc}>
-                  Gamified web app for founders who want to go deeper.
-                  AI-scored. From idea to investable signal.
+                  Build with friends. Compete. Ship. Pivot.
+                  Go faster with AI and the support of a community.
                 </p>
                 <div className={styles.journeyPeople}>
                   <PixelPerson hairColor="#4ECDC4" shirtColor="#44FF88" />
@@ -339,7 +339,7 @@ export function CommunityScreen() {
             </div>
           </div>
 
-          <p className={styles.terminalLine}>&gt; 1M+ solo founder startups globally by 2035_</p>
+          <p className={styles.terminalLine}>&gt; do not wait for ideal conditions to begin_</p>
         </div>
       </section>
 
@@ -347,17 +347,17 @@ export function CommunityScreen() {
       <section id="solojam" className={styles.section}>
         <div className={styles.inner}>
           <div className={styles.productHeader}>
-            <h2 className={`${styles.productTitle} ${styles.orangeText}`}>Solo Jam</h2>
+            <h2 className={`${styles.productTitle} ${styles.orangeText}`}>Solo Founder Spark</h2>
             <span className={`${styles.productBadge} ${styles.orangeBadge}`}>Offline &middot; In your city</span>
           </div>
-          <p className={styles.productTagline}>2 hours that change everything.</p>
+          <p className={styles.productTagline}>Explore Solo Founder Life. In 2 hours.</p>
 
           <div className={styles.welcomeBlock}>
             <p className={styles.welcomeLabel}>We welcome</p>
             <RotatingWelcome />
             <p className={styles.welcomeSub}>
-              If you have passion, we want to support you.
-              Being a solo founder is lonely. You&rsquo;re not alone anymore.
+              Idea or not, you&rsquo;re welcome. Curiosity is enough to begin.
+              Come solo. Leave with momentum.
             </p>
           </div>
 
@@ -367,11 +367,10 @@ export function CommunityScreen() {
                 <span className={styles.actNum} style={{ color: '#44FF88' }}>1</span>
                 <span className={styles.actTime}>20 min</span>
               </div>
-              <h3 className={styles.actName} style={{ color: '#44FF88' }}>AI Prepper Stories</h3>
+              <h3 className={styles.actName} style={{ color: '#44FF88' }}>Bold Visions of 2035</h3>
               <p className={styles.actDesc}>
-                5-minute talks about the world in 2035.
-                Volunteer speakers from past events,
-                curated by local organizers.
+                Short, future-facing stories about where the world is going
+                and what could be built. Curated by local Fellows.
               </p>
               <div className={styles.actPeople}>
                 <PixelPerson hairColor="#44FF88" shirtColor="#778877" className={styles.pixelPersonSmall} />
@@ -382,11 +381,10 @@ export function CommunityScreen() {
                 <span className={styles.actNum} style={{ color: '#FF6B4A' }}>2</span>
                 <span className={styles.actTime}>20 min</span>
               </div>
-              <h3 className={styles.actName} style={{ color: '#FF6B4A' }}>Vibe Pitch</h3>
+              <h3 className={styles.actName} style={{ color: '#FF6B4A' }}>Show Up With Your Vibe</h3>
               <p className={styles.actDesc}>
-                Connect your bio, idea, or not &mdash; you&rsquo;re in!
-                Raw, real, no polish.
-                Just show up and the energy does the rest.
+                Bring an idea, a side project, a bio, a curiosity, or just energy.
+                Raw, real, no polish required.
               </p>
               <div className={styles.actPeople}>
                 <PixelPerson hairColor="#FF6B4A" shirtColor="#FFE66D" className={styles.pixelPersonSmall} />
@@ -399,8 +397,8 @@ export function CommunityScreen() {
               </div>
               <h3 className={styles.actName} style={{ color: '#FFE66D' }}>Meet &amp; Collide</h3>
               <p className={styles.actDesc}>
-                The mixer. Find your people.
-                Collide with ideas you didn&rsquo;t know you needed.
+                The mixer. The unexpected conversations.
+                The people, ideas, and energy you did not know you needed.
               </p>
               <div className={styles.actPeople}>
                 <PixelPerson hairColor="#FFE66D" shirtColor="#4ECDC4" className={styles.pixelPersonSmall} />
@@ -410,7 +408,7 @@ export function CommunityScreen() {
           </div>
 
           <p className={styles.actFootnote}>
-            That&rsquo;s it. 2 hours. Then go build the future.
+            A fast, social event for future founders. Come solo. Leave with momentum.
           </p>
         </div>
       </section>
@@ -419,27 +417,27 @@ export function CommunityScreen() {
       <section id="soloha" className={styles.section}>
         <div className={styles.inner}>
           <div className={styles.productHeader}>
-            <h2 className={`${styles.productTitle} ${styles.tealText}`}>Solo HA</h2>
+            <h2 className={`${styles.productTitle} ${styles.tealText}`}>Solo Online Jam</h2>
             <span className={`${styles.productBadge} ${styles.tealBadge}`}>Online</span>
             <span className={`${styles.productBadge} ${styles.tealBadge}`}>Open to all</span>
           </div>
-          <p className={styles.productSubtitle}>Hyper Accelerator &mdash; Next one starts soon</p>
-          <p className={`${styles.productTagline} ${styles.tealText}`}>At the speed of AI.</p>
+          <p className={styles.productSubtitle}>One-week online build competition &mdash; next one starts soon</p>
+          <p className={`${styles.productTagline} ${styles.tealText}`}>Commit to one week of building.</p>
           <p className={styles.sectionSub}>
-            One week. Every month. A gamified web app.
-            AI-scored and tracked. For founders who want to go deeper.
-            From idea to investable signal.
+            Build with friends. Compete. Ship. Pivot.
+            Even part-time, you can get more done in one week
+            than you may have done in years.
           </p>
           <p className={styles.sectionSubDim}>
-            Post-AGI. On the way to ASI.
-            One person with AI agents will build what teams of 50 couldn&rsquo;t.
-            We&rsquo;re the AI preppers &mdash; the builder kind.
+            This is not old accelerator theater.
+            This is speed, pressure, community, and real output.
+            Go faster with AI and the support of a community.
           </p>
           <p className={styles.haMonthly}>Every month. Free. Apply now for the next cohort.</p>
           <div className={styles.robotRow}>
             <PixelRobot className={styles.pixelPersonSmall} />
           </div>
-          <p className={styles.terminalLine}>&gt; the startup world needs to catch up_</p>
+          <p className={styles.terminalLine}>&gt; one week. real output. no startup theater_</p>
         </div>
       </section>
 
@@ -447,10 +445,10 @@ export function CommunityScreen() {
       <section id="vc" className={styles.section}>
         <div className={styles.inner}>
           <h2 className={styles.sectionTitle}>2035.VC</h2>
-          <p className={styles.productTagline}>VC, reinvented for the AI era.</p>
+          <p className={styles.productTagline}>Funding, redesigned for the AI era.</p>
           <p className={styles.sectionSub}>
-            Why would you invest in an old-type VC fund if you believe the next 10 years
-            will change how we invest and launch startups?
+            Starting with $20k for 1%. Enough to buy a few months of focus
+            and help a future founder go further. VC as a tool, not a goal.
           </p>
 
           <div className={styles.vcGrid}>
@@ -484,16 +482,16 @@ export function CommunityScreen() {
             </div>
           </div>
 
-          <p className={styles.terminalLine}>&gt; ready to invest in the future of solo founders?_</p>
+          <p className={styles.terminalLine}>&gt; if one makes it, we all win_</p>
         </div>
       </section>
 
       {/* ── Cities ── */}
       <section id="cities" className={styles.citiesSection}>
         <div className={styles.inner}>
-          <h2 className={styles.sectionTitle}>Solo Jam near you</h2>
+          <h2 className={styles.sectionTitle}>Find a Spark near you</h2>
           <p className={styles.sectionSub}>
-            Find an upcoming Solo Jam or start one where you are.
+            Find an upcoming Solo Founder Spark or start one where you are.
           </p>
 
           {(() => {
@@ -568,10 +566,10 @@ export function CommunityScreen() {
       {/* ── Bottom CTA ── */}
       <section className={styles.finalCta}>
         <h2 className={styles.finalHeadline}>
-          <span className={styles.accentText}>The future starts as a solo project.</span>
+          <span className={styles.accentText}>2035 is where future founders begin.</span>
         </h2>
         <p className={styles.finalSub}>
-          Find a Solo Jam near you, or start one in your city.
+          Start solo. Build fast. Grow with the right people.
         </p>
         <div className={styles.ctaRow}>
           <Link to="/apply" className={styles.ctaPrimary}>
@@ -594,7 +592,7 @@ export function CommunityScreen() {
       {/* ── Footer ── */}
       <footer className={styles.footer}>
         <span className={styles.footerBrand}>2035 Today</span>
-        <span className={styles.footerMotto}>The community where solo founders build together</span>
+        <span className={styles.footerMotto}>Where future founders begin</span>
         <span className={styles.footerVibe}>Vibe coded by Franck Nouyrigat</span>
         <Link to="/admin" className={styles.footerLink}>Login</Link>
       </footer>

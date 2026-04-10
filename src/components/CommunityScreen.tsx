@@ -267,14 +267,17 @@ export function CommunityScreen() {
             <span className={styles.brandName}>2035 Today</span>
             <span className={styles.tagline}>Where <span className={styles.flicker}>future founders</span> begin.</span>
           </h1>
-          <p className={styles.heroSub}>Build the future. Don&rsquo;t just watch it happen.</p>
+          <p className={styles.heroSub}>What used to be impossible can now start as a solo startup.</p>
           <div className={styles.ctaRow}>
             <button onClick={() => scrollTo('cities')} className={styles.ctaPrimary}>
-              Explore Solo Founder Life &middot; 2h
+              Explore Solo Founder Life &middot; 2h Near You
             </button>
-            <button onClick={() => scrollTo('soloha')} className={styles.ctaSecondary}>
-              Commit to One Week of Building
-            </button>
+            <div className={styles.ctaWithNote}>
+              <button onClick={() => scrollTo('soloha')} className={styles.ctaSecondary}>
+                Join the Next Week of Building
+              </button>
+              <span className={styles.ctaNote}>Online &middot; Monthly</span>
+            </div>
           </div>
         </div>
       </section>

@@ -27,10 +27,10 @@ export function Navbar({ scrollTo, onLogout }: NavbarProps) {
 
   const links = (
     <>
+      <button onClick={() => goToSection('soloha')} className={styles.navLink}>Week of Building</button>
       <button onClick={() => goToSection('solojam')} className={styles.navLink}>Solo Founder Spark</button>
-      <button onClick={() => goToSection('soloha')} className={styles.navLink}>Solo Online Jam</button>
       <Link to="/apply" className={styles.navLink} onClick={close}>Start a City</Link>
-      <button onClick={() => goToSection('cities')} className={styles.navCta}>Find a Spark</button>
+      <button onClick={() => goToSection('soloha')} className={styles.navCta}>Join 2035</button>
       {onLogout && <button onClick={() => { onLogout(); close(); }} className={styles.navLink}>Logout</button>}
     </>
   );

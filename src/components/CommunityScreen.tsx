@@ -267,16 +267,19 @@ export function CommunityScreen() {
             <span className={styles.brandName}>2035 Today</span>
             <span className={styles.tagline}>Where <span className={styles.flicker}>future founders</span> begin.</span>
           </h1>
-          <p className={styles.heroSub}>What used to be impossible can now start as a solo startup.</p>
+          <p className={styles.heroSub}>What used to take a team can now start with one person and AI.</p>
           <div className={styles.ctaRow}>
-            <button onClick={() => scrollTo('cities')} className={styles.ctaPrimary}>
-              Explore Solo Founder Life &middot; 2h Near You
-            </button>
             <div className={styles.ctaWithNote}>
-              <button onClick={() => scrollTo('soloha')} className={styles.ctaSecondary}>
+              <button onClick={() => scrollTo('soloha')} className={styles.ctaPrimary}>
                 Join the Next Week of Building
               </button>
               <span className={styles.ctaNote}>Online &middot; Monthly</span>
+            </div>
+            <div className={styles.ctaWithNote}>
+              <button onClick={() => scrollTo('cities')} className={styles.ctaSecondary}>
+                Explore Solo Founder Life &middot; 2h Near You
+              </button>
+              <span className={styles.ctaNote}>Optional &middot; City-based</span>
             </div>
           </div>
         </div>
@@ -285,34 +288,34 @@ export function CommunityScreen() {
       {/* ── The Solo Founder Journey — side-by-side overview ── */}
       <section id="journey" className={styles.section}>
         <div className={styles.inner}>
-          <h2 className={styles.sectionTitle}>The future founder journey starts in 2 steps</h2>
-          <p className={styles.journeyMeta}>2 hours to spark it &middot; 1 week to prove it</p>
+          <h2 className={styles.sectionTitle}>One week is all you need to start</h2>
+          <p className={styles.journeyMeta}>Online &middot; Monthly &middot; Main engine</p>
           <p className={styles.sectionSub}>
-            What used to take months can now begin in <strong className={styles.greenText}>2 hours + 1 week.</strong>
+            What used to take months can now begin in <strong className={styles.greenText}>one focused week.</strong>
           </p>
           <p className={styles.journeySubMeta}>
-            Start solo. Start part-time if needed. Add a co-founder later if it makes sense.
+            A live, online, monthly build challenge for future founders. The 2h local spark is optional.
           </p>
 
-          {/* 1 → 2 cards */}
+          {/* Primary path → optional on-ramp */}
           <div className={styles.journeyGrid}>
-            {/* Step 1 */}
+            {/* Primary — Week of Building */}
             <div className={styles.journeyCard}>
               <span className={styles.journeyNum} style={{ borderColor: '#44FF88', color: '#44FF88' }}>1</span>
               <div className={styles.journeyCardInner} style={{ borderTopColor: '#44FF88' }}>
                 <div className={styles.journeyCardHeader}>
-                  <h3 className={`${styles.productTitle} ${styles.greenText}`} style={{ fontSize: '2rem' }}>Solo Founder Spark</h3>
-                  <span className={`${styles.productBadge} ${styles.greenBadge}`}>Offline &middot; Local</span>
+                  <h3 className={`${styles.productTitle} ${styles.greenText}`} style={{ fontSize: '2rem' }}>Solo Online Jam</h3>
+                  <span className={`${styles.productBadge} ${styles.greenBadge}`}>Online &middot; Monthly</span>
                 </div>
-                <span className={styles.journeyLabel}>Explore Solo Founder Life</span>
-                <span className={styles.journeyDuration} style={{ color: '#44FF88' }}>2h event</span>
+                <span className={styles.journeyLabel}>The main path</span>
+                <span className={styles.journeyDuration} style={{ color: '#44FF88' }}>1 week</span>
                 <p className={styles.journeyDesc}>
-                  Idea or not, you&rsquo;re welcome. Bold visions of 2035,
-                  show up with your vibe, meet and collide.
+                  One focused week of building. Compete, ship, pivot.
+                  Even part-time, go further than you thought possible.
                 </p>
                 <div className={styles.journeyPeople}>
-                  <PixelPerson hairColor="#44FF88" shirtColor="#4ECDC4" />
-                  <PixelPerson hairColor="#FF6B4A" shirtColor="#FFE66D" />
+                  <PixelPerson hairColor="#4ECDC4" shirtColor="#44FF88" />
+                  <PixelPerson hairColor="#FFE66D" shirtColor="#FF6B4A" flip />
                 </div>
               </div>
             </div>
@@ -320,23 +323,23 @@ export function CommunityScreen() {
             {/* Arrow */}
             <div className={styles.journeyArrow}>&rarr;</div>
 
-            {/* Step 2 */}
+            {/* Optional — 2h spark */}
             <div className={styles.journeyCard}>
               <span className={styles.journeyNum} style={{ borderColor: '#4ECDC4', color: '#4ECDC4' }}>2</span>
               <div className={styles.journeyCardInner} style={{ borderTopColor: '#4ECDC4' }}>
                 <div className={styles.journeyCardHeader}>
-                  <h3 className={`${styles.productTitle} ${styles.tealText}`} style={{ fontSize: '2rem' }}>Solo Online Jam</h3>
-                  <span className={`${styles.productBadge} ${styles.tealBadge}`}>Online</span>
+                  <h3 className={`${styles.productTitle} ${styles.tealText}`} style={{ fontSize: '2rem' }}>Solo Founder Spark</h3>
+                  <span className={`${styles.productBadge} ${styles.tealBadge}`}>Offline &middot; Optional</span>
                 </div>
-                <span className={styles.journeyLabel}>Commit to One Week of Building</span>
-                <span className={styles.journeyDuration} style={{ color: '#4ECDC4' }}>1 week</span>
+                <span className={styles.journeyLabel}>Optional local on-ramp</span>
+                <span className={styles.journeyDuration} style={{ color: '#4ECDC4' }}>2h event</span>
                 <p className={styles.journeyDesc}>
-                  Build with friends. Compete. Ship. Pivot.
-                  Go faster with AI and the support of a community.
+                  If there&rsquo;s a city near you. A fast, social spark to explore
+                  solo founder life. Idea or not, you&rsquo;re welcome.
                 </p>
                 <div className={styles.journeyPeople}>
-                  <PixelPerson hairColor="#4ECDC4" shirtColor="#44FF88" />
-                  <PixelPerson hairColor="#FFE66D" shirtColor="#FF6B4A" flip />
+                  <PixelPerson hairColor="#44FF88" shirtColor="#4ECDC4" />
+                  <PixelPerson hairColor="#FF6B4A" shirtColor="#FFE66D" />
                 </div>
               </div>
             </div>
@@ -346,14 +349,42 @@ export function CommunityScreen() {
         </div>
       </section>
 
-      {/* ── Solo Jam detail ── */}
+      {/* ── Solo Online Jam detail (primary path) ── */}
+      <section id="soloha" className={styles.section}>
+        <div className={styles.inner}>
+          <div className={styles.productHeader}>
+            <h2 className={`${styles.productTitle} ${styles.tealText}`}>Solo Online Jam</h2>
+            <span className={`${styles.productBadge} ${styles.tealBadge}`}>Online</span>
+            <span className={`${styles.productBadge} ${styles.tealBadge}`}>Monthly</span>
+          </div>
+          <p className={styles.productSubtitle}>One-week online build competition &mdash; next one starts soon</p>
+          <p className={`${styles.productTagline} ${styles.tealText}`}>Join the next week of building.</p>
+          <p className={styles.sectionSub}>
+            A one-week online competition for people ready to stop waiting and start building.
+            You do not need a polished idea. You do not need a team. You do not need to be full-time yet.
+            You just need one week.
+          </p>
+          <p className={styles.sectionSubDim}>
+            Build with AI. Compete with friends. Ship fast. Get real momentum.
+            Even part-time, you can get more done in one week than you may have done in years.
+            This is not old accelerator theater.
+          </p>
+          <p className={styles.haMonthly}>Every month. Free. Apply now for the next cohort.</p>
+          <div className={styles.robotRow}>
+            <PixelRobot className={styles.pixelPersonSmall} />
+          </div>
+          <p className={styles.terminalLine}>&gt; one week. real output. no startup theater_</p>
+        </div>
+      </section>
+
+      {/* ── Solo Founder Spark detail (optional on-ramp) ── */}
       <section id="solojam" className={styles.section}>
         <div className={styles.inner}>
           <div className={styles.productHeader}>
             <h2 className={`${styles.productTitle} ${styles.orangeText}`}>Solo Founder Spark</h2>
-            <span className={`${styles.productBadge} ${styles.orangeBadge}`}>Offline &middot; In your city</span>
+            <span className={`${styles.productBadge} ${styles.orangeBadge}`}>Offline &middot; Optional on-ramp</span>
           </div>
-          <p className={styles.productTagline}>Explore Solo Founder Life. In 2 hours.</p>
+          <p className={styles.productTagline}>A 2-hour spark, if you want it.</p>
 
           <div className={styles.welcomeBlock}>
             <p className={styles.welcomeLabel}>We welcome</p>
@@ -413,34 +444,6 @@ export function CommunityScreen() {
           <p className={styles.actFootnote}>
             A fast, social event for future founders. Come solo. Leave with momentum.
           </p>
-        </div>
-      </section>
-
-      {/* ── Solo HA detail ── */}
-      <section id="soloha" className={styles.section}>
-        <div className={styles.inner}>
-          <div className={styles.productHeader}>
-            <h2 className={`${styles.productTitle} ${styles.tealText}`}>Solo Online Jam</h2>
-            <span className={`${styles.productBadge} ${styles.tealBadge}`}>Online</span>
-            <span className={`${styles.productBadge} ${styles.tealBadge}`}>Open to all</span>
-          </div>
-          <p className={styles.productSubtitle}>One-week online build competition &mdash; next one starts soon</p>
-          <p className={`${styles.productTagline} ${styles.tealText}`}>Commit to one week of building.</p>
-          <p className={styles.sectionSub}>
-            Build with friends. Compete. Ship. Pivot.
-            Even part-time, you can get more done in one week
-            than you may have done in years.
-          </p>
-          <p className={styles.sectionSubDim}>
-            This is not old accelerator theater.
-            This is speed, pressure, community, and real output.
-            Go faster with AI and the support of a community.
-          </p>
-          <p className={styles.haMonthly}>Every month. Free. Apply now for the next cohort.</p>
-          <div className={styles.robotRow}>
-            <PixelRobot className={styles.pixelPersonSmall} />
-          </div>
-          <p className={styles.terminalLine}>&gt; one week. real output. no startup theater_</p>
         </div>
       </section>
 
@@ -562,6 +565,47 @@ export function CommunityScreen() {
             <Link to="/apply" className={styles.ctaGhost}>
               Don&rsquo;t see your city? Start one &rarr;
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section id="faq" className={styles.section}>
+        <div className={styles.inner}>
+          <h2 className={styles.sectionTitle}>FAQ</h2>
+          <div className={styles.faqGrid}>
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQ}>Do I need a co-founder to start?</h3>
+              <p className={styles.faqA}>No. Start solo. Add a co-founder later if and when it makes sense.</p>
+            </div>
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQ}>Can I join without an idea?</h3>
+              <p className={styles.faqA}>Yes. Curiosity is enough to begin.</p>
+            </div>
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQ}>Can I do this part-time?</h3>
+              <p className={styles.faqA}>Yes. Many future founders will start on the side before going all in.</p>
+            </div>
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQ}>Is this only for technical founders?</h3>
+              <p className={styles.faqA}>No. AI is changing that. One person can now build, market, test, and iterate faster than ever.</p>
+            </div>
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQ}>Is solo the end state?</h3>
+              <p className={styles.faqA}>Not necessarily. Solo is often the starting point, not the final structure.</p>
+            </div>
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQ}>What is a VibeUp?</h3>
+              <p className={styles.faqA}>A fast AI-native launch: going from idea to testable signal in minutes or days, not months.</p>
+            </div>
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQ}>What is a Solo Studio?</h3>
+              <p className={styles.faqA}>A highly leveraged company built by one founder with AI, systems, and a small circle of collaborators. We think this model is coming fast, especially for experienced and post-exit founders.</p>
+            </div>
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQ}>Is this an accelerator?</h3>
+              <p className={styles.faqA}>Not in the old sense. We care more about momentum, signal, community, and real output than startup theater.</p>
+            </div>
           </div>
         </div>
       </section>

@@ -973,6 +973,11 @@
     gap: 16px;
   }
 
+  .faqGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
   .citiesGrid {
     grid-template-columns: 1fr;
   }
@@ -980,6 +985,36 @@
   .finalHeadline {
     font-size: 1.8rem;
   }
+}
+
+/* ── FAQ ── */
+.faqGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 40px;
+  margin-top: 32px;
+  text-align: left;
+}
+
+.faqItem {
+  padding: 20px 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+}
+
+.faqQ {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.faqA {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #b8b8b8;
 }
 
 @media (max-width: 480px) {

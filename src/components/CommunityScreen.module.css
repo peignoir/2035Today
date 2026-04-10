@@ -86,7 +86,7 @@
 }
 
 .heroSub {
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: 500;
   letter-spacing: 0.02em;
   color: var(--text-dim);
@@ -156,8 +156,8 @@
 .ctaPrimary {
   display: inline-flex;
   align-items: center;
-  padding: 14px 36px;
-  font-size: 1rem;
+  padding: 16px 40px;
+  font-size: 1.15rem;
   font-weight: 700;
   font-family: inherit;
   color: white;
@@ -179,8 +179,8 @@
 .ctaSecondary {
   display: inline-flex;
   align-items: center;
-  padding: 14px 36px;
-  font-size: 1rem;
+  padding: 16px 40px;
+  font-size: 1.15rem;
   font-weight: 700;
   font-family: inherit;
   color: #0D0F0E;
@@ -241,7 +241,7 @@
 }
 
 .sectionSub {
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   line-height: 1.7;
   color: var(--text-dim);
   text-align: center;
@@ -280,14 +280,14 @@
 }
 
 .productSubtitle {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   color: var(--text-dim);
   text-align: center;
   margin-bottom: 4px;
 }
 
 .productTagline {
-  font-size: 1.6rem;
+  font-size: 1.85rem;
   font-weight: 800;
   color: var(--text);
   text-align: center;
@@ -304,7 +304,7 @@
 
 /* ── Journey overview (1→2 side-by-side) ── */
 .journeyMeta {
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -314,7 +314,7 @@
 }
 
 .journeySubMeta {
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   color: var(--text-dim);
   text-align: center;
   font-style: italic;
@@ -383,14 +383,14 @@
 
 .journeyDuration {
   font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   font-weight: 600;
   margin-bottom: 12px;
   display: block;
 }
 
 .journeyDesc {
-  font-size: 0.88rem;
+  font-size: 1.05rem;
   line-height: 1.6;
   color: var(--text-dim);
   margin: 0 0 16px;
@@ -446,7 +446,7 @@
 }
 
 .haMonthly {
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--teal);
   text-align: center;
@@ -468,7 +468,7 @@
 }
 
 .sectionSubDim {
-  font-size: 0.92rem;
+  font-size: 1.05rem;
   line-height: 1.7;
   color: var(--text-dim);
   text-align: center;
@@ -480,7 +480,7 @@
 
 .terminalLine {
   font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   color: var(--green);
   text-align: center;
   opacity: 0.7;
@@ -575,7 +575,7 @@
 }
 
 .welcomeSub {
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   line-height: 1.65;
   color: var(--text-dim);
   opacity: 0.7;
@@ -626,14 +626,14 @@
 }
 
 .actName {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: var(--text);
   margin-bottom: 8px;
 }
 
 .actDesc {
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   line-height: 1.6;
   color: var(--text-dim);
   margin: 0;
@@ -642,7 +642,7 @@
 .actFootnote {
   text-align: center;
   margin-top: 32px;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-dim);
   font-style: italic;
@@ -671,13 +671,13 @@
 }
 
 .vcTitle {
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   margin-bottom: 8px;
 }
 
 .vcDesc {
-  font-size: 0.88rem;
+  font-size: 1.05rem;
   line-height: 1.6;
   color: var(--text-dim);
   margin: 0;
@@ -865,7 +865,7 @@
 }
 
 .finalSub {
-  font-size: 1.05rem;
+  font-size: 1.25rem;
   color: var(--text-dim);
   margin-bottom: 32px;
 }
@@ -1005,14 +1005,14 @@
 
 .faqQ {
   margin: 0 0 8px;
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--green);
 }
 
 .faqA {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   line-height: 1.55;
   color: #b8b8b8;
 }

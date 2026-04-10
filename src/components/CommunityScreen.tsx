@@ -297,35 +297,11 @@ export function CommunityScreen() {
             A live, online, monthly build challenge for future founders. The 2h local spark is optional.
           </p>
 
-          {/* Primary path → optional on-ramp */}
+          {/* Optional spark → main jam */}
           <div className={styles.journeyGrid}>
-            {/* Primary — Week of Building */}
-            <div className={styles.journeyCard}>
-              <span className={styles.journeyNum} style={{ borderColor: '#44FF88', color: '#44FF88' }}>1</span>
-              <div className={styles.journeyCardInner} style={{ borderTopColor: '#44FF88' }}>
-                <div className={styles.journeyCardHeader}>
-                  <h3 className={`${styles.productTitle} ${styles.greenText}`} style={{ fontSize: '2rem' }}>Solo Online Jam</h3>
-                  <span className={`${styles.productBadge} ${styles.greenBadge}`}>Online &middot; Monthly</span>
-                </div>
-                <span className={styles.journeyLabel}>The main path</span>
-                <span className={styles.journeyDuration} style={{ color: '#44FF88' }}>1 week</span>
-                <p className={styles.journeyDesc}>
-                  One focused week of building. Compete, ship, pivot.
-                  Even part-time, go further than you thought possible.
-                </p>
-                <div className={styles.journeyPeople}>
-                  <PixelPerson hairColor="#4ECDC4" shirtColor="#44FF88" />
-                  <PixelPerson hairColor="#FFE66D" shirtColor="#FF6B4A" flip />
-                </div>
-              </div>
-            </div>
-
-            {/* Arrow */}
-            <div className={styles.journeyArrow}>&rarr;</div>
-
             {/* Optional — 2h spark */}
             <div className={styles.journeyCard}>
-              <span className={styles.journeyNum} style={{ borderColor: '#4ECDC4', color: '#4ECDC4' }}>2</span>
+              <span className={styles.journeyNum} style={{ borderColor: '#4ECDC4', color: '#4ECDC4' }}>1</span>
               <div className={styles.journeyCardInner} style={{ borderTopColor: '#4ECDC4' }}>
                 <div className={styles.journeyCardHeader}>
                   <h3 className={`${styles.productTitle} ${styles.tealText}`} style={{ fontSize: '2rem' }}>Solo Founder Spark</h3>
@@ -343,37 +319,33 @@ export function CommunityScreen() {
                 </div>
               </div>
             </div>
+
+            {/* Arrow */}
+            <div className={styles.journeyArrow}>&rarr;</div>
+
+            {/* Main — Week of Building */}
+            <div className={styles.journeyCard}>
+              <span className={styles.journeyNum} style={{ borderColor: '#44FF88', color: '#44FF88' }}>2</span>
+              <div className={styles.journeyCardInner} style={{ borderTopColor: '#44FF88' }}>
+                <div className={styles.journeyCardHeader}>
+                  <h3 className={`${styles.productTitle} ${styles.greenText}`} style={{ fontSize: '2rem' }}>Solo Online Jam</h3>
+                  <span className={`${styles.productBadge} ${styles.greenBadge}`}>Online &middot; Monthly</span>
+                </div>
+                <span className={styles.journeyLabel}>The main path</span>
+                <span className={styles.journeyDuration} style={{ color: '#44FF88' }}>1 week</span>
+                <p className={styles.journeyDesc}>
+                  One focused week of building. Compete, ship, pivot.
+                  Even part-time, go further than you thought possible.
+                </p>
+                <div className={styles.journeyPeople}>
+                  <PixelPerson hairColor="#4ECDC4" shirtColor="#44FF88" />
+                  <PixelPerson hairColor="#FFE66D" shirtColor="#FF6B4A" flip />
+                </div>
+              </div>
+            </div>
           </div>
 
           <p className={styles.terminalLine}>&gt; do not wait for ideal conditions to begin_</p>
-        </div>
-      </section>
-
-      {/* ── Solo Online Jam detail (primary path) ── */}
-      <section id="soloha" className={styles.section}>
-        <div className={styles.inner}>
-          <div className={styles.productHeader}>
-            <h2 className={`${styles.productTitle} ${styles.tealText}`}>Solo Online Jam</h2>
-            <span className={`${styles.productBadge} ${styles.tealBadge}`}>Online</span>
-            <span className={`${styles.productBadge} ${styles.tealBadge}`}>Monthly</span>
-          </div>
-          <p className={styles.productSubtitle}>One-week online build competition &mdash; next one starts soon</p>
-          <p className={`${styles.productTagline} ${styles.tealText}`}>Join the next week of building.</p>
-          <p className={styles.sectionSub}>
-            A one-week online competition for people ready to stop waiting and start building.
-            You do not need a polished idea. You do not need a team. You do not need to be full-time yet.
-            You just need one week.
-          </p>
-          <p className={styles.sectionSubDim}>
-            Build with AI. Compete with friends. Ship fast. Get real momentum.
-            Even part-time, you can get more done in one week than you may have done in years.
-            This is not old accelerator theater.
-          </p>
-          <p className={styles.haMonthly}>Every month. Free. Apply now for the next cohort.</p>
-          <div className={styles.robotRow}>
-            <PixelRobot className={styles.pixelPersonSmall} />
-          </div>
-          <p className={styles.terminalLine}>&gt; one week. real output. no startup theater_</p>
         </div>
       </section>
 
@@ -444,6 +416,34 @@ export function CommunityScreen() {
           <p className={styles.actFootnote}>
             A fast, social event for future founders. Come solo. Leave with momentum.
           </p>
+        </div>
+      </section>
+
+      {/* ── Solo Online Jam detail (main path) ── */}
+      <section id="soloha" className={styles.section}>
+        <div className={styles.inner}>
+          <div className={styles.productHeader}>
+            <h2 className={`${styles.productTitle} ${styles.tealText}`}>Solo Online Jam</h2>
+            <span className={`${styles.productBadge} ${styles.tealBadge}`}>Online</span>
+            <span className={`${styles.productBadge} ${styles.tealBadge}`}>Monthly</span>
+          </div>
+          <p className={styles.productSubtitle}>One-week online build competition &mdash; next one starts soon</p>
+          <p className={`${styles.productTagline} ${styles.tealText}`}>Join the next week of building.</p>
+          <p className={styles.sectionSub}>
+            A one-week online competition for people ready to stop waiting and start building.
+            You do not need a polished idea. You do not need a team. You do not need to be full-time yet.
+            You just need one week.
+          </p>
+          <p className={styles.sectionSubDim}>
+            Build with AI. Compete with friends. Ship fast. Get real momentum.
+            Even part-time, you can get more done in one week than you may have done in years.
+            This is not old accelerator theater.
+          </p>
+          <p className={styles.haMonthly}>Every month. Free. Apply now for the next cohort.</p>
+          <div className={styles.robotRow}>
+            <PixelRobot className={styles.pixelPersonSmall} />
+          </div>
+          <p className={styles.terminalLine}>&gt; one week. real output. no startup theater_</p>
         </div>
       </section>
 

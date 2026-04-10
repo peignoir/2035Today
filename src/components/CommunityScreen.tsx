@@ -356,7 +356,7 @@ export function CommunityScreen() {
             <h2 className={`${styles.productTitle} ${styles.orangeText}`}>Solo Founder Spark</h2>
             <span className={`${styles.productBadge} ${styles.orangeBadge}`}>Offline &middot; Optional on-ramp</span>
           </div>
-          <p className={styles.productTagline}>A 2-hour spark, if you want it.</p>
+          <p className={styles.productTagline}>A 2-hour spark, get ready for 2035.</p>
 
           <div className={styles.welcomeBlock}>
             <p className={styles.welcomeLabel}>We welcome</p>

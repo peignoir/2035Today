@@ -271,7 +271,7 @@ export function CommunityScreen() {
           <div className={styles.ctaRow}>
             <div className={styles.ctaWithNote}>
               <button onClick={() => scrollTo('soloha')} className={styles.ctaPrimary}>
-                Join the Next Week of Building
+                Join the Next 2035 Founders Jam
               </button>
               <span className={styles.ctaNote}>Online &middot; Monthly</span>
             </div>
@@ -328,14 +328,14 @@ export function CommunityScreen() {
               <span className={styles.journeyNum} style={{ borderColor: '#44FF88', color: '#44FF88' }}>2</span>
               <div className={styles.journeyCardInner} style={{ borderTopColor: '#44FF88' }}>
                 <div className={styles.journeyCardHeader}>
-                  <h3 className={`${styles.productTitle} ${styles.greenText}`} style={{ fontSize: '2rem' }}>Solo Online Jam</h3>
+                  <h3 className={`${styles.productTitle} ${styles.greenText}`} style={{ fontSize: '2rem' }}>2035 Founders Jam</h3>
                   <span className={`${styles.productBadge} ${styles.greenBadge}`}>Online &middot; Monthly</span>
                 </div>
                 <span className={styles.journeyLabel}>The main path</span>
                 <span className={styles.journeyDuration} style={{ color: '#44FF88' }}>1 week</span>
                 <p className={styles.journeyDesc}>
-                  One focused week of building. Compete, ship, pivot.
-                  Even part-time, go further than you thought possible.
+                  Build in public. Earn points daily. AI is the judge.
+                  Live dashboard. Real momentum, real output.
                 </p>
                 <div className={styles.journeyPeople}>
                   <PixelPerson hairColor="#4ECDC4" shirtColor="#44FF88" />
@@ -419,42 +419,78 @@ export function CommunityScreen() {
         </div>
       </section>
 
-      {/* ── Solo Online Jam detail (main path) ── */}
+      {/* ── 2035 Founders Jam detail (main path) ── */}
       <section id="soloha" className={styles.section}>
         <div className={styles.inner}>
           <div className={styles.productHeader}>
-            <h2 className={`${styles.productTitle} ${styles.tealText}`}>Solo Online Jam</h2>
+            <h2 className={`${styles.productTitle} ${styles.tealText}`}>2035 Founders Jam</h2>
             <span className={`${styles.productBadge} ${styles.tealBadge}`}>Online</span>
             <span className={`${styles.productBadge} ${styles.tealBadge}`}>Monthly</span>
           </div>
-          <p className={styles.productSubtitle}>One-week online build competition &mdash; next one starts soon</p>
-          <p className={`${styles.productTagline} ${styles.tealText}`}>Join the next week of building.</p>
+          <p className={styles.productSubtitle}>A 1-week online build competition for future founders</p>
+          <p className={`${styles.productTagline} ${styles.tealText}`}>Build in public. Move fast with AI. Real output in real time.</p>
           <p className={styles.sectionSub}>
-            A one-week online competition for people ready to stop waiting and start building.
-            You do not need a polished idea. You do not need a team. You do not need to be full-time yet.
-            You just need one week.
+            The main engine. A one-week, online, monthly competition where future founders
+            build in public, make progress every day, and get judged in real time by AI.
           </p>
           <p className={styles.sectionSubDim}>
-            Build with AI. Compete with friends. Ship fast. Get real momentum.
-            Even part-time, you can get more done in one week than you may have done in years.
-            This is not old accelerator theater.
+            Every day you earn points for real progress. A live dashboard.
+            Everything transparent. You can see momentum happening as it happens.
           </p>
-          <p className={styles.haMonthly}>Every month. Free. Apply now for the next cohort.</p>
+
+          <div className={styles.jamGrid}>
+            <div className={styles.jamCard}>
+              <h3 className={styles.jamTitle} style={{ color: '#4ECDC4' }}>Earn points daily</h3>
+              <p className={styles.jamDesc}>
+                Every day you can earn points by making real progress.
+                AI is the judge. The dashboard is public.
+              </p>
+            </div>
+            <div className={styles.jamCard}>
+              <h3 className={styles.jamTitle} style={{ color: '#44FF88' }}>Live leaderboard</h3>
+              <p className={styles.jamDesc}>
+                Yes, there&rsquo;s a leaderboard. But being number one is not the main point.
+                Making far more progress than you thought possible is.
+              </p>
+            </div>
+            <div className={styles.jamCard}>
+              <h3 className={styles.jamTitle} style={{ color: '#FF6B4A' }}>Build in public</h3>
+              <p className={styles.jamDesc}>
+                Ship fast. Pivot in public. Meet other future founders.
+                Have fun. Leave the week with real momentum.
+              </p>
+            </div>
+            <div className={styles.jamCard}>
+              <h3 className={styles.jamTitle} style={{ color: '#FFE66D' }}>One week is enough</h3>
+              <p className={styles.jamDesc}>
+                No polished idea needed. No team needed. Not full-time yet? Fine.
+                You just need one week.
+              </p>
+            </div>
+          </div>
+
+          <p className={styles.haMonthly}>Every month. Free. Apply now for the next Jam.</p>
           <div className={styles.robotRow}>
             <PixelRobot className={styles.pixelPersonSmall} />
           </div>
-          <p className={styles.terminalLine}>&gt; one week. real output. no startup theater_</p>
+          <p className={styles.terminalLine}>&gt; being number one is not the point. making progress is_</p>
         </div>
       </section>
 
       {/* ── 2035.VC ── */}
       <section id="vc" className={styles.section}>
         <div className={styles.inner}>
-          <h2 className={styles.sectionTitle}>2035.VC</h2>
-          <p className={styles.productTagline}>Funding, redesigned for the AI era.</p>
+          <h2 className={styles.sectionTitle}>2035 VC</h2>
+          <p className={styles.productTagline}>VC should be a tool, not the end goal.</p>
           <p className={styles.sectionSub}>
-            Starting with $20k for 1%. Enough to buy a few months of focus
-            and help a future founder go further. VC as a tool, not a goal.
+            Future founders do not need $10M to start. They need enough to
+            quit their job, commit for a few months, and see what becomes real.
+          </p>
+          <p className={styles.sectionSubDim}>
+            That is why we start light: <strong>$20k for 1%.</strong>
+            Small check. Early signal. Real momentum.
+            And if a startup wins, the community wins too &mdash;
+            we recycle proceeds back into the ecosystem that helped founders begin.
           </p>
 
           <div className={styles.vcGrid}>

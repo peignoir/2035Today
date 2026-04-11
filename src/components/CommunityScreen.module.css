@@ -91,6 +91,36 @@
   letter-spacing: 0.02em;
   color: var(--text-dim);
   margin-bottom: 28px;
+  line-height: 1.55;
+}
+
+.heroSubEcho {
+  display: inline-block;
+  margin-top: 6px;
+  opacity: 0.95;
+}
+
+.futureFoundersShift {
+  font-weight: 800;
+  background: linear-gradient(
+    90deg,
+    #44FF88 0%,
+    #4ECDC4 25%,
+    #FFE66D 50%,
+    #FF6B4A 75%,
+    #44FF88 100%
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: futureShift 8s linear infinite;
+}
+
+@keyframes futureShift {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
 }
 
 /* Neon flicker for "solo project." */

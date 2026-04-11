@@ -267,7 +267,13 @@ export function CommunityScreen() {
             <span className={styles.brandName}>2035 Today</span>
             <span className={styles.tagline}>Where <span className={styles.flicker}>future founders</span> begin.</span>
           </h1>
-          <p className={styles.heroSub}>Nothing is impossible for a founder with AI. We call them future founders.</p>
+          <p className={styles.heroSub}>
+            Nothing is impossible for a founder with AI.
+            <br />
+            <span className={styles.heroSubEcho}>
+              We call them <span className={styles.futureFoundersShift}>future founders</span>.
+            </span>
+          </p>
           <div className={styles.ctaRow}>
             <div className={styles.ctaWithNote}>
               <button onClick={() => scrollTo('soloha')} className={styles.ctaPrimary}>

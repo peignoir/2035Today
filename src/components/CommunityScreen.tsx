@@ -267,19 +267,19 @@ export function CommunityScreen() {
             <span className={styles.brandName}>2035 Today</span>
             <span className={styles.tagline}>Where <span className={styles.flicker}>future founders</span> begin.</span>
           </h1>
-          <p className={styles.heroSub}>What used to take a team can now start with one person and AI.</p>
+          <p className={styles.heroSub}>Nothing is impossible for a founder with AI. We call them future founders.</p>
           <div className={styles.ctaRow}>
             <div className={styles.ctaWithNote}>
               <button onClick={() => scrollTo('soloha')} className={styles.ctaPrimary}>
                 Join the Next 2035 Founders Jam
               </button>
-              <span className={styles.ctaNote}>Online &middot; Monthly</span>
+              <span className={styles.ctaNote}>Online &middot; Monthly &middot; 1 Week</span>
             </div>
             <div className={styles.ctaWithNote}>
               <button onClick={() => scrollTo('cities')} className={styles.ctaSecondary}>
-                Explore Solo Founder Life &middot; 2h Near You
+                Find a 2035 Founders Event Near You
               </button>
-              <span className={styles.ctaNote}>Optional &middot; City-based</span>
+              <span className={styles.ctaNote}>Offline &middot; 2 Hours &middot; Local</span>
             </div>
           </div>
         </div>
@@ -288,13 +288,14 @@ export function CommunityScreen() {
       {/* ── The Solo Founder Journey — side-by-side overview ── */}
       <section id="journey" className={styles.section}>
         <div className={styles.inner}>
-          <h2 className={styles.sectionTitle}>One week is all you need to start</h2>
-          <p className={styles.journeyMeta}>Online &middot; Monthly &middot; Main engine</p>
+          <h2 className={styles.sectionTitle}>The local event is the spark. The Jam is the engine.</h2>
+          <p className={styles.journeyMeta}>Hybrid &middot; Local &middot; Online</p>
           <p className={styles.sectionSub}>
-            What used to take months can now begin in <strong className={styles.greenText}>one focused week.</strong>
+            Start online in one focused week &mdash; or begin offline in your city,
+            get inspired, meet your people, and then go deeper.
           </p>
           <p className={styles.journeySubMeta}>
-            A live, online, monthly build challenge for future founders. The 2h local spark is optional.
+            Offline for trust, energy, and collisions. Online for speed, transparency, and real output.
           </p>
 
           {/* Optional spark → main jam */}
@@ -304,14 +305,14 @@ export function CommunityScreen() {
               <span className={styles.journeyNum} style={{ borderColor: '#4ECDC4', color: '#4ECDC4' }}>1</span>
               <div className={styles.journeyCardInner} style={{ borderTopColor: '#4ECDC4' }}>
                 <div className={styles.journeyCardHeader}>
-                  <h3 className={`${styles.productTitle} ${styles.tealText}`} style={{ fontSize: '2rem' }}>Solo Founder Spark</h3>
-                  <span className={`${styles.productBadge} ${styles.tealBadge}`}>Offline &middot; Optional</span>
+                  <h3 className={`${styles.productTitle} ${styles.tealText}`} style={{ fontSize: '2rem' }}>2035 Founders</h3>
+                  <span className={`${styles.productBadge} ${styles.tealBadge}`}>Offline &middot; Local</span>
                 </div>
-                <span className={styles.journeyLabel}>Optional local on-ramp</span>
+                <span className={styles.journeyLabel}>The local spark</span>
                 <span className={styles.journeyDuration} style={{ color: '#4ECDC4' }}>2h event</span>
                 <p className={styles.journeyDesc}>
-                  If there&rsquo;s a city near you. A fast, social spark to explore
-                  solo founder life. Idea or not, you&rsquo;re welcome.
+                  A 2-hour local event. Get inspired, meet your peers,
+                  collide with ideas. Trust built in real life.
                 </p>
                 <div className={styles.journeyPeople}>
                   <PixelPerson hairColor="#44FF88" shirtColor="#4ECDC4" />
@@ -331,7 +332,7 @@ export function CommunityScreen() {
                   <h3 className={`${styles.productTitle} ${styles.greenText}`} style={{ fontSize: '2rem' }}>2035 Founders Jam</h3>
                   <span className={`${styles.productBadge} ${styles.greenBadge}`}>Online &middot; Monthly</span>
                 </div>
-                <span className={styles.journeyLabel}>The main path</span>
+                <span className={styles.journeyLabel}>The main engine</span>
                 <span className={styles.journeyDuration} style={{ color: '#44FF88' }}>1 week</span>
                 <p className={styles.journeyDesc}>
                   Build in public. Earn points daily. AI is the judge.
@@ -353,17 +354,22 @@ export function CommunityScreen() {
       <section id="solojam" className={styles.section}>
         <div className={styles.inner}>
           <div className={styles.productHeader}>
-            <h2 className={`${styles.productTitle} ${styles.orangeText}`}>Solo Founder Spark</h2>
-            <span className={`${styles.productBadge} ${styles.orangeBadge}`}>Offline &middot; Optional on-ramp</span>
+            <h2 className={`${styles.productTitle} ${styles.orangeText}`}>2035 Founders</h2>
+            <span className={`${styles.productBadge} ${styles.orangeBadge}`}>Offline &middot; Local &middot; 2h</span>
           </div>
-          <p className={styles.productTagline}>A 2-hour spark, get ready for 2035.</p>
+          <p className={styles.productSubtitle}>A 2-hour local event for future founders</p>
+          <p className={styles.productTagline}>Get inspired. Meet your peers. Leave with momentum.</p>
+          <p className={styles.sectionSub}>
+            Your entry point into the community. For people who want to start a company,
+            explore solo founder life, or simply get closer to the future that is coming fast.
+          </p>
 
           <div className={styles.welcomeBlock}>
             <p className={styles.welcomeLabel}>We welcome</p>
             <RotatingWelcome />
             <p className={styles.welcomeSub}>
-              Idea or not, you&rsquo;re welcome. Curiosity is enough to begin.
-              Come solo. Leave with momentum.
+              No team needed. No polished idea. No pitch deck.
+              Come with a side project, a half-formed thought, or just curiosity.
             </p>
           </div>
 
@@ -373,10 +379,10 @@ export function CommunityScreen() {
                 <span className={styles.actNum} style={{ color: '#44FF88' }}>1</span>
                 <span className={styles.actTime}>20 min</span>
               </div>
-              <h3 className={styles.actName} style={{ color: '#44FF88' }}>Bold Visions of 2035</h3>
+              <h3 className={styles.actName} style={{ color: '#44FF88' }}>White Mirror</h3>
               <p className={styles.actDesc}>
-                Short, future-facing stories about where the world is going
-                and what could be built. Curated by local Fellows.
+                Short stories about the future. Bold visions of 2035,
+                what AI is changing, and what new kinds of startups are becoming possible.
               </p>
               <div className={styles.actPeople}>
                 <PixelPerson hairColor="#44FF88" shirtColor="#778877" className={styles.pixelPersonSmall} />
@@ -403,8 +409,8 @@ export function CommunityScreen() {
               </div>
               <h3 className={styles.actName} style={{ color: '#FFE66D' }}>Meet &amp; Collide</h3>
               <p className={styles.actDesc}>
-                The mixer. The unexpected conversations.
-                The people, ideas, and energy you did not know you needed.
+                The conversations, the people, and the unexpected collisions
+                that make new companies possible.
               </p>
               <div className={styles.actPeople}>
                 <PixelPerson hairColor="#FFE66D" shirtColor="#4ECDC4" className={styles.pixelPersonSmall} />
@@ -477,6 +483,25 @@ export function CommunityScreen() {
         </div>
       </section>
 
+      {/* ── Why offline and local matter ── */}
+      <section id="why-local" className={styles.section}>
+        <div className={styles.inner}>
+          <h2 className={styles.sectionTitle}>Why offline and local matter</h2>
+          <p className={styles.productTagline}>Community is more important than ever.</p>
+          <p className={styles.sectionSub}>
+            AI makes solo founders more powerful. But it also makes trust, taste,
+            and real human connection more valuable. That&rsquo;s why 2035 is not online-only.
+          </p>
+          <p className={styles.sectionSubDim}>
+            We believe the strongest founder communities of the future will be
+            <strong> hybrid, local, recurring, high-trust</strong> &mdash; built around real people, not just content.
+            The internet helps founders move fast. Local community helps them stay real,
+            meet the right people, and build with momentum.
+          </p>
+          <p className={styles.terminalLine}>&gt; strong online. strong offline. deeply local_</p>
+        </div>
+      </section>
+
       {/* ── 2035.VC ── */}
       <section id="vc" className={styles.section}>
         <div className={styles.inner}>
@@ -495,31 +520,31 @@ export function CommunityScreen() {
 
           <div className={styles.vcGrid}>
             <div className={styles.vcCard}>
-              <h3 className={styles.vcTitle} style={{ color: '#FF6B4A' }}>Micro Investment at AI Speed</h3>
+              <h3 className={styles.vcTitle} style={{ color: '#FF6B4A' }}>$20k for 1%</h3>
               <p className={styles.vcDesc}>
-                Score-triggered micro investments. AI due diligence at scale.
-                Global founders, US-incorporated startups.
+                Enough to quit your job, buy a few months of focus, and fully commit.
+                Small check. Early signal. Real momentum.
               </p>
             </div>
             <div className={styles.vcCard}>
-              <h3 className={styles.vcTitle} style={{ color: '#4ECDC4' }}>Data Streams, not Data Rooms</h3>
+              <h3 className={styles.vcTitle} style={{ color: '#4ECDC4' }}>Data streams, not data rooms</h3>
               <p className={styles.vcDesc}>
-                Real-time founder signals from the Solo Jam pipeline.
-                Always-on deal flow. No PDFs in Dropbox.
+                Real-time founder signals from the Jam pipeline.
+                Always-on. AI-assisted scoring, support, and follow-up.
               </p>
             </div>
             <div className={styles.vcCard}>
-              <h3 className={styles.vcTitle} style={{ color: '#44FF88' }}>FSD for Investment</h3>
+              <h3 className={styles.vcTitle} style={{ color: '#44FF88' }}>Startup agents, not pitch theater</h3>
               <p className={styles.vcDesc}>
-                Full Self-Driving diligence. AI scoring, tracking,
-                and mentoring at scale. Humans for taste.
+                Founders should not repeat the same pitch forever.
+                Their startup agent should do much of that work.
               </p>
             </div>
             <div className={styles.vcCard}>
-              <h3 className={styles.vcTitle} style={{ color: '#FFE66D' }}>Serendipity &amp; Network Effects</h3>
+              <h3 className={styles.vcTitle} style={{ color: '#FFE66D' }}>Community upside</h3>
               <p className={styles.vcDesc}>
-                Unique LP interface maximizing serendipity and network effects
-                across 120+ countries to increase liquidity.
+                If a startup wins, the community wins too. Proceeds recycle back
+                into events, support, and future founders.
               </p>
             </div>
           </div>
@@ -531,9 +556,9 @@ export function CommunityScreen() {
       {/* ── Cities ── */}
       <section id="cities" className={styles.citiesSection}>
         <div className={styles.inner}>
-          <h2 className={styles.sectionTitle}>Find a Spark near you</h2>
+          <h2 className={styles.sectionTitle}>Find a 2035 Founders event near you</h2>
           <p className={styles.sectionSub}>
-            Find an upcoming Solo Founder Spark or start one where you are.
+            Find an upcoming 2035 Founders event or start one where you are.
           </p>
 
           {(() => {
@@ -623,12 +648,12 @@ export function CommunityScreen() {
               <p className={styles.faqA}>Yes. Many future founders will start on the side before going all in.</p>
             </div>
             <div className={styles.faqItem}>
-              <h3 className={styles.faqQ}>Is this only for technical founders?</h3>
-              <p className={styles.faqA}>No. AI is changing that. One person can now build, market, test, and iterate faster than ever.</p>
+              <h3 className={styles.faqQ}>Why so much focus on offline and local?</h3>
+              <p className={styles.faqA}>Because AI increases leverage, but real trust, taste, and connection still happen best through people and place. We believe the best future founder communities will be hybrid.</p>
             </div>
             <div className={styles.faqItem}>
-              <h3 className={styles.faqQ}>Is solo the end state?</h3>
-              <p className={styles.faqA}>Not necessarily. Solo is often the starting point, not the final structure.</p>
+              <h3 className={styles.faqQ}>Is this only for technical founders?</h3>
+              <p className={styles.faqA}>No. AI is changing that. One person can now do much more than before.</p>
             </div>
             <div className={styles.faqItem}>
               <h3 className={styles.faqQ}>What is a VibeUp?</h3>
@@ -639,8 +664,8 @@ export function CommunityScreen() {
               <p className={styles.faqA}>A highly leveraged company built by one founder with AI, systems, and a small circle of collaborators. We think this model is coming fast, especially for experienced and post-exit founders.</p>
             </div>
             <div className={styles.faqItem}>
-              <h3 className={styles.faqQ}>Is this an accelerator?</h3>
-              <p className={styles.faqA}>Not in the old sense. We care more about momentum, signal, community, and real output than startup theater.</p>
+              <h3 className={styles.faqQ}>Is 2035 Founders Jam an accelerator?</h3>
+              <p className={styles.faqA}>Not in the old sense. It is a transparent, real-time build competition focused on momentum and real output.</p>
             </div>
           </div>
         </div>
@@ -652,7 +677,7 @@ export function CommunityScreen() {
           <span className={styles.accentText}>2035 is where future founders begin.</span>
         </h2>
         <p className={styles.finalSub}>
-          Start solo. Build fast. Grow with the right people.
+          Nothing is impossible for a founder with AI. We call them future founders.
         </p>
         <div className={styles.ctaRow}>
           <Link to="/apply" className={styles.ctaPrimary}>
@@ -675,7 +700,7 @@ export function CommunityScreen() {
       {/* ── Footer ── */}
       <footer className={styles.footer}>
         <span className={styles.footerBrand}>2035 Today</span>
-        <span className={styles.footerMotto}>Where future founders begin</span>
+        <span className={styles.footerMotto}>Nothing is impossible for a founder with AI</span>
         <span className={styles.footerVibe}>Vibe coded by Franck Nouyrigat</span>
         <Link to="/admin" className={styles.footerLink}>Login</Link>
       </footer>

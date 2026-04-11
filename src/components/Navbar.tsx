@@ -27,8 +27,9 @@ export function Navbar({ scrollTo, onLogout }: NavbarProps) {
 
   const links = (
     <>
+      <button onClick={() => goToSection('solojam')} className={styles.navLink}>2035 Founders</button>
       <button onClick={() => goToSection('soloha')} className={styles.navLink}>Founders Jam</button>
-      <button onClick={() => goToSection('solojam')} className={styles.navLink}>Solo Founder Spark</button>
+      <button onClick={() => goToSection('vc')} className={styles.navLink}>2035 VC</button>
       <Link to="/apply" className={styles.navLink} onClick={close}>Start a City</Link>
       <button onClick={() => goToSection('soloha')} className={styles.navCta}>Join 2035</button>
       {onLogout && <button onClick={() => { onLogout(); close(); }} className={styles.navLink}>Logout</button>}

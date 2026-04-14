@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ShareableEvent } from '../types';
-import { listEvents, deleteEvent, saveEvent, uploadLogo, listCities } from '../lib/storage';
+import { listEvents, deleteEvent, saveEvent, uploadLogo, listCities, registerCity, unregisterCity } from '../lib/storage';
 import { generateLogo } from '../lib/generateLogo';
 import styles from './EventsListScreen.module.css';
 
@@ -39,9 +39,14 @@ export function EventsListScreen() {
     loadEvents();
   }, [loadEvents]);
 
-  // Group events by city (slug prefix)
+  // Group events by city (slug prefix), including registered cities with no events
   const cityGroups = useMemo(() => {
     const groups = new Map<string, { slug: string; event: ShareableEvent }[]>();
+    // Seed with all registered cities so empty ones still appear
+    for (const citySlug of knownCities) {
+      const name = titleCase(citySlug);
+      if (!groups.has(name)) groups.set(name, []);
+    }
     for (const item of events) {
       const citySlug = item.slug.split('/')[0];
       const cityName = item.event.city || titleCase(citySlug);
@@ -49,7 +54,7 @@ export function EventsListScreen() {
       groups.get(cityName)!.push(item);
     }
     return Array.from(groups.entries());
-  }, [events]);
+  }, [events, knownCities]);
 
   const handleDelete = useCallback(async (e: React.MouseEvent, slug: string, name: string) => {
     e.stopPropagation();
@@ -110,12 +115,25 @@ export function EventsListScreen() {
       presentations: [],
     };
     await saveEvent(slug, newEvent);
+    await registerCity(citySlug);
     generateLogo(name, city).then(async (blob) => {
       try { await uploadLogo(slug, blob, 'png'); } catch { /* ignore */ }
     });
     setShowCreateModal(false);
     navigate(`/admin/events/${slug}`);
   }, [createName, createCity, createNewCity, createDate, events, navigate]);
+
+  const handleRemoveCity = useCallback(async (e: React.MouseEvent, cityName: string) => {
+    e.stopPropagation();
+    if (!confirm(`Remove "${cityName}" from the list?\n\nExisting events will be kept in storage.`)) return;
+    const citySlug = slugify(cityName);
+    try {
+      await unregisterCity(citySlug);
+      loadEvents();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to remove city');
+    }
+  }, [loadEvents]);
 
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
@@ -187,6 +205,16 @@ export function EventsListScreen() {
               <div className={styles.cityHeader}>
                 <h2 className={styles.cityName}>{cityName}</h2>
                 <span className={styles.cityCount}>{cityEvents.length}</span>
+                <button
+                  className={styles.removeCityButton}
+                  onClick={(e) => handleRemoveCity(e, cityName)}
+                  title={`Remove ${cityName}`}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
               </div>
               <div className={styles.grid}>
                 {cityEvents.map(({ slug, event }) => (

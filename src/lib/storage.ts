@@ -235,15 +235,55 @@ export async function saveEvent(slug: string, event: ShareableEvent): Promise<vo
   await upload(`${slug}.json`, json, 'application/json');
 }
 
-/** List all distinct city slugs (top-level folders in the bucket). */
+/** Load the city registry (explicit list of active city slugs). */
+async function loadCityRegistry(): Promise<string[] | null> {
+  try {
+    const { data: blob, error } = await supabase.storage
+      .from(EVENTS_BUCKET)
+      .download('cities-registry.json');
+    if (error || !blob) return null;
+    return JSON.parse(await blob.text()) as string[];
+  } catch {
+    return null;
+  }
+}
+
+/** Save the city registry. */
+async function saveCityRegistry(cities: string[]): Promise<void> {
+  const json = JSON.stringify(cities, null, 2);
+  await upload('cities-registry.json', json, 'application/json');
+}
+
+/** List all distinct city slugs. Uses registry if it exists, otherwise seeds from bucket folders. */
 export async function listCities(): Promise<string[]> {
+  const registry = await loadCityRegistry();
+  if (registry) return registry;
+
+  // Seed registry from existing bucket folders
   const { data: folders } = await supabase.storage
     .from(EVENTS_BUCKET)
     .list('', { limit: 200 });
   if (!folders) return [];
-  return folders
+  const cities = folders
     .filter((f) => f.id === null || f.name.endsWith('/'))
     .map((f) => f.name.replace(/\/$/, ''));
+  await saveCityRegistry(cities);
+  return cities;
+}
+
+/** Register a city slug (no-op if already present). */
+export async function registerCity(citySlug: string): Promise<void> {
+  const cities = (await loadCityRegistry()) ?? [];
+  if (cities.includes(citySlug)) return;
+  cities.push(citySlug);
+  await saveCityRegistry(cities);
+}
+
+/** Unregister a city slug (remove from registry; events stay in storage). */
+export async function unregisterCity(citySlug: string): Promise<void> {
+  const cities = (await loadCityRegistry()) ?? [];
+  const filtered = cities.filter((c) => c !== citySlug);
+  await saveCityRegistry(filtered);
 }
 
 /** Move all files for an event from one slug to another (different city folder).

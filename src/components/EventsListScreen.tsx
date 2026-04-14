@@ -71,48 +71,51 @@ export function EventsListScreen() {
     navigate(`/admin/events/${slug}`);
   }, [navigate]);
 
-  const handleCreateEvent = useCallback(async (prefillCity?: string) => {
-    const name = prompt('Event name (e.g. 2035Today SF):');
-    if (!name?.trim()) return;
+  // Create-event modal state
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createName, setCreateName] = useState('');
+  const [createCity, setCreateCity] = useState('');
+  const [createNewCity, setCreateNewCity] = useState('');
+  const [createDate, setCreateDate] = useState(() => new Date().toISOString().split('T')[0]);
 
-    let city = prefillCity || '';
-    if (!city) {
-      // Build a picker string from known cities
-      if (knownCities.length > 0) {
-        const options = knownCities.map((c, i) =>
-          `${i + 1}. ${c.replace(/-/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase())}`
-        ).join('\n');
-        const choice = prompt(`Pick a city (number) or type a new city name:\n\n${options}`);
-        if (!choice?.trim()) return;
-        const num = parseInt(choice.trim(), 10);
-        if (num >= 1 && num <= knownCities.length) {
-          city = knownCities[num - 1].replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-        } else {
-          city = choice.trim();
-        }
-      } else {
-        city = prompt('City:')?.trim() || '';
-      }
-    }
+  const openCreateModal = useCallback(() => {
+    setCreateName('');
+    setCreateCity('');
+    setCreateNewCity('');
+    setCreateDate(new Date().toISOString().split('T')[0]);
+    setShowCreateModal(true);
+  }, []);
 
-    const defaultDate = new Date().toISOString().split('T')[0];
-    const date = prompt('Event date (YYYY-MM-DD):', defaultDate)?.trim();
+  const handleCreateSubmit = useCallback(async () => {
+    const name = createName.trim();
+    if (!name) return;
+    const city = createCity === '__new__' ? createNewCity.trim() : (createCity ? titleCase(createCity) : '');
+    if (!city) return;
+    const date = createDate;
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
-    const citySlug = city ? slugify(city) : slugify(name);
-    const slug = `${citySlug}/${date}`;
+
+    const citySlug = slugify(city);
+    let slug = `${citySlug}/${date}`;
+    const existingSlugs = new Set(events.map((e) => e.slug));
+    if (existingSlugs.has(slug)) {
+      let suffix = 2;
+      while (existingSlugs.has(`${citySlug}/${date}_${suffix}`)) suffix++;
+      slug = `${citySlug}/${date}_${suffix}`;
+    }
     const newEvent: ShareableEvent = {
-      name: name.trim(),
+      name,
       city,
       date,
       link: '',
       presentations: [],
     };
     await saveEvent(slug, newEvent);
-    generateLogo(name.trim(), city).then(async (blob) => {
+    generateLogo(name, city).then(async (blob) => {
       try { await uploadLogo(slug, blob, 'png'); } catch { /* ignore */ }
     });
+    setShowCreateModal(false);
     navigate(`/admin/events/${slug}`);
-  }, [navigate, knownCities]);
+  }, [createName, createCity, createNewCity, createDate, events, navigate]);
 
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
@@ -154,7 +157,7 @@ export function EventsListScreen() {
         <p className={styles.quote}>"How many things have been denied one day, only to become realities the next!" — Jules Verne</p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
           <button className={styles.applicationsLink} onClick={() => navigate('/admin/applications')}>
-            &#x1F4EC; Organizer Applications
+            &#x1F4EC; Fellow Applications
           </button>
           <button className={styles.applicationsLink} onClick={() => navigate('/admin/signups')}>
             &#x1F399; Storyteller Signups
@@ -173,7 +176,7 @@ export function EventsListScreen() {
             </svg>
           </div>
           <p className={styles.emptyText}>No gatherings yet</p>
-          <button className={styles.createButton} onClick={() => handleCreateEvent()}>
+          <button className={styles.createButton} onClick={openCreateModal}>
             Open a window into 2035
           </button>
         </div>
@@ -253,7 +256,7 @@ export function EventsListScreen() {
                   </div>
                 ))}
 
-                <div className={styles.newCard} onClick={() => handleCreateEvent(cityName)}>
+                <div className={styles.newCard} onClick={openCreateModal}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19" />
                     <line x1="5" y1="12" x2="19" y2="12" />
@@ -264,7 +267,7 @@ export function EventsListScreen() {
             </div>
           ))}
 
-          <div className={styles.newCityCard} onClick={() => handleCreateEvent()}>
+          <div className={styles.newCityCard} onClick={openCreateModal}>
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
@@ -272,6 +275,74 @@ export function EventsListScreen() {
             <span>New City</span>
           </div>
         </>
+      )}
+      {showCreateModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowCreateModal(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h2 className={styles.modalTitle}>New Gathering</h2>
+            <label className={styles.modalLabel}>
+              Event Name
+              <input
+                className={styles.modalInput}
+                type="text"
+                placeholder="e.g. 2035Today SF"
+                value={createName}
+                onChange={(e) => setCreateName(e.target.value)}
+                autoFocus
+              />
+            </label>
+            <div className={styles.modalRow}>
+              <label className={styles.modalLabel} style={{ flex: 1 }}>
+                City
+                <select
+                  className={styles.modalInput}
+                  value={createCity}
+                  onChange={(e) => setCreateCity(e.target.value)}
+                >
+                  <option value="" disabled>Select a city...</option>
+                  {knownCities.map((c) => (
+                    <option key={c} value={c}>{titleCase(c)}</option>
+                  ))}
+                  <option value="__new__">+ New city...</option>
+                </select>
+              </label>
+              <label className={styles.modalLabel} style={{ flex: 1 }}>
+                Date
+                <input
+                  className={styles.modalInput}
+                  type="date"
+                  value={createDate}
+                  onChange={(e) => setCreateDate(e.target.value)}
+                />
+              </label>
+            </div>
+            {createCity === '__new__' && (
+              <label className={styles.modalLabel}>
+                New City Name
+                <input
+                  className={styles.modalInput}
+                  type="text"
+                  placeholder="e.g. San Francisco"
+                  value={createNewCity}
+                  onChange={(e) => setCreateNewCity(e.target.value)}
+                  autoFocus
+                />
+              </label>
+            )}
+            <div className={styles.modalActions}>
+              <button className={styles.modalCancel} onClick={() => setShowCreateModal(false)}>
+                Cancel
+              </button>
+              <button
+                className={styles.modalCreate}
+                onClick={handleCreateSubmit}
+                disabled={!createName.trim() || (!createCity || (createCity === '__new__' && !createNewCity.trim()))}
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

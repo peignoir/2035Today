@@ -258,7 +258,7 @@ export async function moveEvent(oldSlug: string, newSlug: string): Promise<void>
     .list(oldCity, { limit: 200 });
   if (!files) return;
 
-  const eventFiles = files.filter((f) => f.name.startsWith(date));
+  const eventFiles = files.filter((f) => f.name === `${date}.json` || f.name.startsWith(`${date}-`));
   for (const file of eventFiles) {
     const oldPath = `${oldCity}/${file.name}`;
     const newPath = `${newCity}/${file.name}`;
@@ -295,7 +295,7 @@ export async function deleteEvent(slug: string): Promise<void> {
   if (!files) return;
 
   const toDelete = files
-    .filter((f) => f.name.startsWith(date))
+    .filter((f) => f.name === `${date}.json` || f.name.startsWith(`${date}-`))
     .map((f) => `${city}/${f.name}`);
 
   if (toDelete.length > 0) {

@@ -117,7 +117,8 @@ export function SignupScreen() {
     const city = opt.event.city || opt.slug.split('/')[0];
     const d = new Date(opt.event.date + 'T12:00:00');
     const dateStr = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    return `${city} — ${dateStr}`;
+    const name = opt.event.name;
+    return name ? `${name} — ${dateStr}` : `${city} — ${dateStr}`;
   };
 
   if (submitted) {

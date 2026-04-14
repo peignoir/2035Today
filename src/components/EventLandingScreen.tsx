@@ -97,61 +97,42 @@ export function EventLandingScreen({ event, citySlug, currentDate }: EventLandin
         </div>
       </section>
 
-      {/* What is 2035Today */}
-      <section id="what" className={styles.whatSection}>
-        <div className={styles.whatContent}>
-          <h2 className={styles.whatHeadline}>Fear nothing. Build anything.</h2>
-          <p className={styles.whatBody}>
-            Think AI preppers — not the bunker kind, the builder kind. 2035Today brings together creative writers, entrepreneurs, AI researchers, designers, and anyone brave enough to imagine what's next. Over morning coffee or late-night drinks, in cities across the globe, we stage one question: <em>what does 2035 actually look like?</em>
-          </p>
-          <p className={styles.whatBody}>
-            Every voice gets the same stage. A sci-fi novelist shares a vision alongside a robotics founder. A teacher alongside a venture capitalist. The diversity is the point — because the future won't be built by one kind of person.
-          </p>
-          <p className={styles.whatPunch}>
-            Whatever is coming, you'll see it first <span className={styles.accent}>(and sleep better)</span>.
-          </p>
-        </div>
-      </section>
-
-      {/* What you'll walk away with */}
-      <section className={styles.valueSection}>
-        <h2 className={styles.sectionTitle}>What you walk away with</h2>
-        <div className={styles.valueGrid}>
-          <div className={styles.valueCard}>
-            <span className={styles.valueEmoji}>&#x1F52D;</span>
-            <h3 className={styles.valueTitle}>Clarity</h3>
-            <p className={styles.valueDesc}>
-              Breakthrough ideas distilled into 5-minute stories you can act on Monday morning.
+      {/* 3 Acts — 2 hours */}
+      <section id="how-it-works" className={styles.actsSection}>
+        <h2 className={styles.sectionTitle}>2 hours. 3 acts.</h2>
+        <p className={styles.actsSub}>A fast, social event for future founders. Come solo. Leave with momentum.</p>
+        <div className={styles.actGrid}>
+          <div className={styles.actCard}>
+            <div className={styles.actHeader}>
+              <span className={styles.actNum} style={{ color: '#44FF88' }}>1</span>
+              <span className={styles.actTime}>20 min</span>
+            </div>
+            <h3 className={styles.actName} style={{ color: '#44FF88' }}>White Mirror</h3>
+            <p className={styles.actDesc}>
+              Short stories about the future. Bold visions of 2035, what AI is changing, and what new kinds of startups are becoming possible.
             </p>
           </div>
-          <div className={styles.valueCard}>
-            <span className={styles.valueEmoji}>&#x26A1;</span>
-            <h3 className={styles.valueTitle}>Energy</h3>
-            <p className={styles.valueDesc}>
-              Relentlessly paced. Every speaker gets exactly 5 minutes to change how you see the future.
+          <div className={styles.actCard}>
+            <div className={styles.actHeader}>
+              <span className={styles.actNum} style={{ color: '#FF6B4A' }}>2</span>
+              <span className={styles.actTime}>20 min</span>
+            </div>
+            <h3 className={styles.actName} style={{ color: '#FF6B4A' }}>Show Up With Your Vibe</h3>
+            <p className={styles.actDesc}>
+              Bring an idea, a side project, a bio, a curiosity, or just energy. Raw, real, no polish required.
             </p>
           </div>
-          <div className={styles.valueCard}>
-            <span className={styles.valueEmoji}>&#x1F91D;</span>
-            <h3 className={styles.valueTitle}>People</h3>
-            <p className={styles.valueDesc}>
-              Writers, founders, researchers, and dreamers in one room. The conversations after are as good as the talks.
+          <div className={styles.actCard}>
+            <div className={styles.actHeader}>
+              <span className={styles.actNum} style={{ color: '#FFE66D' }}>3</span>
+              <span className={styles.actTime}>80 min</span>
+            </div>
+            <h3 className={styles.actName} style={{ color: '#FFE66D' }}>Meet &amp; Collide</h3>
+            <p className={styles.actDesc}>
+              The conversations, the people, and the unexpected collisions that make new companies possible.
             </p>
           </div>
         </div>
-      </section>
-
-      {/* How it works */}
-      <section id="how-it-works" className={styles.howSection}>
-        <h2 className={styles.sectionTitle}>The format</h2>
-        <p className={styles.howLine}>
-          Each speaker gets 5 minutes to show you their vision of 2035 — <strong>20 AI-generated images, auto-advancing every 15 seconds.</strong> No rambling, no filler. Just the story.
-        </p>
-        <span className={styles.formatBadge}>5 min</span>
-        <p className={styles.howLine}>
-          Think less slideshow, more <strong>sci-fi short film</strong>. Our speakers craft their futures with AI-generated visuals, audio, and narrative — not AI slop, but something closer to an episode of your favorite show. Optimistic or dystopian, you decide what to believe.
-        </p>
-        <p className={styles.howSubline}>The story is what matters. AI is how they bring it to life.</p>
       </section>
 
       {/* Speaker Lineup */}

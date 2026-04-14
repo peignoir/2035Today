@@ -307,41 +307,76 @@
 }
 
 /* ── How it works ── */
-.howSection {
+/* ── 3 Acts ── */
+.actsSection {
   padding: 80px 32px;
   text-align: center;
   border-top: 1px solid var(--color-border);
 }
 
-.howLine {
-  font-size: 1.05rem;
+.actsSub {
+  font-size: 1.1rem;
+  font-weight: 600;
   color: var(--color-text-secondary);
-  line-height: 1.7;
-  max-width: 560px;
-  margin: 0 auto 24px;
+  font-style: italic;
+  margin-bottom: 40px;
 }
 
-.howLine strong {
-  color: var(--color-text-primary);
+.actGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: left;
 }
 
-.formatBadge {
-  display: inline-block;
-  font-size: 1.8rem;
-  font-weight: 800;
-  font-family: var(--font-mono);
-  color: var(--color-accent);
-  padding: 10px 28px;
-  border: 2px solid var(--color-accent);
-  border-radius: var(--radius-md);
-  letter-spacing: 0.05em;
+.actCard {
+  padding: 28px 24px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+
+.actCard:hover {
+  border-color: rgba(68, 255, 136, 0.3);
+  transform: translateY(-3px);
+}
+
+.actHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
 }
 
-.howSubline {
-  font-size: 0.9rem;
+.actNum {
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.actTime {
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--color-text-secondary);
-  font-style: italic;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.actName {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.actDesc {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
 /* ── Speakers ── */
@@ -660,8 +695,13 @@
     gap: 12px;
   }
 
-  .howSection {
+  .actsSection {
     padding: 48px 16px;
+  }
+
+  .actGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .speakersSection {

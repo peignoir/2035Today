@@ -66,7 +66,7 @@ export function EventLandingScreen({ event, citySlug, currentDate }: EventLandin
               {shortDate && <span className={styles.chip}>{shortDate}</span>}
             </div>
             <h1 className={styles.headline}>
-              See <span className={styles.accent}>2035</span> before it arrives.
+              {event.name || <>See <span className={styles.accent}>2035</span> before it arrives.</>}
             </h1>
             <p className={styles.subhead}>
               Enter an open window into 2035 — a world where AI and robotics have reshaped how we work, learn, create, and live. Not a prediction. Not a trend report. <span className={styles.accent}>A vision.</span> Told in five-minute stories by the founders, artists, scientists, and builders who are making it real.

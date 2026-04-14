@@ -69,7 +69,7 @@ export function EventLandingScreen({ event, citySlug, currentDate }: EventLandin
               {event.name || <>See <span className={styles.accent}>2035</span> before it arrives.</>}
             </h1>
             <p className={styles.subhead}>
-              Enter an open window into 2035 — a world where AI and robotics have reshaped how we work, learn, create, and live. Not a prediction. Not a trend report. <span className={styles.accent}>A vision.</span> Told in five-minute stories by the founders, artists, scientists, and builders who are making it real.
+              A local event for future founders. Get inspired by five-minute stories from builders, artists, scientists, and founders who are making 2035 real. <span className={styles.accent}>Meet your peers. Leave with momentum.</span>
             </p>
             <div className={styles.ctaRow}>
               {event.link && (

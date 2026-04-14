@@ -60,7 +60,7 @@ export function SignupScreen() {
       // Filter out past events, sort by date ascending
       const today = new Date().toISOString().split('T')[0];
       const sorted = list
-        .filter((e) => e.event.date >= today)
+        .filter((e) => e.event.date >= today && !e.slug.startsWith('open/'))
         .sort((a, b) => a.event.date.localeCompare(b.event.date));
       setEvents(sorted);
       if (sorted.length === 1) setSelectedSlug(sorted[0].slug);

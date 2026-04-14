@@ -165,6 +165,8 @@ export async function listEvents(): Promise<{ slug: string; event: ShareableEven
       // Could be a root-level .json — skip
       continue;
     }
+    // Skip the "open" folder (used for open-application signups, not real events)
+    if (folder.name.replace(/\/$/, '') === 'open') continue;
     // List files inside each city folder
     const { data: files } = await supabase.storage
       .from(EVENTS_BUCKET)
@@ -265,7 +267,7 @@ export async function listCities(): Promise<string[]> {
     .list('', { limit: 200 });
   if (!folders) return [];
   const cities = folders
-    .filter((f) => f.id === null || f.name.endsWith('/'))
+    .filter((f) => (f.id === null || f.name.endsWith('/')) && f.name.replace(/\/$/, '') !== 'open')
     .map((f) => f.name.replace(/\/$/, ''));
   await saveCityRegistry(cities);
   return cities;
